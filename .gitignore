@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.local-data/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+backups/
+coverage/
+playwright-report/
+test-results/
+.qa/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# This workstation-specific launcher contains local paths and LAN binding details.
+/scripts/start-sensei.ps1

@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2172" height="724" viewBox="0 0 2172 724" aria-hidden="true">
+  <defs><pattern id="r" width="94" height="92" patternUnits="userSpaceOnUse" patternTransform="skewX(-13)"><path d="M18 8v34M64 50v32" stroke="#9edcff" stroke-width="5" stroke-linecap="square" opacity=".7"/></pattern></defs>
+  <rect width="2172" height="724" fill="#233d5c" opacity=".16"/><rect width="2172" height="724" fill="url(#r)"/>
+</svg>
