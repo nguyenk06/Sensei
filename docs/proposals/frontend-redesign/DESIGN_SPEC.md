@@ -100,7 +100,8 @@ The following are Product Owner-approved and treated as constraints:
 
 - Neutral gray treatment with an `×` or equivalent text-supported marker.
 - Use `Rejected · $0 gained` as the concise outcome.
-- Do not collect or display a written rejection note. The reason is discussed in person.
+- A parent may add a short rejection note, but it is optional. Rejecting a claim must never be blocked because the note is empty.
+- When present, show the note as secondary context. In-person discussion remains the normal path.
 - A rejected claim remains part of chore history and the approval audit context, but creates no allowance-ledger entry and has no balance effect.
 
 ### Future / locked
@@ -290,7 +291,7 @@ These are planning recommendations, not execution authorization.
 
 Approved during prototype review:
 
-1. Rejection reasons are discussed in person. Sensei does not need a stored parent note or written explanation.
+1. Rejection reasons are normally discussed in person. A parent may optionally record a short note, but rejection never requires one.
 2. Rejected chores display `Rejected · $0 gained`.
 3. Detailed allowance Activity opens in a panel.
 4. Rejected claims remain available in chore history/audit context but do not appear as balance-sheet entries and never affect the allowance balance.

@@ -15,7 +15,7 @@ Review the frontend redesign proposal in this directory as a candidate direction
 
 ## Approved Product Owner clarifications
 
-- Rejection explanations are discussed in person; no stored note is needed.
+- Rejection explanations are normally discussed in person; a short stored note is optional and never required.
 - Rejected chores display `Rejected · $0 gained`.
 - Rejected chores may remain in chore history/audit context but must not create allowance-ledger entries or affect the balance.
 - Detailed allowance Activity opens in a panel.
