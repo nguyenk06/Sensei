@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" data-theme="novapay">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Sensei Frontend Redesign — Isolated Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-view="today">
+  <a class="skip-link" href="#prototype-main">Skip to weekly chores</a>
+  <aside class="prototype-toolbar" aria-label="Prototype controls">
+    <strong>Exploratory prototype</strong>
+    <label>Theme
+      <select id="theme-control">
+        <option value="novapay">NovaPay</option>
+        <option value="classic">Sensei Classic</option>
+        <option value="overworld">Overworld Adventure</option>
+      </select>
+    </label>
+    <label>View
+      <select id="view-control">
+        <option value="desktop">Desktop weeksheet</option>
+        <option value="today">Mobile Today</option>
+        <option value="week">Mobile entire week</option>
+        <option value="review">Parent Review</option>
+        <option value="review-complete">Review completion</option>
+        <option value="states">Completed and rejected</option>
+        <option value="history-collapsed">History collapsed</option>
+        <option value="history-expanded">History expanded</option>
+        <option value="activity-panel">Activity panel</option>
+      </select>
+    </label>
+    <span>Synthetic data · not connected to Sensei</span>
+  </aside>
+
+  <div class="app-frame">
+    <header class="site-header">
+      <div class="scene" aria-hidden="true">
+        <div class="scene-light"></div>
+        <div class="scene-ground"></div>
+      </div>
+      <div class="topbar">
+        <a class="brand" href="#prototype-main" aria-label="Sensei home">
+          <span class="brand-mark" aria-hidden="true">整</span>
+          <span><strong>Sensei</strong><small>Household rhythm</small></span>
+        </a>
+        <div class="top-actions">
+          <label class="theme-label">Theme
+            <select id="theme-mirror" aria-label="Device theme">
+              <option value="novapay">NovaPay</option>
+              <option value="classic">Classic</option>
+              <option value="overworld">Overworld</option>
+            </select>
+          </label>
+          <button class="parent-mode" type="button">Parent Mode</button>
+        </div>
+      </div>
+      <div class="scene-caption">
+        <span>Summer · Day</span>
+        <span>Partly cloudy · 68°F</span>
+      </div>
+    </header>
+
+    <main id="prototype-main">
+      <section class="week-module" aria-labelledby="week-title">
+        <header class="week-heading">
+          <div>
+            <p class="kicker">THIS WEEK</p>
+            <h1 id="week-title">October 26–November 1</h1>
+            <p class="week-subtitle">Small jobs, one day at a time.</p>
+          </div>
+          <div class="money-ribbon" aria-label="Allowance summary">
+            <div><span>Claimed this week</span><strong>$8.00</strong><small>Waiting for review</small></div>
+            <div><span>Available balance</span><strong>$12.00</strong><small>Approved and unpaid</small></div>
+          </div>
+        </header>
+
+        <nav class="day-rail" aria-label="Choose a day">
+          <button data-day="mon"><span>Mon</span><b>26</b><i class="day-state complete">2</i></button>
+          <button data-day="tue"><span>Tue</span><b>27</b><i class="day-state pending">1</i></button>
+          <button data-day="wed"><span>Wed</span><b>28</b><i class="day-state complete">1</i></button>
+          <button data-day="thu"><span>Thu</span><b>29</b><i class="day-state rejected">!</i></button>
+          <button data-day="fri" class="active" aria-current="date"><span>Fri</span><b>30</b><i class="day-state today"></i></button>
+          <button data-day="sat"><span>Sat</span><b>31</b><i class="day-state empty"></i></button>
+          <button data-day="sun"><span>Sun</span><b>1</b><i class="day-state future"></i></button>
+        </nav>
+
+        <div class="desktop-weeksheet" aria-label="Seven-day chore board">
+          <article class="day-column complete-day">
+            <header><span>Monday</span><time datetime="2026-10-26">Oct 26</time></header>
+            <ul>
+              <li class="chore completed"><button aria-label="Clear dishes completed">✓</button><span><strong>Clear dishes</strong><small>Approved</small></span><b>$1</b></li>
+              <li class="chore completed"><button aria-label="Take bins out completed">✓</button><span><strong>Take bins out</strong><small>Approved</small></span><b>$2</b></li>
+            </ul>
+            <footer><span>Done</span><strong>$3</strong></footer>
+          </article>
+          <article class="day-column">
+            <header><span>Tuesday</span><time datetime="2026-10-27">Oct 27</time></header>
+            <ul><li class="chore pending"><button aria-label="Undo Clear dishes claim">✓</button><span><strong>Clear dishes</strong><small>Waiting for review</small></span><b>$1</b></li></ul>
+            <footer><span>Claimed</span><strong>$1</strong></footer>
+          </article>
+          <article class="day-column complete-day">
+            <header><span>Wednesday</span><time datetime="2026-10-28">Oct 28</time></header>
+            <ul><li class="chore completed"><button aria-label="Clear dishes completed">✓</button><span><strong>Clear dishes</strong><small>Approved</small></span><b>$1</b></li></ul>
+            <footer><span>Done</span><strong>$1</strong></footer>
+          </article>
+          <article class="day-column rejected-day">
+            <header><span>Thursday</span><time datetime="2026-10-29">Oct 29</time></header>
+            <ul><li class="chore rejected"><button disabled aria-label="Clear dishes rejected">×</button><span><strong>Clear dishes</strong><small>Rejected · $0 gained</small></span><b>$0</b></li></ul>
+            <footer><span>Reviewed</span><strong>$0</strong></footer>
+          </article>
+          <article class="day-column today-column">
+            <header><span>Friday</span><time datetime="2026-10-30">Today</time></header>
+            <ul>
+              <li class="chore"><button aria-label="Claim Clear dishes"></button><span><strong>Clear dishes</strong><small>Ready to do</small></span><b>$1</b></li>
+              <li class="chore"><button aria-label="Claim Fold towels"></button><span><strong>Fold towels</strong><small>One-time chore</small></span><b>$2</b></li>
+            </ul>
+            <footer><span>2 left</span><strong>$3</strong></footer>
+          </article>
+          <article class="day-column empty-day">
+            <header><span>Saturday</span><time datetime="2026-10-31">Oct 31</time></header>
+            <p class="empty-copy">Nothing scheduled</p>
+            <footer><span>Open day</span><strong>—</strong></footer>
+          </article>
+          <article class="day-column future-day">
+            <header><span>Sunday</span><time datetime="2026-11-01">Nov 1</time></header>
+            <ul>
+              <li class="chore locked"><button disabled aria-label="Clean room unavailable until Sunday"></button><span><strong>Clean room</strong><small>Available Sunday</small></span><b>$5</b></li>
+              <li class="chore locked"><button disabled aria-label="Clear dishes unavailable until Sunday"></button><span><strong>Clear dishes</strong><small>Available Sunday</small></span><b>$1</b></li>
+            </ul>
+            <footer><span>Upcoming</span><strong>$6</strong></footer>
+          </article>
+        </div>
+
+        <section class="mobile-today" aria-labelledby="today-title">
+          <header class="active-day-heading"><div><p class="kicker">TODAY</p><h2 id="today-title">Friday, October 30</h2></div><span>2 chores · $3</span></header>
+          <ul class="today-list">
+            <li class="chore"><button aria-label="Claim Clear dishes"></button><span><strong>Clear dishes</strong><small>Daily chore</small></span><b>$1</b></li>
+            <li class="chore"><button aria-label="Claim Fold towels"></button><span><strong>Fold towels</strong><small>One-time chore</small></span><b>$2</b></li>
+          </ul>
+          <button class="week-toggle" type="button">View entire week <span aria-hidden="true">→</span></button>
+        </section>
+
+        <section class="mobile-week" aria-labelledby="overview-title">
+          <header class="active-day-heading"><div><p class="kicker">ENTIRE WEEK</p><h2 id="overview-title">Choose a day</h2></div><span>5 of 10 done</span></header>
+          <div class="week-summaries">
+            <button><span><b>Mon 26</b><small>2 of 2 complete</small></span><strong class="summary-good">$3 approved</strong></button>
+            <button><span><b>Tue 27</b><small>1 of 1 claimed</small></span><strong class="summary-pending">Review pending</strong></button>
+            <button><span><b>Wed 28</b><small>1 of 1 complete</small></span><strong class="summary-good">$1 approved</strong></button>
+            <button><span><b>Thu 29</b><small>Claim reviewed</small></span><strong class="summary-neutral">Rejected · $0 gained</strong></button>
+            <button class="current"><span><b>Fri 30 · Today</b><small>0 of 2 complete</small></span><strong>$3 available</strong></button>
+            <button class="quiet"><span><b>Sat 31</b><small>Nothing scheduled</small></span><strong>Open day</strong></button>
+            <button class="quiet"><span><b>Sun 1</b><small>2 upcoming</small></span><strong>$6 available</strong></button>
+          </div>
+        </section>
+
+        <section class="state-showcase" aria-labelledby="states-title">
+          <header class="active-day-heading"><div><p class="kicker">STATE TREATMENTS</p><h2 id="states-title">Clear without disappearing</h2></div></header>
+          <div class="state-grid">
+            <article><h3>Completed day</h3><p>Finished chores compress but remain legible.</p><ul>
+              <li class="chore completed"><button aria-label="Clear dishes completed">✓</button><span><strong>Clear dishes</strong><small>Approved Friday at 7:12 PM</small></span><b>$1</b></li>
+              <li class="chore completed"><button aria-label="Fold towels completed">✓</button><span><strong>Fold towels</strong><small>Waiting for review</small></span><b>$2</b></li>
+            </ul></article>
+            <article><h3>Rejected claim</h3><p>Neutral outcome. Any explanation happens in person rather than being recorded.</p><ul>
+              <li class="chore rejected"><button disabled aria-label="Clear dishes rejected">×</button><span><strong>Clear dishes</strong><small>Rejected · $0 gained</small></span><b>$0</b></li>
+            </ul></article>
+          </div>
+        </section>
+
+        <section class="review-panel" aria-labelledby="review-title">
+          <header><div><p class="kicker">PARENT REVIEW</p><h2 id="review-title">3 claims need a decision</h2><p>Amounts are credited only after approval.</p></div><button class="close-review" aria-label="Close review">×</button></header>
+          <div class="review-list">
+            <article><label><input type="checkbox" checked><span><b>Clear dishes</b><small>Tuesday, Oct 27</small></span></label><strong>$1</strong><button class="reject-action">Reject</button></article>
+            <article><label><input type="checkbox" checked><span><b>Fold towels</b><small>Friday, Oct 30</small></span></label><strong>$2</strong><button class="reject-action">Reject</button></article>
+            <article><label><input type="checkbox"><span><b>Clear dishes</b><small>Thursday, Oct 29 · needs correction</small></span></label><strong>$1</strong><button class="reject-action selected">Rejected</button></article>
+          </div>
+          <footer><div><span>2 selected</span><strong>$3.00 to approve</strong></div><button class="approve-action">Approve selected</button></footer>
+          <div class="review-complete"><span aria-hidden="true">✓</span><h3>Review complete</h3><p>2 claims approved for $3.00. One claim was not approved.</p><button>Done</button></div>
+        </section>
+      </section>
+
+      <section class="history-module" aria-labelledby="history-title">
+        <button class="history-summary" aria-expanded="false">
+          <span><span class="kicker">HISTORY</span><strong id="history-title">October at a glance</strong><small>$22 approved · 4 missed · 2 payments</small></span>
+          <span class="history-arrow">⌄</span>
+        </button>
+        <div class="history-content">
+          <header><div><h2>October 2026</h2><p>Approved earnings and chore outcomes stay attached to their dates.</p></div><button class="activity-button">View detailed activity</button></header>
+          <div class="calendar" aria-label="October 2026 calendar">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            <button class="outside">28</button><button class="outside">29</button><button class="outside">30</button>
+            <button>1 <i class="missed-badge">× Missed</i></button><button>2 <i class="earned-badge">$1</i></button><button>3</button><button>4 <i class="earned-badge">$5</i></button>
+            <button>5 <i class="earned-badge">$1</i></button><button>6 <i class="pending-badge">◷ 1</i></button><button>7 <i class="earned-badge">$1</i></button><button>8 <i class="missed-badge">× Missed</i></button><button>9 <i class="earned-badge">$1</i></button><button>10</button><button>11 <i class="earned-badge">$6</i></button>
+            <button>12 <i class="earned-badge">$1</i></button><button>13 <i class="earned-badge">$1</i></button><button>14 <i class="earned-badge">$1</i></button><button>15 <i class="earned-badge">$1</i></button><button>16 <i class="missed-badge">× Missed</i></button><button>17</button><button>18 <i class="earned-badge">$6</i></button>
+            <button>19 <i class="earned-badge">$1</i></button><button>20 <i class="earned-badge">$1</i></button><button>21 <i class="earned-badge">$1</i></button><button>22 <i class="earned-badge">$1</i></button><button>23 <i class="earned-badge">$1</i></button><button>24</button><button>25 <i class="earned-badge">$5</i></button>
+            <button class="selected">26 <i class="earned-badge">$3</i></button><button>27 <i class="pending-badge">◷ 1</i></button><button>28 <i class="earned-badge">$1</i></button><button>29 <i class="missed-badge">× Missed</i></button><button>30</button><button>31</button><button class="outside">1</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="activity-panel" role="dialog" aria-modal="true" aria-labelledby="activity-title">
+        <header><div><p class="kicker">ALLOWANCE ACTIVITY</p><h2 id="activity-title">Money history</h2><p>Only earnings, corrections, and payments affect this ledger.</p></div><button class="close-review" aria-label="Close activity">×</button></header>
+        <div class="activity-rows">
+          <article><span class="activity-symbol earning" aria-hidden="true">+</span><div><strong>Week of October 19 approved</strong><small>October 25 · Vincent</small></div><b>+$11.00</b></article>
+          <article><span class="activity-symbol payment" aria-hidden="true">−</span><div><strong>Allowance paid</strong><small>October 26 · Tera</small></div><b>−$8.00</b></article>
+          <article><span class="activity-symbol earning" aria-hidden="true">+</span><div><strong>Week of October 26 approved</strong><small>November 1 · Vincent</small></div><b>+$8.00</b></article>
+        </div>
+        <footer><span>Available balance</span><strong>$12.00</strong></footer>
+      </aside>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
