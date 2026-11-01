@@ -40,6 +40,15 @@ try {
   ]);
   if (!htmlResponse.headers()['cache-control']?.includes('no-store')) throw new Error('HTML can be served from a stale cache');
   if (!checklistResponse.headers()['cache-control']?.includes('no-store')) throw new Error('API responses can be served from a stale cache');
+  const initialChecklist = await checklistResponse.json() as {
+    today: string;
+    days: Array<{ occurrences: Array<{ state: string; eligible: boolean; future: boolean }> }>;
+  };
+  const expectedMissed = initialChecklist.days.flatMap((day) => day.occurrences)
+    .filter((item) => item.state === 'unclaimed' && !item.eligible && !item.future).length;
+  if (await childOne.locator('.weeksheet-chore.state-missed').count() !== expectedMissed) {
+    throw new Error('Past unavailable chores are not presented as missed');
+  }
   async function assertHeaderActions(page: Page, label: string) {
     const layout = await page.locator('.topbar').evaluate((header) => {
       const theme = header.querySelector('.theme-quick-control')!.getBoundingClientRect();
@@ -87,6 +96,11 @@ try {
 
   await childOne.locator('.history-summary').click();
   const originalMonth = await childOne.locator('.month-controls strong').textContent();
+  const expectedMonth = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${initialChecklist.today.slice(0, 7)}-01T00:00:00Z`));
+  if (originalMonth !== expectedMonth || !((await childOne.locator('.history-summary').innerText()).includes(expectedMonth.split(' ')[0]))) {
+    throw new Error(`History month is not aligned with the household date: ${originalMonth} versus ${expectedMonth}`);
+  }
   await childOne.locator('.month-controls button').last().click();
   await childOne.waitForFunction((month) => document.querySelector('.month-controls strong')?.textContent !== month, originalMonth);
   await childOne.locator('.month-controls button').first().click();
@@ -297,6 +311,8 @@ try {
   console.log(JSON.stringify({
     twoClientClaimAndUndo: 'passed',
     mobileSevenDayOverview: 'passed',
+    missedUnavailablePresentation: 'passed',
+    householdCalendarMonth: 'passed',
     dialogFocusContainmentAndRestoration: 'passed',
     accessibleSelectionStates: 'passed',
     refreshPersistence: 'passed',

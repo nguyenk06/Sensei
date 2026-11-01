@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type {
   AllowanceSummary,
   ApprovedWeekView,
@@ -42,6 +42,18 @@ function dateTime(value: string): string {
   return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
 }
 
+function householdMonth(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit'
+  }).formatToParts(date);
+  return `${parts.find((part) => part.type === 'year')?.value}-${parts.find((part) => part.type === 'month')?.value}`;
+}
+
+function monthName(month: string): string {
+  return new Intl.DateTimeFormat('en-US', { month: 'long', timeZone: 'UTC' })
+    .format(new Date(`${month}-01T00:00:00Z`));
+}
+
 function scheduleLabel(schedule: ScheduleDefinition): string {
   if (schedule.kind === 'daily') return 'Every day';
   if (schedule.kind === 'one_time') return `Once · ${schedule.date}`;
@@ -81,7 +93,7 @@ export function App() {
   const [checklist, setChecklist] = useState<ChecklistResponse | null>(null);
   const [allowance, setAllowance] = useState<AllowanceSummary | null>(null);
   const [calendar, setCalendar] = useState<CalendarResponse | null>(null);
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [calendarMonth, setCalendarMonth] = useState(householdMonth);
   const [themeId, setThemeId] = useState(getDeviceThemeId);
   const [parent, setParent] = useState<ParentStatus>({ configured: false, authorized: false, expiresAt: null });
   const [chores, setChores] = useState<ChoreSummary[]>([]);
@@ -110,8 +122,16 @@ export function App() {
   const reviewDialogRef = useDialogFocus<HTMLElement>(Boolean(bulkReview));
   const reviewSummaryDialogRef = useDialogFocus<HTMLElement>(Boolean(reviewSummary));
   const activityDialogRef = useDialogFocus<HTMLElement>(activityOpen);
+  const calendarMonthInitialized = useRef(false);
 
-  const loadChecklist = useCallback(async () => setChecklist(await api<ChecklistResponse>('/api/checklist')), []);
+  const loadChecklist = useCallback(async () => {
+    const result = await api<ChecklistResponse>('/api/checklist');
+    setChecklist(result);
+    if (!calendarMonthInitialized.current) {
+      calendarMonthInitialized.current = true;
+      setCalendarMonth(result.today.slice(0, 7));
+    }
+  }, []);
   const loadAllowance = useCallback(async () => setAllowance(await api<AllowanceSummary>('/api/allowance')), []);
   const loadCalendar = useCallback(async (month: string) => setCalendar(await api<CalendarResponse>(`/api/calendar?month=${month}`)), []);
 
@@ -364,7 +384,7 @@ export function App() {
 
       <section className={`history-disclosure ${historyOpen ? 'open' : ''}`}>
         <button className="history-summary" aria-expanded={historyOpen} onClick={() => setHistoryOpen((value) => !value)}>
-          <span><span className="eyebrow">HISTORY</span><strong>{new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date())} at a glance</strong>
+          <span><span className="eyebrow">HISTORY</span><strong>{monthName(calendarMonth)} at a glance</strong>
             <small>{money(allowance?.totalApprovedCents ?? 0)} approved · {money(allowance?.totalPaidCents ?? 0)} paid</small></span>
           <span className="history-chevron" aria-hidden="true">⌄</span>
         </button>

@@ -15,11 +15,16 @@ function longDate(date: string): string {
     .format(new Date(`${date}T00:00:00Z`));
 }
 
+function isMissed(item: ChecklistOccurrence): boolean {
+  return item.state === 'unclaimed' && !item.eligible && !item.future;
+}
+
 function statusText(item: ChecklistOccurrence): string {
   if (item.state === 'pending') return 'Waiting for review';
   if (item.state === 'approved') return 'Approved';
   if (item.state === 'rejected') return 'Rejected · $0 gained';
   if (item.future) return `Available ${longDate(item.date).split(',')[0]}`;
+  if (isMissed(item)) return 'Missed · unavailable';
   return 'Ready to do';
 }
 
@@ -32,10 +37,13 @@ function dayOutcome(day: ChecklistDay): string {
   const pending = day.occurrences.filter((item) => item.state === 'pending').length;
   const approved = day.occurrences.filter((item) => item.state === 'approved');
   const rejected = day.occurrences.filter((item) => item.state === 'rejected').length;
+  const missed = day.occurrences.filter(isMissed).length;
   if (pending) return `${pending} awaiting review`;
   if (rejected && approved.length === 0) return 'Rejected · $0 gained';
   if (approved.length) return `${money(approved.reduce((sum, item) => sum + item.rewardCents, 0))} approved`;
   if (day.isFuture) return `${money(day.occurrences.reduce((sum, item) => sum + item.rewardCents, 0))} available`;
+  if (missed === day.occurrences.length) return 'Missed · unavailable';
+  if (missed) return `${missed} missed`;
   return `${completedCount(day)} of ${day.occurrences.length} complete`;
 }
 
@@ -62,14 +70,15 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
     ?? checklist?.days.find((day) => day.isToday) ?? checklist?.days[0] ?? null;
 
   function choreRow(item: ChecklistOccurrence, compact = false) {
-    return <li key={item.id} className={`weeksheet-chore state-${item.state} ${compact ? 'compact' : ''}`}>
+    const missed = isMissed(item);
+    return <li key={item.id} className={`weeksheet-chore ${missed ? 'state-missed' : `state-${item.state}`} ${compact ? 'compact' : ''}`}>
       <label className={`${item.claimed ? 'checked' : ''} ${claimCelebration === item.id ? 'celebrating' : ''}`}>
         <input type="checkbox" checked={item.claimed} disabled={busy || !item.eligible}
           onChange={() => onToggleClaim(item.id, item.claimed)} />
-        <span className="weeksheet-check" aria-hidden="true">{item.claimed ? '✓' : ''}</span>
+        <span className="weeksheet-check" aria-hidden="true">{missed ? '×' : item.claimed ? '✓' : ''}</span>
         <span className="weeksheet-chore-copy"><strong>{item.title}</strong><small>{statusText(item)}</small>
           {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span>
-        <b>{item.state === 'rejected' ? '$0' : money(item.rewardCents)}</b>
+        <b>{item.state === 'rejected' || missed ? '$0' : money(item.rewardCents)}</b>
       </label>
     </li>;
   }
@@ -99,13 +108,15 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
         <span>{day.label.slice(0, 3)}</span><b>{Number(day.date.slice(-2))}</b>
         <i className={`rail-state ${day.occurrences.some((item) => item.state === 'pending') ? 'pending'
           : day.occurrences.some((item) => item.state === 'rejected') ? 'rejected'
+            : day.occurrences.some(isMissed) ? 'missed'
             : completedCount(day) > 0 ? 'complete' : ''}`} aria-hidden="true" />
       </button>)}
     </nav>
 
     <div className="desktop-week-grid">
       {checklist.days.map((day) => <article key={day.date} className={`week-day-column ${day.isToday ? 'today' : ''}
-        ${day.isFuture ? 'future' : ''} ${day.occurrences.length === 0 ? 'empty' : ''}`}>
+        ${day.isFuture ? 'future' : ''} ${day.occurrences.length === 0 ? 'empty' : ''}
+        ${day.occurrences.length > 0 && day.occurrences.every(isMissed) ? 'missed' : ''}`}>
         <header><strong>{day.label}</strong><time dateTime={day.date}>{day.isToday ? 'Today' : shortDate(day.date)}</time></header>
         {day.occurrences.length ? <ul>{day.occurrences.map((item) => choreRow(item, true))}</ul>
           : <p className="empty-day-copy">Nothing scheduled</p>}
@@ -127,7 +138,7 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
         <header><div><p className="eyebrow">ENTIRE WEEK</p><h2 id="whole-week-title">Choose a day</h2></div>
           <span>{occurrences.filter((item) => item.claimed).length} of {occurrences.length} done</span></header>
         <div>{checklist.days.map((day) => <button key={day.date} className={`${day.isToday ? 'today' : ''}
-          ${day.occurrences.length === 0 ? 'quiet' : ''}`} aria-current={day.isToday ? 'date' : undefined}
+          ${day.occurrences.length === 0 ? 'quiet' : ''} ${day.occurrences.some(isMissed) ? 'missed' : ''}`} aria-current={day.isToday ? 'date' : undefined}
           onClick={() => { setSelectedDate(day.date); setShowWholeWeek(false); }}>
           <span><strong>{day.label.slice(0, 3)} {Number(day.date.slice(-2))}{day.isToday ? ' · Today' : ''}</strong>
             <small>{day.occurrences.length ? `${completedCount(day)} of ${day.occurrences.length} complete` : 'Nothing scheduled'}</small></span>

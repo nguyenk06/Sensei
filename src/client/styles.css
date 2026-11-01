@@ -539,6 +539,8 @@ html[data-theme="minecraft"] main { padding-top: 38px; }
 .week-day-column.today > header time { color: color-mix(in srgb, var(--page) 74%, transparent); }
 .week-day-column.future { opacity: .58; }
 .week-day-column.empty { background: color-mix(in srgb, var(--surface) 90%, var(--page)); }
+.week-day-column.missed { background: color-mix(in srgb, var(--surface) 82%, var(--muted)); }
+.week-day-column.missed > header, .week-day-column.missed > footer { color: var(--muted); }
 .week-day-column > ul, .mobile-selected-day > ul { flex: 1; list-style: none; margin: 0; padding: 8px; }
 .empty-day-copy { flex: 1; margin: 0; padding: 24px 14px; color: var(--muted); font-size: 11px; }
 .week-day-column > footer { min-height: 51px; margin-top: auto; padding: 9px 13px; border-top: 1px solid var(--border); }
@@ -560,8 +562,10 @@ html[data-theme="minecraft"] main { padding-top: 38px; }
 .weeksheet-chore-copy em { margin-top: 5px; color: var(--ink); font-size: 9px; font-style: normal; line-height: 1.3; }
 .weeksheet-chore > label > b { font-size: 11px; font-variant-numeric: tabular-nums; }
 .weeksheet-chore.state-approved, .weeksheet-chore.state-rejected { opacity: .72; }
+.weeksheet-chore.state-missed { opacity: .55; }
 .weeksheet-chore.state-pending .weeksheet-check { border-color: var(--warning-ink); background: var(--warning-surface); color: var(--warning-ink); }
 .weeksheet-chore.state-rejected .weeksheet-check { border-color: var(--muted); background: transparent; color: var(--muted); }
+.weeksheet-chore.state-missed .weeksheet-check { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); color: var(--danger); }
 .mobile-day-rail, .mobile-week-content { display: none; }
 
 .history-disclosure { margin-top: 18px; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); overflow: hidden; }
@@ -641,6 +645,7 @@ html[data-theme="minecraft"] .week-day-column + .week-day-column { border-left: 
   .rail-state.complete { background: var(--accent); }
   .rail-state.pending { background: #d9aa22; }
   .rail-state.rejected { background: var(--muted); }
+  .rail-state.missed { background: var(--danger); }
   .desktop-week-grid { display: none; }
   .mobile-week-content { display: block; }
   .mobile-selected-day > header, .mobile-week-overview > header { display: flex; justify-content: space-between; align-items: end; gap: 14px; padding: 22px 20px 14px; }
@@ -660,6 +665,7 @@ html[data-theme="minecraft"] .week-day-column + .week-day-column { border-left: 
   .mobile-week-overview button > b { max-width: 42%; color: var(--accent); font-size: 11px; text-align: right; overflow-wrap: anywhere; }
   .mobile-week-overview button.today { margin: 5px 0; border: 2px solid var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent); }
   .mobile-week-overview button.quiet { opacity: .56; }
+  .mobile-week-overview button.missed { opacity: .62; }
   .history-summary { padding: 13px 15px; }
   .history-body { padding: 12px; }
   .history-toolbar { align-items: flex-start; flex-direction: column; }
