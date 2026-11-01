@@ -220,7 +220,8 @@ export function completePendingReview(
   const snapshot = [...new Set(snapshotIds)].sort();
   const supplied = new Map(decisions.map((decision) => [decision.occurrenceId, decision]));
   if (snapshot.length === 0) throw new Error('The review snapshot has no pending claims');
-  if (supplied.size !== snapshot.length || snapshot.some((id) => !supplied.has(id))) {
+  if (decisions.length !== snapshot.length || supplied.size !== decisions.length
+    || supplied.size !== snapshot.length || snapshot.some((id) => !supplied.has(id))) {
     throw new Error('Every pending claim must have exactly one review decision');
   }
   for (const decision of supplied.values()) {

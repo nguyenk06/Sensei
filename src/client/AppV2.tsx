@@ -14,6 +14,7 @@ import type {
 import { CalendarSection } from './CalendarSection';
 import { OverworldScene } from './OverworldScene';
 import { getDeviceThemeId, saveDeviceTheme, themes } from './themes';
+import { useDialogFocus } from './useDialogFocus';
 import { WeekSheet } from './WeekSheet';
 
 const mutationHeaders = { 'x-sensei-request': '1' };
@@ -105,6 +106,10 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [claimCelebration, setClaimCelebration] = useState<string | null>(null);
   const [approvalCelebration, setApprovalCelebration] = useState(false);
+  const parentDialogRef = useDialogFocus<HTMLElement>(parentOpen);
+  const reviewDialogRef = useDialogFocus<HTMLElement>(Boolean(bulkReview));
+  const reviewSummaryDialogRef = useDialogFocus<HTMLElement>(Boolean(reviewSummary));
+  const activityDialogRef = useDialogFocus<HTMLElement>(activityOpen);
 
   const loadChecklist = useCallback(async () => setChecklist(await api<ChecklistResponse>('/api/checklist')), []);
   const loadAllowance = useCallback(async () => setAllowance(await api<AllowanceSummary>('/api/allowance')), []);
@@ -376,7 +381,7 @@ export function App() {
     </main>
 
     {parentOpen && <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setParentOpen(false); }}>
-      <section className="parent-panel" role="dialog" aria-modal="true" aria-labelledby="parent-title">
+      <section ref={parentDialogRef} tabIndex={-1} className="parent-panel" role="dialog" aria-modal="true" aria-labelledby="parent-title">
         <header className="panel-header"><div><p className="eyebrow">PARENT MODE</p><h2 id="parent-title">Household controls</h2></div>
           <button className="icon-button" aria-label="Close Parent Mode" onClick={() => setParentOpen(false)}>×</button></header>
 
@@ -450,7 +455,7 @@ export function App() {
       </section>
     </div>}
     {bulkReview && <div className="centered-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setBulkReview(null); }}>
-      <section className="bulk-review-dialog" role="dialog" aria-modal="true" aria-labelledby="bulk-review-title">
+      <section ref={reviewDialogRef} tabIndex={-1} className="bulk-review-dialog" role="dialog" aria-modal="true" aria-labelledby="bulk-review-title">
         <header><div><p className="eyebrow">PARENT REVIEW</p><h2 id="bulk-review-title">{bulkReview.items.length} claims need a decision</h2>
           <p>{shortDate(bulkReview.weekStart)} – {shortDate(bulkReview.weekEnd)} · Amounts are credited only after approval.</p></div>
           <button className="icon-button" aria-label="Close approval review" onClick={() => setBulkReview(null)}>×</button></header>
@@ -459,10 +464,10 @@ export function App() {
           return <article key={item.id} className={choice.decision}>
             <div className="review-item-copy"><strong>{item.title}</strong><small>{shortDate(item.date)} · {money(item.rewardCents)}</small></div>
             <div className="review-decision" role="group" aria-label={`Decision for ${item.title} on ${shortDate(item.date)}`}>
-              <button className={choice.decision === 'approved' ? 'selected approve' : 'approve'} onClick={() => setReviewChoices((current) => ({
+              <button aria-pressed={choice.decision === 'approved'} className={choice.decision === 'approved' ? 'selected approve' : 'approve'} onClick={() => setReviewChoices((current) => ({
                 ...current, [item.id]: { ...choice, decision: 'approved' }
               }))}>Approve</button>
-              <button className={choice.decision === 'rejected' ? 'selected reject' : 'reject'} onClick={() => setReviewChoices((current) => ({
+              <button aria-pressed={choice.decision === 'rejected'} className={choice.decision === 'rejected' ? 'selected reject' : 'reject'} onClick={() => setReviewChoices((current) => ({
                 ...current, [item.id]: { ...choice, decision: 'rejected' }
               }))}>Reject</button>
             </div>
@@ -481,7 +486,7 @@ export function App() {
       </section>
     </div>}
     {reviewSummary && <div className="centered-modal-backdrop">
-      <section className="review-complete-dialog" role="dialog" aria-modal="true" aria-labelledby="review-complete-title">
+      <section ref={reviewSummaryDialogRef} tabIndex={-1} className="review-complete-dialog" role="dialog" aria-modal="true" aria-labelledby="review-complete-title">
         <span className="review-complete-mark" aria-hidden="true">✓</span>
         <p className="eyebrow">REVIEW COMPLETE</p><h2 id="review-complete-title">This week is reviewed</h2>
         <p>{reviewSummary.approvedCount} approved for {money(reviewSummary.totalCents)}. {reviewSummary.rejectedCount} rejected.</p>
@@ -489,7 +494,7 @@ export function App() {
       </section>
     </div>}
     {activityOpen && <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setActivityOpen(false); }}>
-      <section className="activity-panel" role="dialog" aria-modal="true" aria-labelledby="activity-title">
+      <section ref={activityDialogRef} tabIndex={-1} className="activity-panel" role="dialog" aria-modal="true" aria-labelledby="activity-title">
         <header className="panel-header"><div><p className="eyebrow">ALLOWANCE ACTIVITY</p><h2 id="activity-title">Money history</h2>
           <p>Only earnings, corrections, and payments affect this ledger.</p></div>
           <button className="icon-button" aria-label="Close allowance activity" onClick={() => setActivityOpen(false)}>×</button></header>

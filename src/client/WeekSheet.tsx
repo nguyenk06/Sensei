@@ -94,7 +94,8 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
 
     <nav className="mobile-day-rail" aria-label="Choose a day">
       {checklist.days.map((day) => <button key={day.date} className={selectedDay?.date === day.date ? 'active' : ''}
-        aria-current={day.isToday ? 'date' : undefined} onClick={() => { setSelectedDate(day.date); setShowWholeWeek(false); }}>
+        aria-current={day.isToday ? 'date' : undefined} aria-pressed={selectedDay?.date === day.date}
+        onClick={() => { setSelectedDate(day.date); setShowWholeWeek(false); }}>
         <span>{day.label.slice(0, 3)}</span><b>{Number(day.date.slice(-2))}</b>
         <i className={`rail-state ${day.occurrences.some((item) => item.state === 'pending') ? 'pending'
           : day.occurrences.some((item) => item.state === 'rejected') ? 'rejected'
@@ -126,7 +127,8 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
         <header><div><p className="eyebrow">ENTIRE WEEK</p><h2 id="whole-week-title">Choose a day</h2></div>
           <span>{occurrences.filter((item) => item.claimed).length} of {occurrences.length} done</span></header>
         <div>{checklist.days.map((day) => <button key={day.date} className={`${day.isToday ? 'today' : ''}
-          ${day.occurrences.length === 0 ? 'quiet' : ''}`} onClick={() => { setSelectedDate(day.date); setShowWholeWeek(false); }}>
+          ${day.occurrences.length === 0 ? 'quiet' : ''}`} aria-current={day.isToday ? 'date' : undefined}
+          onClick={() => { setSelectedDate(day.date); setShowWholeWeek(false); }}>
           <span><strong>{day.label.slice(0, 3)} {Number(day.date.slice(-2))}{day.isToday ? ' · Today' : ''}</strong>
             <small>{day.occurrences.length ? `${completedCount(day)} of ${day.occurrences.length} complete` : 'Nothing scheduled'}</small></span>
           <b>{dayOutcome(day)}</b>

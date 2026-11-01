@@ -54,6 +54,21 @@ try {
   await assertHeaderActions(childOne, 'NovaPay desktop');
   await assertHeaderActions(childTwo, 'NovaPay mobile');
 
+  const mobileRail = childTwo.locator('.mobile-day-rail button');
+  if (await mobileRail.count() !== 7) throw new Error('Mobile day rail does not contain seven days');
+  const selectedRailDay = childTwo.locator('.mobile-day-rail button[aria-pressed="true"]');
+  if (await selectedRailDay.count() !== 1 || await selectedRailDay.getAttribute('aria-current') !== 'date') {
+    throw new Error('Mobile view did not open with Today selected');
+  }
+  await childTwo.getByRole('button', { name: /View entire week/ }).click();
+  const weekOverviewDays = childTwo.locator('.mobile-week-overview > div > button');
+  if (await weekOverviewDays.count() !== 7) throw new Error('Mobile entire-week overview does not contain seven days');
+  await weekOverviewDays.nth(0).click();
+  if (!(await mobileRail.nth(0).getAttribute('aria-pressed') === 'true') || !(await childTwo.locator('.mobile-selected-day').isVisible())) {
+    throw new Error('Selecting a mobile week summary did not open its checklist');
+  }
+  await childTwo.locator('.mobile-day-rail button[aria-current="date"]').click();
+
   const todayCard = childOne.locator('.week-day-column.today');
   const checkboxOne = todayCard.getByRole('checkbox').first();
   const firstClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
@@ -83,6 +98,19 @@ try {
   await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === true);
   const checklist = await (await childOne.request.get(`${address}/api/checklist`)).json() as { today: string };
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();
+  const parentDialog = childOne.getByRole('dialog', { name: 'Household controls' });
+  await parentDialog.waitFor();
+  if (!await parentDialog.evaluate((element) => element === document.activeElement)) {
+    throw new Error('Parent dialog did not receive initial focus');
+  }
+  await childOne.keyboard.press('Shift+Tab');
+  if (!await parentDialog.getByRole('button', { name: 'Set PIN & continue' }).evaluate((element) => element === document.activeElement)) {
+    throw new Error('Parent dialog did not contain backward keyboard focus');
+  }
+  await childOne.keyboard.press('Tab');
+  if (!await parentDialog.getByRole('button', { name: 'Close Parent Mode' }).evaluate((element) => element === document.activeElement)) {
+    throw new Error('Parent dialog did not wrap keyboard focus');
+  }
   await childOne.getByLabel('Parent PIN').fill('739154');
   await childOne.getByRole('button', { name: 'Set PIN & continue' }).click();
   await childOne.getByRole('button', { name: 'chores' }).click();
@@ -95,6 +123,9 @@ try {
   await childOne.getByText('Browser QA chore').last().waitFor();
 
   await childOne.getByRole('button', { name: 'Close Parent Mode' }).click();
+  if (!await childOne.getByRole('button', { name: 'Parent Mode' }).evaluate((element) => element === document.activeElement)) {
+    throw new Error('Closing Parent Mode did not restore opener focus');
+  }
   const browserQaEntry = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
   const secondClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
   await browserQaEntry.locator('label').click();
@@ -189,9 +220,16 @@ try {
   await childOne.getByRole('button', { name: /Review 2 pending/ }).click();
   const bulkDialog = childOne.getByRole('dialog', { name: '2 claims need a decision' });
   await bulkDialog.waitFor();
+  if (!await bulkDialog.evaluate((element) => element === document.activeElement)) {
+    throw new Error('Parent review dialog did not receive initial focus');
+  }
   if ((await bulkDialog.locator('.bulk-review-list > article').count()) !== 2) throw new Error('Parent review did not list exactly two pending claims');
   const rejectedReviewItem = bulkDialog.locator('.bulk-review-list > article').filter({ hasText: 'Browser QA chore' });
   await rejectedReviewItem.getByRole('button', { name: 'Reject' }).click();
+  if (await rejectedReviewItem.getByRole('button', { name: 'Reject' }).getAttribute('aria-pressed') !== 'true'
+    || await rejectedReviewItem.getByRole('button', { name: 'Approve' }).getAttribute('aria-pressed') !== 'false') {
+    throw new Error('Parent review decision is not exposed as a pressed state');
+  }
   await rejectedReviewItem.getByLabel('Optional note').fill('Discussed during browser QA');
   await childOne.screenshot({ path: path.join(qaDir, 'bulk-approval-review.png'), fullPage: true });
   await childOne.setViewportSize({ width: 390, height: 844 });
@@ -258,6 +296,9 @@ try {
 
   console.log(JSON.stringify({
     twoClientClaimAndUndo: 'passed',
+    mobileSevenDayOverview: 'passed',
+    dialogFocusContainmentAndRestoration: 'passed',
+    accessibleSelectionStates: 'passed',
     refreshPersistence: 'passed',
     parentSetup: 'passed',
     oneTimeChore: 'passed',

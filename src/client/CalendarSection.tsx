@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CalendarResponse } from '../shared/types';
+import { useDialogFocus } from './useDialogFocus';
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -39,6 +40,7 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
 }) {
   const [weekStart, setWeekStart] = useState(currentWeekStart);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const dayDialogRef = useDialogFocus<HTMLElement>(Boolean(selectedDate));
   useEffect(() => { if (!weekStart && currentWeekStart) setWeekStart(currentWeekStart); }, [currentWeekStart, weekStart]);
   const weekEnd = weekStart ? shiftDate(weekStart, 6) : null;
   const weekDaysInView = useMemo(() => calendar?.days.filter((day) => weekStart && weekEnd
@@ -94,7 +96,7 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
       </button>)}
     </div>
     {selectedDay && <div className="centered-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedDate(null); }}>
-      <section className="day-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="day-detail-title">
+      <section ref={dayDialogRef} tabIndex={-1} className="day-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="day-detail-title">
         <header><div><p className="eyebrow">{selectedDay.date}</p><h2 id="day-detail-title">Chores for {shortDate(selectedDay.date)}</h2></div>
           <button className="icon-button" aria-label="Close day details" onClick={() => setSelectedDate(null)}>×</button></header>
         <div className="day-detail-list">{selectedDay.occurrences.map((item) => <article key={item.id}>

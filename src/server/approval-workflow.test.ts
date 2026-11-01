@@ -125,6 +125,48 @@ describe('rolling chore approval workflow', () => {
     expect(summary.recentActivity).toHaveLength(1);
   });
 
+  it('rejects duplicate and stale pending-review decisions while allowing a note-free exact retry', async () => {
+    const current = await checklist();
+    const yesterday = current.days[1].occurrences[0];
+    const today = current.days[2].occurrences[0];
+    await claim(yesterday.id);
+    const cookie = await parentCookie();
+    const first = (await app.inject({ method: 'GET', url: `/api/parent/reviews/${current.weekStart}/pending`, headers: { cookie } }))
+      .json<{ snapshotIds: string[] }>();
+
+    const duplicate = await app.inject({ method: 'POST', url: `/api/parent/reviews/${current.weekStart}/complete-pending`,
+      headers: { ...jsonHeaders, cookie }, payload: {
+        snapshotIds: first.snapshotIds,
+        decisions: [
+          { occurrenceId: yesterday.id, decision: 'approved' },
+          { occurrenceId: yesterday.id, decision: 'rejected' }
+        ]
+      } });
+    expect(duplicate.statusCode).toBe(409);
+
+    await claim(today.id);
+    const stale = await app.inject({ method: 'POST', url: `/api/parent/reviews/${current.weekStart}/complete-pending`,
+      headers: { ...jsonHeaders, cookie }, payload: {
+        snapshotIds: first.snapshotIds,
+        decisions: [{ occurrenceId: yesterday.id, decision: 'rejected' }]
+      } });
+    expect(stale.statusCode).toBe(409);
+    expect((await app.inject({ method: 'GET', url: '/api/allowance' })).json<{ approvedBalanceCents: number }>().approvedBalanceCents).toBe(0);
+
+    const fresh = (await app.inject({ method: 'GET', url: `/api/parent/reviews/${current.weekStart}/pending`, headers: { cookie } }))
+      .json<{ snapshotIds: string[] }>();
+    const payload = { snapshotIds: fresh.snapshotIds, decisions: [
+      { occurrenceId: yesterday.id, decision: 'rejected' },
+      { occurrenceId: today.id, decision: 'approved' }
+    ] };
+    const submit = () => app.inject({ method: 'POST', url: `/api/parent/reviews/${current.weekStart}/complete-pending`,
+      headers: { ...jsonHeaders, cookie }, payload });
+    expect((await submit()).json()).toMatchObject({ approvedCount: 1, rejectedCount: 1, totalCents: 100, idempotent: false });
+    expect((await submit()).json()).toMatchObject({ approvedCount: 1, rejectedCount: 1, totalCents: 100, idempotent: true });
+    const refreshed = await checklist();
+    expect(refreshed.days[1].occurrences[0]).toMatchObject({ state: 'rejected', decisionNote: null });
+  });
+
   it('bulk-approves an exact snapshot, leaves deselected claims pending, and handles retries', async () => {
     now = new Date('2026-10-27T19:00:00.000Z');
     const current = await checklist();
