@@ -30,11 +30,11 @@ export const themes: ThemeDefinition[] = [
       '--grid-line': 'rgba(87, 185, 232, .055)',
       '--font-body': '"Segoe UI", system-ui, sans-serif',
       '--font-display': 'Georgia, serif',
-      '--radius-card': '20px',
-      '--radius-control': '11px',
+      '--radius-card': '5px',
+      '--radius-control': '5px',
       '--radius-pill': '999px',
       '--radius-mark': '12px',
-      '--shadow-card': '0 16px 45px var(--shadow)',
+      '--shadow-card': '0 18px 55px var(--shadow)',
       '--heading-shadow': 'none',
       '--grid-size': '38px'
     }
@@ -63,11 +63,11 @@ export const themes: ThemeDefinition[] = [
       '--grid-line': 'rgba(23, 63, 55, .035)',
       '--font-body': '"Segoe UI", system-ui, sans-serif',
       '--font-display': 'Georgia, serif',
-      '--radius-card': '20px',
-      '--radius-control': '11px',
-      '--radius-pill': '999px',
-      '--radius-mark': '12px',
-      '--shadow-card': '0 16px 45px var(--shadow)',
+      '--radius-card': '1px',
+      '--radius-control': '2px',
+      '--radius-pill': '2px',
+      '--radius-mark': '2px',
+      '--shadow-card': '7px 9px 0 var(--shadow)',
       '--heading-shadow': 'none',
       '--grid-size': '38px'
     }

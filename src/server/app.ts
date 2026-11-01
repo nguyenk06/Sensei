@@ -24,6 +24,7 @@ import {
   approvedWeeks,
   bulkApprovePending,
   calendarMonth,
+  completePendingReview,
   decideOccurrence,
   pendingOccurrences,
   recordPayment,
@@ -45,6 +46,11 @@ interface BuildAppOptions {
 interface PinBody { pin: string }
 interface ChoreBody { title: string; rewardCents: number; schedule: ScheduleDefinition; completeAndApprove?: boolean }
 interface BulkApprovalBody { snapshotIds: string[]; selectedIds: string[] }
+interface PendingReviewBody {
+  snapshotIds: string[];
+  decisions: Array<{ occurrenceId: string; decision: 'approved' | 'rejected'; note?: string }>;
+}
+interface DecisionBody { note?: string }
 interface PaymentBody { amountCents: number; note?: string; idempotencyKey: string }
 interface AdjustmentBody { correctedRewardCents: number; note: string; idempotencyKey: string }
 
@@ -173,7 +179,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
         claimed: Boolean(row.claimed), state, approvalSource: (row.approvalSource ?? null) as ChecklistResponse['days'][number]['occurrences'][number]['approvalSource'],
         eligible: !decision && compareDates(date, today) <= 0 && compareDates(date, yesterday) >= 0,
         future: compareDates(date, today) > 0,
-        locked: Boolean(decision)
+        locked: Boolean(decision), decisionNote: typeof row.decisionNote === 'string' ? row.decisionNote : null
       };
     });
     const days = labelsForWeek(weekStart).map(({ date, label }) => ({
@@ -352,14 +358,31 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     } catch (error) { return reply.code(409).send({ error: (error as Error).message }); }
   });
 
+  app.post<{ Params: { weekStart: string }; Body: PendingReviewBody }>('/api/parent/reviews/:weekStart/complete-pending', {
+    preHandler: [mutationGuard, requireParent]
+  }, async (request, reply) => {
+    try {
+      if (!Array.isArray(request.body?.snapshotIds) || !Array.isArray(request.body?.decisions)) {
+        throw new Error('Review snapshot and decisions are required');
+      }
+      const parent = sessionForRequest(db, request, clock());
+      return completePendingReview(db, request.params.weekStart, request.body.snapshotIds, request.body.decisions,
+        parent?.parentLabel ?? 'Parent', clock(), formatLocalDate(clock(), timezone));
+    } catch (error) { return reply.code(409).send({ error: (error as Error).message }); }
+  });
+
   for (const [pathSuffix, mode] of [['approve', 'approve'], ['reject', 'reject'], ['override', 'override']] as const) {
-    app.post<{ Params: { id: string } }>(`/api/parent/occurrences/:id/${pathSuffix}`, {
+    app.post<{ Params: { id: string }; Body: DecisionBody }>(`/api/parent/occurrences/:id/${pathSuffix}`, {
       preHandler: [mutationGuard, requireParent]
     }, async (request, reply) => {
       try {
+        const note = request.body?.note;
+        if (note !== undefined && (typeof note !== 'string' || note.trim().length > 240)) {
+          throw new Error('Rejection notes must be 240 characters or fewer');
+        }
         const parent = sessionForRequest(db, request, clock());
         return decideOccurrence(db, request.params.id, mode, parent?.parentLabel ?? 'Parent', clock(),
-          formatLocalDate(clock(), timezone));
+          formatLocalDate(clock(), timezone), mode === 'reject' ? note : undefined);
       } catch (error) { return reply.code(409).send({ error: (error as Error).message }); }
     });
   }

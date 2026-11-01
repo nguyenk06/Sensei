@@ -96,6 +96,35 @@ describe('rolling chore approval workflow', () => {
     expect(calendar.days.find((day) => day.date === today.date)).toMatchObject({ approvedCents: 100, missedCount: 0 });
   });
 
+  it('completes an exact pending review atomically and stores optional rejection notes outside the ledger', async () => {
+    const current = await checklist();
+    const yesterday = current.days[1].occurrences[0];
+    const today = current.days[2].occurrences[0];
+    await claim(yesterday.id);
+    await claim(today.id);
+    const cookie = await parentCookie();
+    const pending = (await app.inject({ method: 'GET', url: `/api/parent/reviews/${current.weekStart}/pending`, headers: { cookie } }))
+      .json<{ snapshotIds: string[] }>();
+    const payload = {
+      snapshotIds: pending.snapshotIds,
+      decisions: [
+        { occurrenceId: yesterday.id, decision: 'rejected', note: 'Discussed in person' },
+        { occurrenceId: today.id, decision: 'approved' }
+      ]
+    };
+    const submit = () => app.inject({ method: 'POST', url: `/api/parent/reviews/${current.weekStart}/complete-pending`,
+      headers: { ...jsonHeaders, cookie }, payload });
+    expect((await submit()).json()).toMatchObject({ approvedCount: 1, rejectedCount: 1, totalCents: 100, idempotent: false });
+    expect((await submit()).json()).toMatchObject({ approvedCount: 1, rejectedCount: 1, totalCents: 100, idempotent: true });
+
+    const refreshed = await checklist();
+    expect(refreshed.days[1].occurrences[0]).toMatchObject({ state: 'rejected', decisionNote: 'Discussed in person' });
+    const summary = (await app.inject({ method: 'GET', url: '/api/allowance' }))
+      .json<{ approvedBalanceCents: number; recentActivity: unknown[] }>();
+    expect(summary.approvedBalanceCents).toBe(100);
+    expect(summary.recentActivity).toHaveLength(1);
+  });
+
   it('bulk-approves an exact snapshot, leaves deselected claims pending, and handles retries', async () => {
     now = new Date('2026-10-27T19:00:00.000Z');
     const current = await checklist();

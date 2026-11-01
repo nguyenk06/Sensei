@@ -50,6 +50,7 @@ interface OccurrenceDecisionRow {
   approvalLineId: string | null;
   approvedRewardCents: number | null;
   decidedAt: string | null;
+  decisionNote: string | null;
 }
 
 function stateFor(claimed: number | boolean, decision: OccurrenceDecisionRow['decision']): ChoreApprovalState {
@@ -63,7 +64,7 @@ function occurrenceDecisionRow(db: SenseiDatabase, occurrenceId: string): Occurr
     o.title_snapshot AS title, o.reward_cents_snapshot AS rewardCents,
     o.schedule_snapshot AS scheduleSnapshot, o.claimed, l.decision,
     l.source AS approvalSource, l.id AS approvalLineId,
-    l.approved_reward_cents AS approvedRewardCents, l.created_at AS decidedAt
+    l.approved_reward_cents AS approvedRewardCents, l.created_at AS decidedAt, l.note AS decisionNote
     FROM chore_occurrences o LEFT JOIN approval_lines l ON l.occurrence_id = o.id
     WHERE o.id = ?`).get(occurrenceId) as OccurrenceDecisionRow | undefined;
 }
@@ -97,7 +98,8 @@ function decideOccurrenceWithin(
   mode: DecisionMode,
   parentLabel: string,
   now: Date,
-  today: string
+  today: string,
+  optionalNote?: string
 ): { occurrenceId: string; state: ChoreApprovalState; creditedCents: number; decidedAt: string; idempotent: boolean } {
   const row = occurrenceDecisionRow(db, occurrenceId);
   if (!row) throw new Error('Occurrence not found');
@@ -126,8 +128,9 @@ function decideOccurrenceWithin(
   const amount = desiredDecision === 'approved' ? row.rewardCents : 0;
   const approvalId = ensureApprovalGroup(db, row.weekStart, parentLabel, createdAt);
   const lineId = randomUUID();
-  const note = source === 'parent_override' ? 'Parent historical override'
-    : source === 'parent_direct' ? 'Parent direct completion' : null;
+  const note = mode === 'reject' ? optionalNote?.trim() || null
+    : source === 'parent_override' ? 'Parent historical override'
+      : source === 'parent_direct' ? 'Parent direct completion' : null;
   db.prepare(`INSERT INTO approval_lines
     (id, approval_id, occurrence_id, decision, claimed_snapshot, title_snapshot, occurrence_date,
      original_reward_cents, approved_reward_cents, note, created_at, source)
@@ -149,7 +152,7 @@ function decideOccurrenceWithin(
     VALUES(?, ?, 'occurrence', ?, ?, ?, ?)`).run(randomUUID(),
       mode === 'reject' ? 'occurrence_rejected' : source === 'parent_override' ? 'occurrence_overridden'
         : source === 'parent_direct' ? 'one_time_directly_approved' : 'occurrence_approved',
-      row.id, JSON.stringify({ date: row.date, amountCents: amount, source }), parentLabel, createdAt);
+      row.id, JSON.stringify({ date: row.date, amountCents: amount, source, note }), parentLabel, createdAt);
   return { occurrenceId, state: desiredDecision, creditedCents: amount, decidedAt: createdAt, idempotent: false };
 }
 
@@ -159,9 +162,10 @@ export function decideOccurrence(
   mode: DecisionMode,
   parentLabel: string,
   now: Date,
-  today: string
+  today: string,
+  note?: string
 ) {
-  return db.transaction(() => decideOccurrenceWithin(db, occurrenceId, mode, parentLabel, now, today))();
+  return db.transaction(() => decideOccurrenceWithin(db, occurrenceId, mode, parentLabel, now, today, note))();
 }
 
 export function bulkApprovePending(
@@ -194,6 +198,74 @@ export function bulkApprovePending(
     let totalCents = 0;
     for (const id of selected) totalCents += decideOccurrenceWithin(db, id, 'approve', parentLabel, now, today).creditedCents;
     return { approvedCount: selected.length, totalCents, idempotent: false };
+  })();
+}
+
+export interface PendingReviewDecision {
+  occurrenceId: string;
+  decision: 'approved' | 'rejected';
+  note?: string;
+}
+
+export function completePendingReview(
+  db: SenseiDatabase,
+  weekStart: string,
+  snapshotIds: string[],
+  decisions: PendingReviewDecision[],
+  parentLabel: string,
+  now: Date,
+  today: string
+): { approvedCount: number; rejectedCount: number; totalCents: number; idempotent: boolean } {
+  assertDate(weekStart);
+  const snapshot = [...new Set(snapshotIds)].sort();
+  const supplied = new Map(decisions.map((decision) => [decision.occurrenceId, decision]));
+  if (snapshot.length === 0) throw new Error('The review snapshot has no pending claims');
+  if (supplied.size !== snapshot.length || snapshot.some((id) => !supplied.has(id))) {
+    throw new Error('Every pending claim must have exactly one review decision');
+  }
+  for (const decision of supplied.values()) {
+    if (!snapshot.includes(decision.occurrenceId) || !['approved', 'rejected'].includes(decision.decision)) {
+      throw new Error('Invalid pending review decision');
+    }
+    if (decision.note !== undefined && (typeof decision.note !== 'string' || decision.note.trim().length > 240)) {
+      throw new Error('Rejection notes must be 240 characters or fewer');
+    }
+  }
+  return db.transaction(() => {
+    const current = pendingOccurrences(db, weekStart).map((item) => item.id).sort();
+    const same = (left: string[], right: string[]) => left.length === right.length
+      && left.every((id, index) => id === right[index]);
+    if (!same(current, snapshot)) {
+      const matchesCompletedReview = snapshot.every((id) => {
+        const expected = supplied.get(id)!;
+        return occurrenceDecisionRow(db, id)?.decision === expected.decision;
+      });
+      if (current.length === 0 && matchesCompletedReview) {
+        const approved = snapshot.filter((id) => supplied.get(id)!.decision === 'approved');
+        return {
+          approvedCount: approved.length,
+          rejectedCount: snapshot.length - approved.length,
+          totalCents: approved.reduce((sum, id) => sum + Number(occurrenceDecisionRow(db, id)?.approvedRewardCents ?? 0), 0),
+          idempotent: true
+        };
+      }
+      throw new Error('Pending claims changed. Refresh the review before submitting.');
+    }
+    let approvedCount = 0;
+    let rejectedCount = 0;
+    let totalCents = 0;
+    for (const id of snapshot) {
+      const decision = supplied.get(id)!;
+      const result = decideOccurrenceWithin(db, id, decision.decision === 'approved' ? 'approve' : 'reject',
+        parentLabel, now, today, decision.note);
+      if (decision.decision === 'approved') {
+        approvedCount += 1;
+        totalCents += result.creditedCents;
+      } else {
+        rejectedCount += 1;
+      }
+    }
+    return { approvedCount, rejectedCount, totalCents, idempotent: false };
   })();
 }
 
@@ -442,13 +514,13 @@ export function calendarMonth(db: SenseiDatabase, month: string, today: string):
   const gridStart = addDays(first, -dayIndex(first));
   const gridEnd = addDays(last, 6 - dayIndex(last));
   const occurrences = db.prepare(`SELECT o.id, o.occurrence_date AS date, o.title_snapshot AS title,
-    o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.source AS approvalSource,
+    o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.note AS decisionNote, l.source AS approvalSource,
     l.approved_reward_cents AS approvedCents, CASE WHEN l.id IS NULL THEN 0 ELSE 1 END AS locked
     FROM chore_occurrences o
     LEFT JOIN approval_lines l ON l.occurrence_id = o.id
     WHERE o.occurrence_date BETWEEN ? AND ? ORDER BY o.occurrence_date, o.created_at`)
     .all(gridStart, gridEnd) as Array<{ id: string; date: string; title: string; rewardCents: number;
-      claimed: number; decision: OccurrenceDecisionRow['decision']; approvalSource: ChoreApprovalSource;
+      claimed: number; decision: OccurrenceDecisionRow['decision']; decisionNote: string | null; approvalSource: ChoreApprovalSource;
       approvedCents: number | null; locked: number }>;
   const days = [];
   for (let date = gridStart; compareDates(date, gridEnd) <= 0; date = addDays(date, 1)) {
@@ -470,7 +542,7 @@ export function calendarMonth(db: SenseiDatabase, month: string, today: string):
         const state = stateFor(row.claimed, row.decision);
         return {
           id: row.id, date: row.date, title: row.title, rewardCents: Number(row.rewardCents),
-          claimed: Boolean(row.claimed), state, approvalSource: row.approvalSource ?? null,
+          claimed: Boolean(row.claimed), state, approvalSource: row.approvalSource ?? null, decisionNote: row.decisionNote ?? null,
           childEligible: !row.decision && compareDates(row.date, today) <= 0 && compareDates(row.date, addDays(today, -1)) >= 0,
           overrideEligible: !row.decision && !row.claimed && compareDates(row.date, addDays(today, -1)) < 0
         };

@@ -14,6 +14,7 @@ import type {
 import { CalendarSection } from './CalendarSection';
 import { OverworldScene } from './OverworldScene';
 import { getDeviceThemeId, saveDeviceTheme, themes } from './themes';
+import { WeekSheet } from './WeekSheet';
 
 const mutationHeaders = { 'x-sensei-request': '1' };
 const jsonHeaders = { ...mutationHeaders, 'content-type': 'application/json' };
@@ -64,6 +65,17 @@ interface BulkReview {
   items: ReviewOccurrence[];
 }
 
+interface ReviewChoice {
+  decision: 'approved' | 'rejected';
+  note: string;
+}
+
+interface ReviewSummary {
+  approvedCount: number;
+  rejectedCount: number;
+  totalCents: number;
+}
+
 export function App() {
   const [checklist, setChecklist] = useState<ChecklistResponse | null>(null);
   const [allowance, setAllowance] = useState<AllowanceSummary | null>(null);
@@ -74,7 +86,10 @@ export function App() {
   const [chores, setChores] = useState<ChoreSummary[]>([]);
   const [approved, setApproved] = useState<ApprovedWeekView[]>([]);
   const [bulkReview, setBulkReview] = useState<BulkReview | null>(null);
-  const [bulkSelected, setBulkSelected] = useState<string[]>([]);
+  const [reviewChoices, setReviewChoices] = useState<Record<string, ReviewChoice>>({});
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const [parentOpen, setParentOpen] = useState(false);
   const [parentTab, setParentTab] = useState<'chores' | 'allowance'>('chores');
   const [pin, setPin] = useState('');
@@ -119,12 +134,21 @@ export function App() {
       .catch((reason: Error) => setError(reason.message));
   }, [calendarMonth, loadAllowance, loadCalendar, loadChecklist, loadParent]);
 
-  const totals = useMemo(() => {
-    const occurrences = checklist?.days.flatMap((day) => day.occurrences) ?? [];
-    return { done: occurrences.filter((item) => item.claimed).length, all: occurrences.length };
-  }, [checklist]);
-  const bulkTotal = useMemo(() => bulkReview?.items.filter((item) => bulkSelected.includes(item.id))
-    .reduce((sum, item) => sum + item.rewardCents, 0) ?? 0, [bulkReview, bulkSelected]);
+  useEffect(() => {
+    if (!parentOpen && !bulkReview && !reviewSummary && !activityOpen) return;
+    const closeTopLayer = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (reviewSummary) setReviewSummary(null);
+      else if (bulkReview) setBulkReview(null);
+      else if (activityOpen) setActivityOpen(false);
+      else setParentOpen(false);
+    };
+    document.addEventListener('keydown', closeTopLayer);
+    return () => document.removeEventListener('keydown', closeTopLayer);
+  }, [activityOpen, bulkReview, parentOpen, reviewSummary]);
+
+  const bulkTotal = useMemo(() => bulkReview?.items.filter((item) => reviewChoices[item.id]?.decision === 'approved')
+    .reduce((sum, item) => sum + item.rewardCents, 0) ?? 0, [bulkReview, reviewChoices]);
 
   async function run(action: () => Promise<void>) {
     setBusy(true); setError(null);
@@ -159,7 +183,7 @@ export function App() {
   async function signOut() {
     await run(async () => {
       await api('/api/parent/logout', { method: 'POST', headers: mutationHeaders });
-      setEditingId(null); setForm(emptyForm); setBulkReview(null); await loadParent();
+      setEditingId(null); setForm(emptyForm); setBulkReview(null); setReviewSummary(null); await loadParent();
     });
   }
 
@@ -199,11 +223,20 @@ export function App() {
       ? current.weekdays.filter((value) => value !== day) : [...current.weekdays, day].sort() }));
   }
 
-  async function decideOccurrenceAction(id: string, action: 'approve' | 'reject' | 'override') {
+  async function decideOccurrenceAction(id: string, action: 'approve' | 'reject' | 'override', suppliedNote?: string) {
     if (!parent.authorized) { setParentOpen(true); return; }
     if (action === 'override' && !window.confirm('Complete and approve this historical chore? This is final.')) return;
+    let note = suppliedNote;
+    if (action === 'reject' && note === undefined) {
+      const response = window.prompt('Optional rejection note (leave blank for none):', '');
+      if (response === null) return;
+      note = response;
+    }
     await run(async () => {
-      await api(`/api/parent/occurrences/${id}/${action}`, { method: 'POST', headers: mutationHeaders });
+      await api(`/api/parent/occurrences/${id}/${action}`, {
+        method: 'POST', headers: action === 'reject' ? jsonHeaders : mutationHeaders,
+        body: action === 'reject' ? JSON.stringify({ note }) : undefined
+      });
       await refreshAll();
       if (action !== 'reject') {
         setApprovalCelebration(true);
@@ -217,18 +250,23 @@ export function App() {
     await run(async () => {
       const result = await api<BulkReview>(`/api/parent/reviews/${weekStart}/pending`);
       setBulkReview(result);
-      setBulkSelected(result.snapshotIds);
+      setReviewSummary(null);
+      setReviewChoices(Object.fromEntries(result.items.map((item) => [item.id, { decision: 'approved', note: '' }])));
     });
   }
 
   async function approveBulkReview() {
-    if (!bulkReview || bulkSelected.length === 0) return;
+    if (!bulkReview) return;
     await run(async () => {
-      await api(`/api/parent/reviews/${bulkReview.weekStart}/approve-pending`, {
+      const result = await api<ReviewSummary>(`/api/parent/reviews/${bulkReview.weekStart}/complete-pending`, {
         method: 'POST', headers: jsonHeaders,
-        body: JSON.stringify({ snapshotIds: bulkReview.snapshotIds, selectedIds: bulkSelected })
+        body: JSON.stringify({ snapshotIds: bulkReview.snapshotIds, decisions: bulkReview.items.map((item) => ({
+          occurrenceId: item.id,
+          decision: reviewChoices[item.id]?.decision ?? 'approved',
+          note: reviewChoices[item.id]?.decision === 'rejected' ? reviewChoices[item.id]?.note : undefined
+        })) })
       });
-      setBulkReview(null); setBulkSelected([]); await refreshAll();
+      setReviewSummary(result); setBulkReview(null); setReviewChoices({}); await refreshAll();
       setApprovalCelebration(true);
       window.setTimeout(() => setApprovalCelebration(false), 1200);
     });
@@ -293,10 +331,10 @@ export function App() {
   }
 
   return <div className="app-shell">
+    <a className="skip-link" href="#sensei-main">Skip to weekly chores</a>
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">整</div>
       <div className="brand-copy"><strong>Sensei</strong><span>Household rhythm, one week at a time</span></div>
-      <span className="live-chip"><i /> Local household ledger</span>
       <div className="header-actions">
         <label className="theme-quick-control"><span>Theme</span><select aria-label="Device theme" value={themeId}
           onChange={(event) => selectTheme(event.target.value)}>
@@ -308,50 +346,32 @@ export function App() {
 
     {themeId === 'minecraft' && <OverworldScene />}
 
-    <main>
-      <section className="dashboard-hero">
-        <div className="hero-copy"><p className="eyebrow">THIS WEEK</p><h1>Your weekly practice</h1>
-          <p>{checklist ? `${shortDate(checklist.weekStart)} – ${shortDate(checklist.weekEnd)}` : 'Loading the week…'}</p></div>
-        <div className="finance-strip">
-          <div><small>Pending this week</small><strong>{money(allowance?.claimedThisWeekCents ?? 0)}</strong><span>{totals.done} of {totals.all} completed</span></div>
-          <div className="featured"><small>Approved balance</small><strong>{money(allowance?.approvedBalanceCents ?? 0)}</strong><span>Available to pay</span></div>
-          <div><small>Payment history</small><strong>{money(allowance?.totalPaidCents ?? 0)}</strong><span>Recorded total</span></div>
-        </div>
-      </section>
-
+    <main id="sensei-main">
       {error && <div className="error-banner" role="alert"><span>{error}</span><button onClick={() => setError(null)}>Dismiss</button></div>}
 
       {checklist?.lateClaimDay && <section className="late-claim-section">
         <div><p className="eyebrow">GRACE PERIOD</p><h2>Yesterday</h2><p>Yesterday remains available for one day.</p></div>
         <div className="late-claim-list">{checklist.lateClaimDay.occurrences.map(occurrenceRow)}</div>
       </section>}
-      <section className="week-grid" aria-busy={!checklist}>
-        {checklist?.days.map((day) => <article key={day.date} className={`day-card ${day.isToday ? 'today' : ''} ${day.isFuture ? 'future' : ''}`}>
-          <header><div><span className="day-name">{day.label}</span><span className="day-date">{shortDate(day.date)}</span></div>
-            {day.isToday && <span className="today-pill">Today</span>}</header>
-          <div className="chore-list">
-            {day.occurrences.length === 0 && <p className="quiet">No chores scheduled.</p>}
-            {day.occurrences.map(occurrenceRow)}
-          </div>
-        </article>)}
-      </section>
+      <WeekSheet checklist={checklist} allowance={allowance} busy={busy} claimCelebration={claimCelebration}
+        parentAuthorized={parent.authorized} onToggleClaim={(id, claimed) => void toggleClaim(id, claimed)}
+        onOpenReview={(weekStart) => void openBulkReview(weekStart)} onRequestParent={() => setParentOpen(true)} />
 
-      <CalendarSection calendar={calendar} month={calendarMonth} onMonthChange={setCalendarMonth}
-        currentWeekStart={checklist?.weekStart ?? null} parentAuthorized={parent.authorized} busy={busy}
-        onToggleClaim={(id, claimed) => void toggleClaim(id, claimed)}
-        onDecision={(id, action) => void decideOccurrenceAction(id, action)}
-        onApproveWeek={(weekStart) => void openBulkReview(weekStart)} />
-
-      <section className="activity-section">
-        <div className="section-heading"><div><p className="eyebrow">LEDGER</p><h2>Allowance activity</h2>
-          <p>Earnings, corrections, and payments remain distinct.</p></div></div>
-        <div className="activity-list">
-          {allowance?.recentActivity.length ? allowance.recentActivity.map((item) => <article key={item.id}>
-            <span className={`activity-icon ${item.kind}`}>{item.kind === 'earning' ? '↗' : item.kind === 'payment' ? '↓' : '±'}</span>
-            <div><strong>{item.description}</strong><small>{dateTime(item.createdAt)} · {item.parentLabel}</small></div>
-            <b className={item.balanceEffectCents < 0 ? 'negative' : ''}>{item.balanceEffectCents >= 0 ? '+' : ''}{money(item.balanceEffectCents)}</b>
-          </article>) : <div className="empty-state">Approved earnings and payments will appear here.</div>}
-        </div>
+      <section className={`history-disclosure ${historyOpen ? 'open' : ''}`}>
+        <button className="history-summary" aria-expanded={historyOpen} onClick={() => setHistoryOpen((value) => !value)}>
+          <span><span className="eyebrow">HISTORY</span><strong>{new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date())} at a glance</strong>
+            <small>{money(allowance?.totalApprovedCents ?? 0)} approved · {money(allowance?.totalPaidCents ?? 0)} paid</small></span>
+          <span className="history-chevron" aria-hidden="true">⌄</span>
+        </button>
+        {historyOpen && <div className="history-body">
+          <div className="history-toolbar"><p>Calendar outcomes stay attached to their original dates.</p>
+            <button onClick={() => setActivityOpen(true)}>View detailed activity</button></div>
+          <CalendarSection calendar={calendar} month={calendarMonth} onMonthChange={setCalendarMonth}
+            currentWeekStart={checklist?.weekStart ?? null} parentAuthorized={parent.authorized} busy={busy}
+            onToggleClaim={(id, claimed) => void toggleClaim(id, claimed)}
+            onDecision={(id, action) => void decideOccurrenceAction(id, action)}
+            onApproveWeek={(weekStart) => void openBulkReview(weekStart)} />
+        </div>}
       </section>
     </main>
 
@@ -363,7 +383,7 @@ export function App() {
         {!parent.authorized ? <form className="pin-form" onSubmit={authenticate}>
           <div className="security-note"><strong>{parent.configured ? 'Enter your parent PIN' : 'Create the parent PIN'}</strong>
             <p>Use a unique 4–12 digit PIN. This local HTTP connection does not encrypt the PIN or session.</p></div>
-          <label>Parent PIN<input autoFocus inputMode="numeric" pattern="[0-9]{4,12}" minLength={4} maxLength={12}
+          <label>Parent PIN<input inputMode="numeric" autoComplete="current-password" name="parent-pin" pattern="[0-9]{4,12}" minLength={4} maxLength={12}
             type="password" value={pin} onChange={(event) => setPin(event.target.value)} required /></label>
           <button className="primary" disabled={busy}>{parent.configured ? 'Open Parent Mode' : 'Set PIN & continue'}</button>
         </form> : <>
@@ -431,17 +451,56 @@ export function App() {
     </div>}
     {bulkReview && <div className="centered-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setBulkReview(null); }}>
       <section className="bulk-review-dialog" role="dialog" aria-modal="true" aria-labelledby="bulk-review-title">
-        <header><div><p className="eyebrow">PENDING CLAIMS</p><h2 id="bulk-review-title">Approve selected chores</h2>
-          <p>{shortDate(bulkReview.weekStart)} – {shortDate(bulkReview.weekEnd)}</p></div>
+        <header><div><p className="eyebrow">PARENT REVIEW</p><h2 id="bulk-review-title">{bulkReview.items.length} claims need a decision</h2>
+          <p>{shortDate(bulkReview.weekStart)} – {shortDate(bulkReview.weekEnd)} · Amounts are credited only after approval.</p></div>
           <button className="icon-button" aria-label="Close approval review" onClick={() => setBulkReview(null)}>×</button></header>
-        <div className="bulk-review-list">{bulkReview.items.map((item) => <label key={item.id}>
-          <input type="checkbox" checked={bulkSelected.includes(item.id)} onChange={(event) => setBulkSelected((current) =>
-            event.target.checked ? [...current, item.id] : current.filter((id) => id !== item.id))} />
-          <span><strong>{item.title}</strong><small>{shortDate(item.date)} · {money(item.rewardCents)}</small></span>
-        </label>)}</div>
-        <footer><div><strong>{bulkSelected.length} selected</strong><span>{money(bulkTotal)} to credit</span></div>
+        <div className="bulk-review-list">{bulkReview.items.map((item) => {
+          const choice = reviewChoices[item.id] ?? { decision: 'approved' as const, note: '' };
+          return <article key={item.id} className={choice.decision}>
+            <div className="review-item-copy"><strong>{item.title}</strong><small>{shortDate(item.date)} · {money(item.rewardCents)}</small></div>
+            <div className="review-decision" role="group" aria-label={`Decision for ${item.title} on ${shortDate(item.date)}`}>
+              <button className={choice.decision === 'approved' ? 'selected approve' : 'approve'} onClick={() => setReviewChoices((current) => ({
+                ...current, [item.id]: { ...choice, decision: 'approved' }
+              }))}>Approve</button>
+              <button className={choice.decision === 'rejected' ? 'selected reject' : 'reject'} onClick={() => setReviewChoices((current) => ({
+                ...current, [item.id]: { ...choice, decision: 'rejected' }
+              }))}>Reject</button>
+            </div>
+            {choice.decision === 'rejected' && <label className="rejection-note">Optional note
+              <input maxLength={240} value={choice.note} placeholder="Discussed in person"
+                onChange={(event) => setReviewChoices((current) => ({
+                  ...current, [item.id]: { ...choice, note: event.target.value }
+                }))} />
+            </label>}
+          </article>;
+        })}</div>
+        <footer><div><strong>{Object.values(reviewChoices).filter((item) => item.decision === 'approved').length} approved · {Object.values(reviewChoices).filter((item) => item.decision === 'rejected').length} rejected</strong>
+          <span>{money(bulkTotal)} to credit</span></div>
           <div className="form-actions"><button onClick={() => setBulkReview(null)}>Cancel</button>
-            <button className="primary" disabled={busy || bulkSelected.length === 0} onClick={() => void approveBulkReview()}>Approve selected</button></div></footer>
+            <button className="primary" disabled={busy} onClick={() => void approveBulkReview()}>Finish review</button></div></footer>
+      </section>
+    </div>}
+    {reviewSummary && <div className="centered-modal-backdrop">
+      <section className="review-complete-dialog" role="dialog" aria-modal="true" aria-labelledby="review-complete-title">
+        <span className="review-complete-mark" aria-hidden="true">✓</span>
+        <p className="eyebrow">REVIEW COMPLETE</p><h2 id="review-complete-title">This week is reviewed</h2>
+        <p>{reviewSummary.approvedCount} approved for {money(reviewSummary.totalCents)}. {reviewSummary.rejectedCount} rejected.</p>
+        <button className="primary" onClick={() => setReviewSummary(null)}>Done</button>
+      </section>
+    </div>}
+    {activityOpen && <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setActivityOpen(false); }}>
+      <section className="activity-panel" role="dialog" aria-modal="true" aria-labelledby="activity-title">
+        <header className="panel-header"><div><p className="eyebrow">ALLOWANCE ACTIVITY</p><h2 id="activity-title">Money history</h2>
+          <p>Only earnings, corrections, and payments affect this ledger.</p></div>
+          <button className="icon-button" aria-label="Close allowance activity" onClick={() => setActivityOpen(false)}>×</button></header>
+        <div className="activity-list">
+          {allowance?.recentActivity.length ? allowance.recentActivity.map((item) => <article key={item.id}>
+            <span className={`activity-icon ${item.kind}`}>{item.kind === 'earning' ? '+' : item.kind === 'payment' ? '−' : '±'}</span>
+            <div><strong>{item.description}</strong><small>{dateTime(item.createdAt)} · {item.parentLabel}</small></div>
+            <b className={item.balanceEffectCents < 0 ? 'negative' : ''}>{item.balanceEffectCents >= 0 ? '+' : ''}{money(item.balanceEffectCents)}</b>
+          </article>) : <div className="empty-state">Approved earnings and payments will appear here.</div>}
+        </div>
+        <footer className="activity-balance"><span>Available balance</span><strong>{money(allowance?.approvedBalanceCents ?? 0)}</strong></footer>
       </section>
     </div>}
     {approvalCelebration && <div className="approval-celebration" role="status">✦ Chores approved! ✦</div>}

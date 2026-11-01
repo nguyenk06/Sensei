@@ -100,7 +100,8 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
         <div className="day-detail-list">{selectedDay.occurrences.map((item) => <article key={item.id}>
           <label><input type="checkbox" checked={item.claimed} disabled={busy || !item.childEligible}
             onChange={() => onToggleClaim(item.id, item.claimed)} /><span><strong>{item.title}</strong>
-              <small>${(item.rewardCents / 100).toFixed(2)} · {item.state === 'pending' ? 'Pending approval' : item.state}</small></span></label>
+              <small>{item.state === 'rejected' ? '$0 gained · Rejected' : `$${(item.rewardCents / 100).toFixed(2)} · ${item.state === 'pending' ? 'Pending approval' : item.state}`}</small>
+              {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span></label>
           {parentAuthorized && item.state === 'pending' && <div className="inline-approval-actions">
             <button className="approve" onClick={() => onDecision(item.id, 'approve')}>Approve</button>
             <button className="reject" onClick={() => onDecision(item.id, 'reject')}>Reject</button>

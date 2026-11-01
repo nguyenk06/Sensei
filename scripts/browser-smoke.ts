@@ -54,24 +54,23 @@ try {
   await assertHeaderActions(childOne, 'NovaPay desktop');
   await assertHeaderActions(childTwo, 'NovaPay mobile');
 
-  const todayCard = childOne.locator('article.today');
+  const todayCard = childOne.locator('.week-day-column.today');
   const checkboxOne = todayCard.getByRole('checkbox').first();
   const firstClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
-  await todayCard.locator('label.chore-row').first().click();
+  await todayCard.locator('.weeksheet-chore > label').first().click();
   await firstClaim;
-  if (!(await checkboxOne.isChecked())) throw new Error('Claim did not update in the first client');
+  await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === true);
 
   await childTwo.reload({ waitUntil: 'networkidle' });
-  const checkboxTwo = childTwo.locator('article.today').getByRole('checkbox').first();
+  const checkboxTwo = childTwo.locator('.mobile-selected-day').getByRole('checkbox').first();
   if (!(await checkboxTwo.isChecked())) throw new Error('Claim was not shared with the second client');
   const sharedUndo = childTwo.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'DELETE');
-  await childTwo.locator('article.today label.chore-row').first().click();
+  await childTwo.locator('.mobile-selected-day .weeksheet-chore > label').first().click();
   await sharedUndo;
   await childOne.reload({ waitUntil: 'networkidle' });
-  if (await childOne.locator('article.today').getByRole('checkbox').first().isChecked()) {
-    throw new Error('Undo was not shared back to the first client');
-  }
+  await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === false);
 
+  await childOne.locator('.history-summary').click();
   const originalMonth = await childOne.locator('.month-controls strong').textContent();
   await childOne.locator('.month-controls button').last().click();
   await childOne.waitForFunction((month) => document.querySelector('.month-controls strong')?.textContent !== month, originalMonth);
@@ -79,11 +78,9 @@ try {
   await childOne.waitForFunction((month) => document.querySelector('.month-controls strong')?.textContent === month, originalMonth);
 
   const approvalClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
-  await childOne.locator('article.today label.chore-row').first().click();
+  await childOne.locator('.week-day-column.today .weeksheet-chore > label').first().click();
   await approvalClaim;
-  if (!(await childOne.locator('article.today').getByRole('checkbox').first().isChecked())) {
-    throw new Error('Unable to prepare an approved claim');
-  }
+  await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === true);
   const checklist = await (await childOne.request.get(`${address}/api/checklist`)).json() as { today: string };
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();
   await childOne.getByLabel('Parent PIN').fill('739154');
@@ -98,11 +95,11 @@ try {
   await childOne.getByText('Browser QA chore').last().waitFor();
 
   await childOne.getByRole('button', { name: 'Close Parent Mode' }).click();
-  const browserQaEntry = childOne.locator('.chore-entry').filter({ hasText: 'Browser QA chore' });
+  const browserQaEntry = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
   const secondClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
-  await browserQaEntry.locator('label.chore-row').click();
+  await browserQaEntry.locator('label').click();
   await secondClaim;
-  await browserQaEntry.getByRole('button', { name: 'Approve' }).waitFor();
+  await childOne.getByRole('button', { name: /Review 2 pending/ }).waitFor();
   await childOne.screenshot({ path: path.join(qaDir, 'individual-approval-actions.png'), fullPage: true });
   await childOne.screenshot({ path: path.join(qaDir, 'showcase-novapay.png') });
   await childOne.getByLabel('Device theme').selectOption('classic');
@@ -176,7 +173,7 @@ try {
   if (await childTwo.locator('html').getAttribute('data-theme') !== 'minecraft') throw new Error('Mobile device theme did not persist');
   await assertHeaderActions(childTwo, 'Overworld mobile');
   const mobileBannerHeight = await childTwo.locator('.overworld-banner').evaluate((element) => element.getBoundingClientRect().height);
-  if (mobileBannerHeight < 360 || mobileBannerHeight > 410) throw new Error(`Mobile Overworld banner height is invalid: ${mobileBannerHeight}`);
+  if (mobileBannerHeight < 220 || mobileBannerHeight > 270) throw new Error(`Mobile Overworld banner height is invalid: ${mobileBannerHeight}`);
   const minecraftMobileWidth = await childTwo.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
     content: document.documentElement.scrollWidth
@@ -189,30 +186,32 @@ try {
   const reducedAnimation = await reducedPage.locator('.overworld-animal').first().evaluate((element) => getComputedStyle(element).animationName);
   if (reducedAnimation !== 'none') throw new Error(`Reduced motion did not disable animal animation: ${reducedAnimation}`);
   await reducedPage.close();
-  await childOne.getByRole('button', { name: /Approve All Pending \(2\)/ }).click();
-  const bulkDialog = childOne.getByRole('dialog', { name: 'Approve selected chores' });
+  await childOne.getByRole('button', { name: /Review 2 pending/ }).click();
+  const bulkDialog = childOne.getByRole('dialog', { name: '2 claims need a decision' });
   await bulkDialog.waitFor();
-  if ((await bulkDialog.getByRole('checkbox').count()) !== 2) throw new Error('Bulk review did not list exactly two pending claims');
-  if (!(await bulkDialog.getByRole('checkbox').evaluateAll((items) => items.every((item) => (item as HTMLInputElement).checked)))) {
-    throw new Error('Bulk review did not select every pending claim initially');
-  }
+  if ((await bulkDialog.locator('.bulk-review-list > article').count()) !== 2) throw new Error('Parent review did not list exactly two pending claims');
+  const rejectedReviewItem = bulkDialog.locator('.bulk-review-list > article').filter({ hasText: 'Browser QA chore' });
+  await rejectedReviewItem.getByRole('button', { name: 'Reject' }).click();
+  await rejectedReviewItem.getByLabel('Optional note').fill('Discussed during browser QA');
   await childOne.screenshot({ path: path.join(qaDir, 'bulk-approval-review.png'), fullPage: true });
   await childOne.setViewportSize({ width: 390, height: 844 });
   const bulkMobileWidth = await childOne.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   if (bulkMobileWidth.content > bulkMobileWidth.viewport) throw new Error('Bulk approval dialog has horizontal overflow on mobile');
   await childOne.screenshot({ path: path.join(qaDir, 'bulk-approval-review-mobile.png'), fullPage: true });
   await childOne.setViewportSize({ width: 1100, height: 800 });
-  await bulkDialog.getByRole('checkbox', { name: /Browser QA chore/ }).uncheck();
-  await bulkDialog.getByText('1 selected').waitFor();
-  await bulkDialog.getByRole('button', { name: 'Approve selected' }).click();
-  await childOne.getByRole('status').getByText('Chores approved!').waitFor();
+  await bulkDialog.getByText('1 approved · 1 rejected').waitFor();
+  await bulkDialog.getByRole('button', { name: 'Finish review' }).click();
+  const completeDialog = childOne.getByRole('dialog', { name: 'This week is reviewed' });
+  await completeDialog.waitFor();
+  await completeDialog.getByRole('button', { name: 'Done' }).click();
   const approvedSummary = await (await childOne.request.get(`${address}/api/allowance`)).json() as { approvedBalanceCents: number };
   if (approvedSummary.approvedBalanceCents !== 100) throw new Error(`Bulk approval credited ${approvedSummary.approvedBalanceCents} cents instead of 100`);
 
-  const remainingClaim = childOne.locator('.chore-entry').filter({ hasText: 'Browser QA chore' });
-  await remainingClaim.getByRole('button', { name: 'Reject' }).click();
-  await remainingClaim.getByText('rejected', { exact: true }).waitFor();
+  const remainingClaim = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
+  await remainingClaim.getByText('Rejected · $0 gained').waitFor();
+  await remainingClaim.getByText('Discussed during browser QA').waitFor();
   const calendarSection = childOne.locator('.calendar-section');
+  if (!(await calendarSection.isVisible())) await childOne.locator('.history-summary').click();
   const earnedMarker = calendarSection.locator('.calendar-day-status.earned');
   await earnedMarker.waitFor();
   if (!((await earnedMarker.textContent()) ?? '').includes('$1.00')) throw new Error('Calendar approved marker does not show $1.00');
@@ -223,6 +222,12 @@ try {
   if (calendarMobileWidth.right > calendarMobileWidth.viewport) throw new Error('Calendar outcome markers cause horizontal overflow on mobile');
   await calendarSection.screenshot({ path: path.join(qaDir, 'calendar-outcome-markers-mobile.png') });
   await childOne.setViewportSize({ width: 1100, height: 800 });
+  await childOne.getByRole('button', { name: 'View detailed activity' }).click();
+  const activityDialog = childOne.getByRole('dialog', { name: 'Money history' });
+  await activityDialog.waitFor();
+  if (await activityDialog.getByText('Browser QA chore').count()) throw new Error('Rejected chores appeared in the allowance activity ledger');
+  await activityDialog.screenshot({ path: path.join(qaDir, 'allowance-activity-panel.png') });
+  await activityDialog.getByRole('button', { name: 'Close allowance activity' }).click();
 
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();
   await childOne.getByRole('button', { name: 'allowance' }).click();
@@ -248,7 +253,7 @@ try {
   if (await childOne.locator('html').getAttribute('data-theme') !== 'novapay') throw new Error('NovaPay theme did not apply');
   await assertHeaderActions(childOne, 'NovaPay desktop after theme switch');
   if (await childOne.locator('.overworld-banner').count() !== 0) throw new Error('NovaPay exposed Overworld visuals');
-  await childOne.getByText('Browser QA chore', { exact: true }).waitFor();
+  await childOne.getByText('Browser QA chore', { exact: true }).first().waitFor();
   if (browserErrors.length) throw new Error(`Browser errors detected: ${browserErrors.join(' | ')}`);
 
   console.log(JSON.stringify({
@@ -271,6 +276,8 @@ try {
     animalAnimation: 'passed',
     reducedMotion: 'passed',
     calendarNavigation: 'passed',
+    rejectedExcludedFromLedger: 'passed',
+    activityPanel: 'passed',
     consoleAndAssets: 'passed',
     signOut: 'passed'
   }));
