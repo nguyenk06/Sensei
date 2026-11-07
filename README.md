@@ -37,7 +37,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-The November 7, 2026 phase-completion candidate extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, and child-visible historical details. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, and stale-page claim protection. The candidate passes 37 automated tests plus the isolated end-to-end browser workflow.
+The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, and audited monthly/lifetime Money History totals. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, and stale-page claim protection. The release passes 37 automated tests plus the isolated end-to-end browser workflow.
 
 The application is intentionally small and household-specific: one child, no public internet exposure, no cloud sync, no offline mutation queue, and no generalized account system.
 

@@ -75,6 +75,8 @@ The browser workflow verifies:
 - PIN continuation back to the selected pending chore;
 - individual approval/rejection, optional comments, adjusted awards, required reduction explanations, exact-retry idempotency, and itemized bulk coexistence;
 - quarter-dollar validation and unchanged legacy reward compatibility;
+- current-month/lifetime earnings, lifetime paid, and correction-aware Money History totals;
+- payment/correction submission when `crypto.randomUUID()` is unavailable in a LAN HTTP browser;
 - calendar-to-chore dialog transitions, focus containment, and opener-focus restoration;
 - payment, correction, and export behavior;
 - all three themes and device-local persistence;

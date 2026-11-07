@@ -6,10 +6,10 @@ Handoff date: November 7, 2026.
 
 - Project: Sensei — Household Chore & Allowance Tracker.
 - Local repository: `C:\Dev\Sensei`.
-- Published baseline: `main` at `1532c3b` (`feat: add independent chore review workflow`).
-- Current candidate was developed on `feature/parent-review-enhancements` from that published baseline and is intended to be merged locally only after every verification gate passes.
-- GitHub publication of the Independent Chore Review baseline is complete; the former publication decision is no longer open.
-- Parent Review Enhancements are implemented and verified locally but are not published or deployed.
+- Authoritative baseline: the current published `main` household release.
+- Parent Review Enhancements are implemented, verified, published, and deployed.
+- LAN HTTP payment/correction compatibility is implemented through a client idempotency-key fallback.
+- Money History exposes current-month earned, lifetime earned, lifetime paid, and available balance from audited records.
 
 Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not the current application baseline. Resolve the exact current release SHA with `git rev-parse HEAD` when preparing future work.
 
@@ -44,6 +44,8 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 - `approval_lines.occurrence_id` and earning idempotency keys prevent duplicate credit.
 - Approval-line, earning-transaction, weekly-total, and audit writes remain transactional; adjusted awards use the existing unique earning idempotency key.
 - The browser interface is not the security boundary; every protected action requires a live server session.
+- Money History earnings use finalized approval-line values plus audited corrections, grouped by occurrence month; pending claims and payments are excluded.
+- Client-generated payment/correction idempotency keys prefer `crypto.randomUUID()`, fall back to `crypto.getRandomValues()`, and are never treated as authentication secrets.
 
 ## Verification evidence
 
@@ -56,17 +58,16 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 
 ## Production status
 
-The published Independent Chore Review baseline remains the household release. Parent Review Enhancements have not been pushed, deployed, restarted, or applied to the household database. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
+The current `main` checkpoint is the household release. It was released through the existing scheduled-task mechanism after a SQLite-native backup and passed non-mutating health, database integrity/count, LAN binding, browser, and theme checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
 
 ## Remaining planner items
 
-1. Product Owner visual/functional acceptance of the Parent Review Enhancements candidate.
-2. Separate authorization to publish and deploy the accepted candidate.
-3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
-4. Preserve the existing production backup and rollback practice for release.
+1. No corrective implementation is currently required for this phase.
+2. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
+3. Preserve the existing production backup and rollback practice for future releases.
 
 ## Release and rollback boundary
 
 The normal release method is: clean-tree verification, isolated automated checks, SQLite-native backup with integrity/count comparison, production build, restart only the Sensei task, and non-mutating smoke checks.
 
-Because this candidate has no migration, rollback is a code rollback to `1532c3b`, rebuild, and task restart. Decisions made after release may contain comments or adjusted amounts in already-existing columns and remain readable by the prior release; database restoration is not normally required and should occur only after explicit authorization and a demonstrated data problem.
+Because this release has no migration, rollback is a code/build rollback and task restart. Decisions containing comments or adjusted amounts use pre-existing columns and remain readable by the prior release; database restoration is not normally required and should occur only after explicit authorization and a demonstrated data problem.

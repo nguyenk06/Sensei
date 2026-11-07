@@ -68,6 +68,8 @@ An individually reviewed occurrence gains its unique approval line and no longer
 
 An approved occurrence creates one earning transaction for its final award. The transaction idempotency key remains occurrence-specific, so retries cannot add a second credit. Payments and later historical adjustments are separate transaction kinds. The balance is derived from transaction effects, never silently overwritten, and corrections cannot create negative debt.
 
+Money History derives lifetime and household-month earnings from finalized approval-line awards plus their audited nominal corrections, grouped by the chore occurrence date. Payments are excluded from earnings and shown separately. Payment/correction request idempotency keys are client-generated; LAN HTTP browsers without `crypto.randomUUID()` use `crypto.getRandomValues()` without changing server validation or accounting semantics.
+
 ## Security boundaries
 
 - Every parent endpoint validates a live server session.

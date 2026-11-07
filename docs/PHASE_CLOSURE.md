@@ -1,8 +1,8 @@
 # Current phase closure
 
-Closure candidate date: November 7, 2026.
+Closure date: November 7, 2026.
 
-Baseline: published `main` commit `1532c3b`. Implementation branch: `feature/parent-review-enhancements`; publication and household deployment remain separately gated.
+Baseline: current published and deployed `main` household release.
 
 ## Requirement checklist
 
@@ -20,6 +20,8 @@ Baseline: published `main` commit `1532c3b`. Implementation branch: `feature/par
 | Quarter-dollar validation | Complete and verified | Client/server validate new/edited schedules and changed awards; legacy values remain exact. |
 | Child-visible award details | Complete and verified | Adjusted chore details show scheduled/final amounts and comments. |
 | Historical review details | Complete and verified | Expandable history shows outcome, amounts, comment, source, and corrected value. |
+| Money History totals | Complete and verified | Current-month and lifetime earned use finalized awards/corrections; lifetime paid and available balance remain separate. |
+| LAN HTTP payment compatibility | Complete and verified | Payment and correction retry keys work when `crypto.randomUUID()` is unavailable. |
 | Mobile and desktop behavior | Complete and verified | Isolated browser QA passes desktop and 390 px mobile checks without overflow. |
 | Accessibility | Complete and verified | Dialog focus containment/restoration, keyboard use, labels, status alerts, and reduced motion pass. |
 | Documentation consistency | Complete and verified | README and core planning, architecture, development, and state documents updated. |
@@ -41,15 +43,15 @@ Historical rows and balances are not recalculated, rounded, or rewritten. Repres
 - `pnpm qa:browser` against a temporary SQLite database and isolated build: passed.
 - Desktop and 390 px mobile screenshots were captured under ignored `.qa/` output.
 
-## Release plan
+## Release evidence
 
-1. Confirm a clean accepted commit and the actual running deployment revision.
-2. Create a SQLite-native online backup; run `PRAGMA integrity_check` and compare key table counts.
-3. Record current configuration and rollback commit (`1532c3b`).
-4. Build the accepted commit using the existing deployment mechanism.
-5. Restart only the Sensei task; do not change ports, startup, firewall, or network binding.
-6. Perform non-mutating checks: health, checklist, allowance totals, Parent Mode entry, calendar/history, and all themes.
-7. If code rollback is needed, redeploy `1532c3b` and restart. Restore the database only with separate authorization and evidence of data damage.
+1. Clean accepted source and running deployment were identified.
+2. SQLite-native backups passed `integrity_check` and key-table count comparison.
+3. Previous production builds were retained as rollback artifacts.
+4. Verified builds were deployed through the existing scheduled-task mechanism.
+5. Only the Sensei task was restarted; ports, startup, firewall, and network binding were unchanged.
+6. Health, checklist, allowance, calendar, themes, browser behavior, logs, and database integrity passed non-mutating production checks.
+7. Database restoration remains separately authorized and is appropriate only with evidence of data damage.
 
 ## Deferred outside this phase
 

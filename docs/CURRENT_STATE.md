@@ -2,7 +2,7 @@
 
 Checkpoint date: November 7, 2026.
 
-Repository baseline: local Parent Review Enhancements phase-completion candidate, developed from published `main` commit `1532c3b`. Publication and household deployment remain separately gated.
+Repository baseline: the current published `main` household release, including Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 
@@ -35,6 +35,7 @@ Sensei is a working, privately deployed household application for one child and 
 - One earning transaction per approved occurrence.
 - Rolling unpaid balance, partial/full payments, corrections, and audit history.
 - Money History totals for the current household month, lifetime earned, lifetime paid, and available balance.
+- Payment and correction idempotency keys remain available on LAN HTTP clients that do not expose `crypto.randomUUID()`.
 - Manual SQLite export; restoration remains an external maintenance operation.
 
 ### Interface and themes
@@ -73,4 +74,4 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Repository status at this checkpoint
 
-The candidate is intentionally not deployed. It introduces no schema migration, dependency, network, startup, or authentication change. Production release requires a separate authorization, verified SQLite backup, build/restart through the existing mechanism, and non-mutating smoke checks.
+The current checkpoint is published and deployed to the existing household installation. Release used a verified SQLite-native backup, preserved the previous build for rollback, restarted only the Sensei task, and passed non-mutating production health, data-integrity, LAN-binding, theme, and browser checks. No schema migration, dependency, network, startup, or authentication change was required.
