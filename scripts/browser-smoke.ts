@@ -4,6 +4,7 @@ import path from 'node:path';
 import { chromium, type Page } from 'playwright-core';
 import { buildApp } from '../src/server/app.js';
 
+const mutationHeaders = { 'x-sensei-request': '1' };
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sensei-browser-'));
 const databasePath = path.join(tempDir, 'sensei.sqlite');
 const qaDir = path.resolve('.qa');
@@ -80,16 +81,41 @@ try {
 
   const todayCard = childOne.locator('.week-day-column.today');
   const checkboxOne = todayCard.getByRole('checkbox').first();
+  const firstDetailTrigger = todayCard.locator('.weeksheet-detail-trigger').first();
+  await firstDetailTrigger.click();
+  const initialDetail = childOne.getByRole('dialog', { name: /Clear dishes/ });
+  await initialDetail.waitFor();
+  if (await checkboxOne.isChecked()) throw new Error('Opening chore details changed the claim state');
+  if (!await initialDetail.evaluate((element) => element === document.activeElement)) throw new Error('Chore details did not receive initial focus');
+  await childOne.keyboard.press('Shift+Tab');
+  if (!await initialDetail.getByRole('button', { name: 'Close chore details' }).evaluate((element) => element === document.activeElement)) {
+    throw new Error('Chore detail dialog did not contain keyboard focus');
+  }
+  await initialDetail.getByRole('button', { name: 'Close chore details' }).click();
+  if (!await firstDetailTrigger.evaluate((element) => element === document.activeElement)) throw new Error('Chore details did not restore opener focus');
   const firstClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
-  await todayCard.locator('.weeksheet-chore > label').first().click();
+  await todayCard.locator('.weeksheet-checkbox').first().click();
   await firstClaim;
   await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === true);
 
   await childTwo.reload({ waitUntil: 'networkidle' });
   const checkboxTwo = childTwo.locator('.mobile-selected-day').getByRole('checkbox').first();
   if (!(await checkboxTwo.isChecked())) throw new Error('Claim was not shared with the second client');
+  const mobileDetailTrigger = childTwo.locator('.mobile-selected-day .weeksheet-detail-trigger').first();
+  await mobileDetailTrigger.click();
+  const mobileDetail = childTwo.getByRole('dialog', { name: /Clear dishes/ });
+  await mobileDetail.waitFor();
+  const mobileDetailWidth = await mobileDetail.evaluate((element) => ({
+    viewport: document.documentElement.clientWidth, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right
+  }));
+  if (mobileDetailWidth.left < 0 || mobileDetailWidth.right > mobileDetailWidth.viewport) {
+    throw new Error(`Chore details overflow mobile viewport: ${JSON.stringify(mobileDetailWidth)}`);
+  }
+  if (!(await checkboxTwo.isChecked())) throw new Error('Opening mobile details changed the claim state');
+  await mobileDetail.screenshot({ path: path.join(qaDir, 'independent-chore-details-mobile.png') });
+  await mobileDetail.getByRole('button', { name: 'Close chore details' }).click();
   const sharedUndo = childTwo.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'DELETE');
-  await childTwo.locator('.mobile-selected-day .weeksheet-chore > label').first().click();
+  await childTwo.locator('.mobile-selected-day .weeksheet-checkbox').first().click();
   await sharedUndo;
   await childOne.reload({ waitUntil: 'networkidle' });
   await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === false);
@@ -107,10 +133,36 @@ try {
   await childOne.waitForFunction((month) => document.querySelector('.month-controls strong')?.textContent === month, originalMonth);
 
   const approvalClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
-  await childOne.locator('.week-day-column.today .weeksheet-chore > label').first().click();
+  await childOne.locator('.week-day-column.today .weeksheet-checkbox').first().click();
   await approvalClaim;
   await childOne.waitForFunction(() => (document.querySelector('.week-day-column.today input[type="checkbox"]') as HTMLInputElement | null)?.checked === true);
   const checklist = await (await childOne.request.get(`${address}/api/checklist`)).json() as { today: string };
+
+  const pendingDetailTrigger = childOne.locator('.week-day-column.today .weeksheet-detail-trigger').first();
+  await pendingDetailTrigger.click();
+  const pendingDetail = childOne.getByRole('dialog', { name: /Clear dishes/ });
+  await pendingDetail.getByRole('button', { name: 'Review claim' }).click();
+  await pendingDetail.getByLabel('Parent PIN').fill('739154');
+  await pendingDetail.getByRole('button', { name: 'Continue' }).click();
+  await pendingDetail.getByRole('button', { name: /Approve/ }).waitFor();
+  if (!((await pendingDetail.getByRole('heading').textContent()) ?? '').includes('Clear dishes')) {
+    throw new Error('PIN authorization did not retain the selected chore');
+  }
+  await pendingDetail.screenshot({ path: path.join(qaDir, 'independent-chore-review-desktop.png') });
+  const individualApprove = childOne.waitForResponse((response) => response.url().includes('/api/parent/occurrences/') && response.url().endsWith('/approve'));
+  await pendingDetail.getByRole('button', { name: /Approve/ }).click();
+  const individualApprovalResponse = await individualApprove;
+  const individualApproval = await individualApprovalResponse.json() as { occurrenceId: string; creditedCents: number };
+  await childOne.getByRole('status').filter({ hasText: 'Chore approved' }).waitFor();
+  if (individualApproval.creditedCents !== 100) throw new Error('Individual approval did not credit the scheduled reward');
+  if (!await pendingDetailTrigger.evaluate((element) => element === document.activeElement)) throw new Error('Individual review did not return to its originating row');
+  const retry = await childOne.request.post(`${address}/api/parent/occurrences/${individualApproval.occurrenceId}/approve`, {
+    headers: mutationHeaders
+  });
+  if (!(await retry.json() as { idempotent: boolean }).idempotent) throw new Error('Individual approval retry was not idempotent');
+  const afterRetry = await (await childOne.request.get(`${address}/api/allowance`)).json() as { approvedBalanceCents: number };
+  if (afterRetry.approvedBalanceCents !== 100) throw new Error('Individual approval retry duplicated allowance credit');
+
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();
   const parentDialog = childOne.getByRole('dialog', { name: 'Household controls' });
   await parentDialog.waitFor();
@@ -118,15 +170,13 @@ try {
     throw new Error('Parent dialog did not receive initial focus');
   }
   await childOne.keyboard.press('Shift+Tab');
-  if (!await parentDialog.getByRole('button', { name: 'Set PIN & continue' }).evaluate((element) => element === document.activeElement)) {
+  if (!await parentDialog.evaluate((element) => element.contains(document.activeElement))) {
     throw new Error('Parent dialog did not contain backward keyboard focus');
   }
   await childOne.keyboard.press('Tab');
   if (!await parentDialog.getByRole('button', { name: 'Close Parent Mode' }).evaluate((element) => element === document.activeElement)) {
     throw new Error('Parent dialog did not wrap keyboard focus');
   }
-  await childOne.getByLabel('Parent PIN').fill('739154');
-  await childOne.getByRole('button', { name: 'Set PIN & continue' }).click();
   await childOne.getByRole('button', { name: 'chores' }).click();
   await childOne.getByRole('heading', { name: 'Managed chores' }).waitFor();
   await childOne.getByLabel('Chore name').fill('Browser QA chore');
@@ -135,6 +185,12 @@ try {
   await childOne.getByLabel('Chore date').fill(checklist.today);
   await childOne.getByRole('button', { name: 'Add chore' }).click();
   await childOne.getByText('Browser QA chore').last().waitFor();
+  await childOne.getByLabel('Chore name').fill('Browser QA individual reject');
+  await childOne.getByLabel('Reward ($)').fill('1.50');
+  await childOne.getByLabel('Schedule').selectOption('one_time');
+  await childOne.getByLabel('Chore date').fill(checklist.today);
+  await childOne.getByRole('button', { name: 'Add chore' }).click();
+  await childOne.getByText('Browser QA individual reject').last().waitFor();
 
   await childOne.getByRole('button', { name: 'Close Parent Mode' }).click();
   if (!await childOne.getByRole('button', { name: 'Parent Mode' }).evaluate((element) => element === document.activeElement)) {
@@ -142,9 +198,23 @@ try {
   }
   const browserQaEntry = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
   const secondClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
-  await browserQaEntry.locator('label').click();
+  await browserQaEntry.locator('.weeksheet-checkbox').click();
   await secondClaim;
+  const individualRejectEntry = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA individual reject' });
+  const thirdClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
+  await individualRejectEntry.locator('.weeksheet-checkbox').click();
+  await thirdClaim;
   await childOne.getByRole('button', { name: /Review 2 pending/ }).waitFor();
+  await individualRejectEntry.locator('.weeksheet-detail-trigger').click();
+  const rejectDetail = childOne.getByRole('dialog', { name: 'Browser QA individual reject' });
+  await rejectDetail.getByRole('button', { name: 'Review claim' }).click();
+  await rejectDetail.getByLabel('Optional rejection note').fill('Handled independently in browser QA');
+  const individualReject = childOne.waitForResponse((response) => response.url().includes('/api/parent/occurrences/') && response.url().endsWith('/reject'));
+  await rejectDetail.getByRole('button', { name: /Reject/ }).click();
+  await individualReject;
+  await childOne.getByRole('status').filter({ hasText: 'Chore rejected' }).waitFor();
+  await childOne.getByRole('button', { name: /Review 1 pending/ }).waitFor();
+  if (!((await browserQaEntry.innerText()).includes('Waiting for review'))) throw new Error('Individual review changed another pending claim');
   await childOne.screenshot({ path: path.join(qaDir, 'individual-approval-actions.png'), fullPage: true });
   await childOne.screenshot({ path: path.join(qaDir, 'showcase-novapay.png') });
   await childOne.getByLabel('Device theme').selectOption('classic');
@@ -231,13 +301,13 @@ try {
   const reducedAnimation = await reducedPage.locator('.overworld-animal').first().evaluate((element) => getComputedStyle(element).animationName);
   if (reducedAnimation !== 'none') throw new Error(`Reduced motion did not disable animal animation: ${reducedAnimation}`);
   await reducedPage.close();
-  await childOne.getByRole('button', { name: /Review 2 pending/ }).click();
-  const bulkDialog = childOne.getByRole('dialog', { name: '2 claims need a decision' });
+  await childOne.getByRole('button', { name: /Review 1 pending/ }).click();
+  const bulkDialog = childOne.getByRole('dialog', { name: '1 claims need a decision' });
   await bulkDialog.waitFor();
   if (!await bulkDialog.evaluate((element) => element === document.activeElement)) {
     throw new Error('Parent review dialog did not receive initial focus');
   }
-  if ((await bulkDialog.locator('.bulk-review-list > article').count()) !== 2) throw new Error('Parent review did not list exactly two pending claims');
+  if ((await bulkDialog.locator('.bulk-review-list > article').count()) !== 1) throw new Error('Parent review did not exclude individually reviewed claims');
   const rejectedReviewItem = bulkDialog.locator('.bulk-review-list > article').filter({ hasText: 'Browser QA chore' });
   await rejectedReviewItem.getByRole('button', { name: 'Reject' }).click();
   if (await rejectedReviewItem.getByRole('button', { name: 'Reject' }).getAttribute('aria-pressed') !== 'true'
@@ -251,13 +321,13 @@ try {
   if (bulkMobileWidth.content > bulkMobileWidth.viewport) throw new Error('Bulk approval dialog has horizontal overflow on mobile');
   await childOne.screenshot({ path: path.join(qaDir, 'bulk-approval-review-mobile.png'), fullPage: true });
   await childOne.setViewportSize({ width: 1100, height: 800 });
-  await bulkDialog.getByText('1 approved · 1 rejected').waitFor();
+  await bulkDialog.getByText('0 approved · 1 rejected').waitFor();
   await bulkDialog.getByRole('button', { name: 'Finish review' }).click();
   const completeDialog = childOne.getByRole('dialog', { name: 'This week is reviewed' });
   await completeDialog.waitFor();
   await completeDialog.getByRole('button', { name: 'Done' }).click();
   const approvedSummary = await (await childOne.request.get(`${address}/api/allowance`)).json() as { approvedBalanceCents: number };
-  if (approvedSummary.approvedBalanceCents !== 100) throw new Error(`Bulk approval credited ${approvedSummary.approvedBalanceCents} cents instead of 100`);
+  if (approvedSummary.approvedBalanceCents !== 100) throw new Error(`Independent and bulk review produced ${approvedSummary.approvedBalanceCents} cents instead of 100`);
 
   const remainingClaim = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
   await remainingClaim.getByText('Rejected · $0 gained').waitFor();
@@ -267,6 +337,18 @@ try {
   const earnedMarker = calendarSection.locator('.calendar-day-status.earned');
   await earnedMarker.waitFor();
   if (!((await earnedMarker.textContent()) ?? '').includes('$1.00')) throw new Error('Calendar approved marker does not show $1.00');
+  await earnedMarker.locator('xpath=ancestor::button').click();
+  const calendarDayDialog = childOne.getByRole('dialog', { name: /Chores for/ });
+  await calendarDayDialog.waitFor();
+  const calendarDetailTrigger = calendarDayDialog.getByRole('button', { name: 'View details for Clear dishes' });
+  await calendarDetailTrigger.click();
+  const calendarChoreDialog = childOne.getByRole('dialog', { name: 'Clear dishes' });
+  await calendarChoreDialog.waitFor();
+  await childOne.waitForFunction(() => Boolean(document.activeElement?.closest('.chore-detail-dialog')));
+  await childOne.keyboard.press('Escape');
+  await calendarDayDialog.waitFor();
+  await childOne.waitForFunction(() => document.activeElement?.getAttribute('data-calendar-chore-detail-id') !== null);
+  await calendarDayDialog.getByRole('button', { name: 'Close day details' }).click();
   await calendarSection.locator('.calendar-day-status.missed').first().waitFor();
   await calendarSection.screenshot({ path: path.join(qaDir, 'calendar-outcome-markers.png') });
   await childOne.setViewportSize({ width: 390, height: 844 });
@@ -320,6 +402,9 @@ try {
     oneTimeChore: 'passed',
     individualApprovalActions: 'passed',
     individualRejection: 'passed',
+    independentDetailAuthorizationContinuation: 'passed',
+    independentReviewBulkCoexistence: 'passed',
+    independentReviewIdempotency: 'passed',
     weeklyBulkApproval: 'passed',
     partialPayment: 'passed',
     postPaymentCorrection: 'passed',

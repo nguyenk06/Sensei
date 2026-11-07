@@ -167,6 +167,46 @@ describe('rolling chore approval workflow', () => {
     expect(refreshed.days[1].occurrences[0]).toMatchObject({ state: 'rejected', decisionNote: null });
   });
 
+  it('keeps individual review protected and removes its claim from bulk review without duplicate earnings', async () => {
+    const current = await checklist();
+    const yesterday = current.days[1].occurrences[0];
+    const today = current.days[2].occurrences[0];
+    await claim(yesterday.id);
+    await claim(today.id);
+
+    const unauthorized = await app.inject({ method: 'POST', url: `/api/parent/occurrences/${yesterday.id}/approve`,
+      headers: mutationHeaders });
+    expect(unauthorized.statusCode).toBe(401);
+
+    const cookie = await parentCookie();
+    const staleSnapshot = (await app.inject({ method: 'GET', url: `/api/parent/reviews/${current.weekStart}/pending`, headers: { cookie } }))
+      .json<{ snapshotIds: string[] }>();
+    expect(staleSnapshot.snapshotIds).toEqual(expect.arrayContaining([yesterday.id, today.id]));
+
+    const approve = () => app.inject({ method: 'POST', url: `/api/parent/occurrences/${yesterday.id}/approve`,
+      headers: { ...mutationHeaders, cookie } });
+    expect((await approve()).json()).toMatchObject({ creditedCents: 100, idempotent: false });
+    expect((await approve()).json()).toMatchObject({ creditedCents: 100, idempotent: true });
+
+    const staleBulk = await app.inject({ method: 'POST', url: `/api/parent/reviews/${current.weekStart}/complete-pending`,
+      headers: { ...jsonHeaders, cookie }, payload: {
+        snapshotIds: staleSnapshot.snapshotIds,
+        decisions: staleSnapshot.snapshotIds.map((occurrenceId) => ({ occurrenceId, decision: 'approved' }))
+      } });
+    expect(staleBulk.statusCode).toBe(409);
+
+    const fresh = (await app.inject({ method: 'GET', url: `/api/parent/reviews/${current.weekStart}/pending`, headers: { cookie } }))
+      .json<{ snapshotIds: string[] }>();
+    expect(fresh.snapshotIds).toEqual([today.id]);
+    const finish = await app.inject({ method: 'POST', url: `/api/parent/reviews/${current.weekStart}/complete-pending`,
+      headers: { ...jsonHeaders, cookie }, payload: {
+        snapshotIds: fresh.snapshotIds,
+        decisions: [{ occurrenceId: today.id, decision: 'rejected' }]
+      } });
+    expect(finish.statusCode).toBe(200);
+    expect((await app.inject({ method: 'GET', url: '/api/allowance' })).json<{ approvedBalanceCents: number }>().approvedBalanceCents).toBe(100);
+  });
+
   it('bulk-approves an exact snapshot, leaves deselected claims pending, and handles retries', async () => {
     now = new Date('2026-10-27T19:00:00.000Z');
     const current = await checklist();

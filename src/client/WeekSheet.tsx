@@ -48,7 +48,7 @@ function dayOutcome(day: ChecklistDay): string {
 }
 
 export function WeekSheet({ checklist, allowance, busy, claimCelebration, parentAuthorized, onToggleClaim,
-  onOpenReview, onRequestParent }: {
+  onOpenReview, onRequestParent, onOpenDetails }: {
   checklist: ChecklistResponse | null;
   allowance: AllowanceSummary | null;
   busy: boolean;
@@ -57,6 +57,7 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
   onToggleClaim: (id: string, claimed: boolean) => void;
   onOpenReview: (weekStart: string) => void;
   onRequestParent: () => void;
+  onOpenDetails: (item: ChecklistOccurrence) => void;
 }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showWholeWeek, setShowWholeWeek] = useState(false);
@@ -72,14 +73,18 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
   function choreRow(item: ChecklistOccurrence, compact = false) {
     const missed = isMissed(item);
     return <li key={item.id} className={`weeksheet-chore ${missed ? 'state-missed' : `state-${item.state}`} ${compact ? 'compact' : ''}`}>
-      <label className={`${item.claimed ? 'checked' : ''} ${claimCelebration === item.id ? 'celebrating' : ''}`}>
+      <label className={`weeksheet-checkbox ${item.claimed ? 'checked' : ''} ${claimCelebration === item.id ? 'celebrating' : ''}`}
+        aria-label={`${item.claimed ? 'Undo' : 'Claim'} ${item.title}`}>
         <input type="checkbox" checked={item.claimed} disabled={busy || !item.eligible}
           onChange={() => onToggleClaim(item.id, item.claimed)} />
         <span className="weeksheet-check" aria-hidden="true">{missed ? '×' : item.claimed ? '✓' : ''}</span>
+      </label>
+      <button type="button" className="weeksheet-detail-trigger" data-chore-detail-id={item.id}
+        onClick={() => onOpenDetails(item)} aria-label={`View details for ${item.title}`}>
         <span className="weeksheet-chore-copy"><strong>{item.title}</strong><small>{statusText(item)}</small>
           {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span>
         <b>{item.state === 'rejected' || missed ? '$0' : money(item.rewardCents)}</b>
-      </label>
+      </button>
     </li>;
   }
 

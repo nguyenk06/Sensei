@@ -12,6 +12,7 @@ import type {
   ScheduleKind
 } from '../shared/types';
 import { CalendarSection } from './CalendarSection';
+import { ChoreDetailDialog } from './ChoreDetailDialog';
 import { OverworldScene } from './OverworldScene';
 import { getDeviceThemeId, saveDeviceTheme, themes } from './themes';
 import { useDialogFocus } from './useDialogFocus';
@@ -118,6 +119,8 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [claimCelebration, setClaimCelebration] = useState<string | null>(null);
   const [approvalCelebration, setApprovalCelebration] = useState(false);
+  const [detailOccurrenceId, setDetailOccurrenceId] = useState<string | null>(null);
+  const [decisionConfirmation, setDecisionConfirmation] = useState<string | null>(null);
   const parentDialogRef = useDialogFocus<HTMLElement>(parentOpen);
   const reviewDialogRef = useDialogFocus<HTMLElement>(Boolean(bulkReview));
   const reviewSummaryDialogRef = useDialogFocus<HTMLElement>(Boolean(reviewSummary));
@@ -160,25 +163,38 @@ export function App() {
   }, [calendarMonth, loadAllowance, loadCalendar, loadChecklist, loadParent]);
 
   useEffect(() => {
-    if (!parentOpen && !bulkReview && !reviewSummary && !activityOpen) return;
+    if (!parentOpen && !bulkReview && !reviewSummary && !activityOpen && !detailOccurrenceId) return;
     const closeTopLayer = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
-      if (reviewSummary) setReviewSummary(null);
+      if (detailOccurrenceId) setDetailOccurrenceId(null);
+      else if (reviewSummary) setReviewSummary(null);
       else if (bulkReview) setBulkReview(null);
       else if (activityOpen) setActivityOpen(false);
       else setParentOpen(false);
     };
     document.addEventListener('keydown', closeTopLayer);
     return () => document.removeEventListener('keydown', closeTopLayer);
-  }, [activityOpen, bulkReview, parentOpen, reviewSummary]);
+  }, [activityOpen, bulkReview, detailOccurrenceId, parentOpen, reviewSummary]);
 
   const bulkTotal = useMemo(() => bulkReview?.items.filter((item) => reviewChoices[item.id]?.decision === 'approved')
     .reduce((sum, item) => sum + item.rewardCents, 0) ?? 0, [bulkReview, reviewChoices]);
+  const detailOccurrence = useMemo(() => {
+    if (!detailOccurrenceId || !checklist) return null;
+    return [...checklist.days.flatMap((day) => day.occurrences), ...(checklist.lateClaimDay?.occurrences ?? [])]
+      .find((item) => item.id === detailOccurrenceId) ?? null;
+  }, [checklist, detailOccurrenceId]);
 
   async function run(action: () => Promise<void>) {
     setBusy(true); setError(null);
     try { await action(); }
     catch (reason) { setError((reason as Error).message); }
+    finally { setBusy(false); }
+  }
+
+  async function runResult(action: () => Promise<void>): Promise<boolean> {
+    setBusy(true); setError(null);
+    try { await action(); return true; }
+    catch (reason) { setError((reason as Error).message); return false; }
     finally { setBusy(false); }
   }
 
@@ -195,14 +211,18 @@ export function App() {
     });
   }
 
+  async function authenticatePin(value: string): Promise<boolean> {
+    return runResult(async () => {
+      await api(parent.configured ? '/api/parent/login' : '/api/parent/setup', {
+        method: 'POST', headers: jsonHeaders, body: JSON.stringify({ pin: value })
+      });
+      await loadParent();
+    });
+  }
+
   async function authenticate(event: FormEvent) {
     event.preventDefault();
-    await run(async () => {
-      await api(parent.configured ? '/api/parent/login' : '/api/parent/setup', {
-        method: 'POST', headers: jsonHeaders, body: JSON.stringify({ pin })
-      });
-      setPin(''); await loadParent();
-    });
+    if (await authenticatePin(pin)) setPin('');
   }
 
   async function signOut() {
@@ -248,16 +268,16 @@ export function App() {
       ? current.weekdays.filter((value) => value !== day) : [...current.weekdays, day].sort() }));
   }
 
-  async function decideOccurrenceAction(id: string, action: 'approve' | 'reject' | 'override', suppliedNote?: string) {
-    if (!parent.authorized) { setParentOpen(true); return; }
-    if (action === 'override' && !window.confirm('Complete and approve this historical chore? This is final.')) return;
+  async function decideOccurrenceAction(id: string, action: 'approve' | 'reject' | 'override', suppliedNote?: string): Promise<boolean> {
+    if (!parent.authorized) { setParentOpen(true); return false; }
+    if (action === 'override' && !window.confirm('Complete and approve this historical chore? This is final.')) return false;
     let note = suppliedNote;
     if (action === 'reject' && note === undefined) {
       const response = window.prompt('Optional rejection note (leave blank for none):', '');
-      if (response === null) return;
+      if (response === null) return false;
       note = response;
     }
-    await run(async () => {
+    return runResult(async () => {
       await api(`/api/parent/occurrences/${id}/${action}`, {
         method: 'POST', headers: action === 'reject' ? jsonHeaders : mutationHeaders,
         body: action === 'reject' ? JSON.stringify({ note }) : undefined
@@ -268,6 +288,15 @@ export function App() {
         window.setTimeout(() => setApprovalCelebration(false), 1200);
       }
     });
+  }
+
+  async function decideFromDetails(id: string, action: 'approve' | 'reject', note?: string): Promise<boolean> {
+    const completed = await decideOccurrenceAction(id, action, note);
+    if (completed) {
+      setDecisionConfirmation(action === 'approve' ? 'Chore approved and allowance updated.' : 'Chore rejected. No allowance was added.');
+      window.setTimeout(() => setDecisionConfirmation(null), 2200);
+    }
+    return completed;
   }
 
   async function openBulkReview(weekStart: string) {
@@ -341,17 +370,17 @@ export function App() {
 
   function occurrenceRow(item: ChecklistOccurrence) {
     return <div key={item.id} className={`chore-entry state-${item.state}`}>
-      <label className={`chore-row ${item.claimed ? 'checked' : ''} ${claimCelebration === item.id ? 'celebrating' : ''} ${!item.eligible ? 'locked' : ''}`}>
+      <label className={`chore-row-checkbox ${item.claimed ? 'checked' : ''} ${claimCelebration === item.id ? 'celebrating' : ''} ${!item.eligible ? 'locked' : ''}`}
+        aria-label={`${item.claimed ? 'Undo' : 'Claim'} ${item.title}`}>
         <input type="checkbox" checked={item.claimed} disabled={busy || !item.eligible}
           onChange={() => void toggleClaim(item.id, item.claimed)} />
         <span className="custom-check" aria-hidden="true">{item.claimed ? '✓' : ''}</span>
+      </label>
+      <button type="button" className="chore-row-detail" data-chore-detail-id={item.id}
+        onClick={() => setDetailOccurrenceId(item.id)} aria-label={`View details for ${item.title}`}>
         <span className="chore-title">{item.title}</span><span className="reward">{money(item.rewardCents)}</span>
         <span className={`chore-state ${item.state}`}>{item.state === 'pending' ? 'Pending approval' : item.state}</span>
-      </label>
-      {parent.authorized && item.state === 'pending' && <div className="inline-approval-actions">
-        <button className="approve" disabled={busy} onClick={() => void decideOccurrenceAction(item.id, 'approve')}>Approve</button>
-        <button className="reject" disabled={busy} onClick={() => void decideOccurrenceAction(item.id, 'reject')}>Reject</button>
-      </div>}
+      </button>
     </div>;
   }
 
@@ -380,7 +409,8 @@ export function App() {
       </section>}
       <WeekSheet checklist={checklist} allowance={allowance} busy={busy} claimCelebration={claimCelebration}
         parentAuthorized={parent.authorized} onToggleClaim={(id, claimed) => void toggleClaim(id, claimed)}
-        onOpenReview={(weekStart) => void openBulkReview(weekStart)} onRequestParent={() => setParentOpen(true)} />
+        onOpenReview={(weekStart) => void openBulkReview(weekStart)} onRequestParent={() => setParentOpen(true)}
+        onOpenDetails={(item) => setDetailOccurrenceId(item.id)} />
 
       <section className={`history-disclosure ${historyOpen ? 'open' : ''}`}>
         <button className="history-summary" aria-expanded={historyOpen} onClick={() => setHistoryOpen((value) => !value)}>
@@ -392,9 +422,11 @@ export function App() {
           <div className="history-toolbar"><p>Calendar outcomes stay attached to their original dates.</p>
             <button onClick={() => setActivityOpen(true)}>View detailed activity</button></div>
           <CalendarSection calendar={calendar} month={calendarMonth} onMonthChange={setCalendarMonth}
-            currentWeekStart={checklist?.weekStart ?? null} parentAuthorized={parent.authorized} busy={busy}
+            currentWeekStart={checklist?.weekStart ?? null} householdToday={checklist?.today ?? null}
+            parentAuthorized={parent.authorized} busy={busy}
             onToggleClaim={(id, claimed) => void toggleClaim(id, claimed)}
-            onDecision={(id, action) => void decideOccurrenceAction(id, action)}
+            onAuthenticate={authenticatePin} onDecision={decideFromDetails}
+            onOverride={(id) => void decideOccurrenceAction(id, 'override')}
             onApproveWeek={(weekStart) => void openBulkReview(weekStart)} />
         </div>}
       </section>
@@ -528,6 +560,9 @@ export function App() {
         <footer className="activity-balance"><span>Available balance</span><strong>{money(allowance?.approvedBalanceCents ?? 0)}</strong></footer>
       </section>
     </div>}
+    {detailOccurrence && <ChoreDetailDialog item={detailOccurrence} parentAuthorized={parent.authorized} busy={busy}
+      onAuthenticate={authenticatePin} onDecision={decideFromDetails} onClose={() => setDetailOccurrenceId(null)} />}
+    {decisionConfirmation && <div className="decision-confirmation" role="status">{decisionConfirmation}</div>}
     {approvalCelebration && <div className="approval-celebration" role="status">✦ Chores approved! ✦</div>}
   </div>;
 }

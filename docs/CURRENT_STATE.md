@@ -1,6 +1,8 @@
 # Current state
 
-Checkpoint date: October 31, 2026.
+Checkpoint date: November 7, 2026.
+
+Repository baseline: the combined Independent Chore Review release at the tip of local `main`.
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 
@@ -19,7 +21,10 @@ Sensei is a working, privately deployed household application for one child and 
 ### Parent review and allowance
 
 - PIN-protected Parent Mode with seven-day server sessions and manual sign-out.
-- Final per-occurrence approval and rejection.
+- Shared chore details on the weeksheet, mobile checklist, grace-period list, and calendar.
+- Separate checkbox and detail interactions: opening details never claims or undoes a chore.
+- Protected per-occurrence approval and rejection directly from a pending claim's details.
+- Parent PIN continuation preserves the selected chore and returns focus to its originating row.
 - Exact-snapshot bulk approval; deselected claims remain pending.
 - Historical parent override and direct completion of one-time chores.
 - One earning transaction per approved occurrence.
@@ -43,11 +48,11 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Verification baseline
 
-- 30 automated tests pass.
+- 33 automated tests pass across six test files.
 - TypeScript client and server checks pass.
 - Production build passes.
 - Isolated browser workflow passes on desktop and 390 px mobile width.
-- Two-client persistence, claim/undo, approvals, payments, corrections, themes, reduced motion, assets, and sign-out are covered.
+- Two-client persistence, claim/undo, detail isolation, PIN continuation, individual decisions, bulk coexistence, exact retries, payments, corrections, themes, reduced motion, assets, and sign-out are covered.
 - Runtime database integrity was verified before repository preparation; the database itself is not included.
 
 ## Known limitations and intentional boundaries
@@ -62,4 +67,6 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Repository status at this checkpoint
 
-The local `main` branch is based on the existing public GitHub `main` history. This checkpoint is prepared locally for Product Owner review and must not be pushed until separately authorized.
+Local `main` contains the combined application release and documentation handoff. The working tree is clean. The pre-release comparison base is `b32b7cc`.
+
+The household release was rebuilt and restarted through the existing Windows startup task after a verified SQLite-native backup. No schema migration, dependency installation, network change, startup change, or authentication change was required.

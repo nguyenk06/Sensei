@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { CalendarResponse } from '../shared/types';
+import type { CalendarOccurrenceView, CalendarResponse } from '../shared/types';
+import { ChoreDetailDialog, type ChoreDetailItem } from './ChoreDetailDialog';
 import { useDialogFocus } from './useDialogFocus';
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -26,20 +27,25 @@ function shortDate(date: string): string {
     .format(new Date(`${date}T00:00:00Z`));
 }
 
-export function CalendarSection({ calendar, month, onMonthChange, currentWeekStart, parentAuthorized, busy,
-  onToggleClaim, onDecision, onApproveWeek }: {
+export function CalendarSection({ calendar, month, onMonthChange, currentWeekStart, householdToday, parentAuthorized, busy,
+  onToggleClaim, onAuthenticate, onDecision, onOverride, onApproveWeek }: {
   calendar: CalendarResponse | null;
   month: string;
   onMonthChange: (month: string) => void;
   currentWeekStart: string | null;
+  householdToday: string | null;
   parentAuthorized: boolean;
   busy: boolean;
   onToggleClaim: (id: string, claimed: boolean) => void;
-  onDecision: (id: string, action: 'approve' | 'reject' | 'override') => void;
+  onAuthenticate: (pin: string) => Promise<boolean>;
+  onDecision: (id: string, action: 'approve' | 'reject', note?: string) => Promise<boolean>;
+  onOverride: (id: string) => void;
   onApproveWeek: (weekStart: string) => void;
 }) {
   const [weekStart, setWeekStart] = useState(currentWeekStart);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string | null>(null);
+  const [returnDate, setReturnDate] = useState<string | null>(null);
   const dayDialogRef = useDialogFocus<HTMLElement>(Boolean(selectedDate));
   useEffect(() => { if (!weekStart && currentWeekStart) setWeekStart(currentWeekStart); }, [currentWeekStart, weekStart]);
   const weekEnd = weekStart ? shiftDate(weekStart, 6) : null;
@@ -47,6 +53,28 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
     && day.date >= weekStart && day.date <= weekEnd) ?? [], [calendar, weekEnd, weekStart]);
   const pendingCount = weekDaysInView.reduce((sum, day) => sum + day.pendingCount, 0);
   const selectedDay = selectedDate ? calendar?.days.find((day) => day.date === selectedDate) ?? null : null;
+  const selectedOccurrence = selectedOccurrenceId
+    ? calendar?.days.flatMap((day) => day.occurrences).find((item) => item.id === selectedOccurrenceId) ?? null : null;
+
+  function detailItem(item: CalendarOccurrenceView): ChoreDetailItem {
+    return { id: item.id, date: item.date, title: item.title, rewardCents: item.rewardCents,
+      claimed: item.claimed, state: item.state, eligible: item.childEligible,
+      future: householdToday ? item.date > householdToday : false, decisionNote: item.decisionNote };
+  }
+
+  function returnToDay(id: string) {
+    setSelectedOccurrenceId(null);
+    window.setTimeout(() => setSelectedDate(returnDate), 0);
+    window.setTimeout(() => {
+      document.querySelector<HTMLElement>(`[data-calendar-chore-detail-id="${CSS.escape(id)}"]`)?.focus();
+    }, 50);
+  }
+
+  function openOccurrenceDetails(id: string) {
+    setReturnDate(selectedDate);
+    setSelectedDate(null);
+    window.setTimeout(() => setSelectedOccurrenceId(id), 0);
+  }
 
   function moveWeek(days: number) {
     if (!weekStart) return;
@@ -96,21 +124,24 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
       </button>)}
     </div>
     {selectedDay && <div className="centered-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedDate(null); }}>
-      <section ref={dayDialogRef} tabIndex={-1} className="day-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="day-detail-title">
+      <section ref={dayDialogRef} tabIndex={-1} className="day-detail-dialog" role="dialog" aria-modal="true"
+        aria-labelledby="day-detail-title">
         <header><div><p className="eyebrow">{selectedDay.date}</p><h2 id="day-detail-title">Chores for {shortDate(selectedDay.date)}</h2></div>
-          <button className="icon-button" aria-label="Close day details" onClick={() => setSelectedDate(null)}>×</button></header>
+          <button className="icon-button" aria-label="Close day details" onClick={() => { setSelectedOccurrenceId(null); setSelectedDate(null); }}>×</button></header>
         <div className="day-detail-list">{selectedDay.occurrences.map((item) => <article key={item.id}>
-          <label><input type="checkbox" checked={item.claimed} disabled={busy || !item.childEligible}
-            onChange={() => onToggleClaim(item.id, item.claimed)} /><span><strong>{item.title}</strong>
+          <label className="calendar-chore-checkbox" aria-label={`${item.claimed ? 'Undo' : 'Claim'} ${item.title}`}>
+            <input type="checkbox" checked={item.claimed} disabled={busy || !item.childEligible}
+              onChange={() => onToggleClaim(item.id, item.claimed)} /></label>
+          <button type="button" className="calendar-chore-detail" data-calendar-chore-detail-id={item.id}
+            onClick={() => openOccurrenceDetails(item.id)} aria-label={`View details for ${item.title}`}><span><strong>{item.title}</strong>
               <small>{item.state === 'rejected' ? '$0 gained · Rejected' : `$${(item.rewardCents / 100).toFixed(2)} · ${item.state === 'pending' ? 'Pending approval' : item.state}`}</small>
-              {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span></label>
-          {parentAuthorized && item.state === 'pending' && <div className="inline-approval-actions">
-            <button className="approve" onClick={() => onDecision(item.id, 'approve')}>Approve</button>
-            <button className="reject" onClick={() => onDecision(item.id, 'reject')}>Reject</button>
-          </div>}
-          {parentAuthorized && item.overrideEligible && <button className="override-button" onClick={() => onDecision(item.id, 'override')}>Complete & approve</button>}
+              {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span></button>
+          {parentAuthorized && item.overrideEligible && <button className="override-button" onClick={() => onOverride(item.id)}>Complete & approve</button>}
         </article>)}</div>
       </section>
     </div>}
+    {selectedOccurrence && <ChoreDetailDialog item={detailItem(selectedOccurrence)} parentAuthorized={parentAuthorized}
+      busy={busy} onAuthenticate={onAuthenticate} onDecision={onDecision}
+      onClose={() => returnToDay(selectedOccurrence.id)} />}
   </section>;
 }

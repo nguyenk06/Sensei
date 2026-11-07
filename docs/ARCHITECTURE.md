@@ -19,7 +19,9 @@ There are no microservices, containers, external identity providers, cloud datab
 | Path | Responsibility |
 | --- | --- |
 | `src/client/AppV2.tsx` | Main checklist, Parent Mode, approvals, payments, and application orchestration |
+| `src/client/ChoreDetailDialog.tsx` | Shared chore details, PIN continuation, and protected individual-review controls |
 | `src/client/CalendarSection.tsx` | Monthly history, day details, weekly bulk-review entry point |
+| `src/client/WeekSheet.tsx` | Desktop and mobile chore-first week presentation with independent checkbox/detail targets |
 | `src/client/themes.ts` | Theme registry, semantic tokens, device-local persistence |
 | `src/client/OverworldScene.tsx` | Seasonal, lighting, weather, animal, and motion composition |
 | `src/server/app.ts` | Fastify routes, authorization boundaries, cache policy, validation |
@@ -55,6 +57,12 @@ The browser sends the date represented by its current checklist. The API compare
 ### Parent decisions and bulk approval
 
 Individual approval/rejection operates transactionally and uses the unique occurrence decision constraint. Bulk approval submits both the reviewed snapshot IDs and selected IDs; any new or changed pending claim invalidates the snapshot. Deselected items stay pending. Repeating the same completed request cannot duplicate credit.
+
+The shared chore-detail dialog is presentation only; it does not create a parallel approval service. Pending claims call the existing protected occurrence endpoints. If the device lacks a valid parent session, the dialog uses the existing PIN login route, retains the selected occurrence ID, and reveals the decision controls only after authorization. A completed individual decision refreshes checklist, allowance, calendar, and parent history before restoring focus to the originating row.
+
+Calendar day details and chore details are sequential rather than nested dialogs. Opening a calendar chore closes the day dialog first; closing the chore dialog reopens the same date and restores its row focus. This preserves a single focus trap at a time.
+
+An individually reviewed occurrence gains its unique approval line and no longer appears in `pendingOccurrences`. A weekly review opened before that decision becomes a stale snapshot and receives a conflict response instead of silently processing a changed set.
 
 ### Allowance ledger
 
