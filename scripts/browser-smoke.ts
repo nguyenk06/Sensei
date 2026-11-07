@@ -378,6 +378,9 @@ try {
 
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();
   await childOne.getByRole('button', { name: 'allowance' }).click();
+  await childOne.evaluate(() => Object.defineProperty(window.crypto, 'randomUUID', {
+    value: undefined, configurable: true
+  }));
   await childOne.getByLabel('Amount ($)').fill('0.40');
   await childOne.getByLabel('Note').fill('Browser QA payment');
   await childOne.getByRole('button', { name: 'Record payment' }).click();
