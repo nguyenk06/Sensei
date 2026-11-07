@@ -171,6 +171,24 @@ describe('Sensei API', () => {
     expect(all.filter((item) => item.title === 'Saturday sweep')).toHaveLength(1);
   });
 
+  it('requires quarter-dollar increments for newly entered scheduled rewards', async () => {
+    const cookie = await setupParent();
+    const invalid = await app.inject({ method: 'POST', url: '/api/parent/chores', headers: { ...jsonHeaders, cookie },
+      payload: { title: 'Invalid reward', rewardCents: 110, schedule: { kind: 'daily' } } });
+    expect(invalid.statusCode).toBe(400);
+    const valid = await app.inject({ method: 'POST', url: '/api/parent/chores', headers: { ...jsonHeaders, cookie },
+      payload: { title: 'Quarter reward', rewardCents: 125, schedule: { kind: 'daily' } } });
+    expect(valid.statusCode).toBe(201);
+    const chores = (await app.inject({ method: 'GET', url: '/api/parent/chores', headers: { cookie } }))
+      .json<{ chores: ChoreSummary[] }>().chores;
+    const dishes = chores.find((chore) => chore.title === 'Clear dishes')!;
+    const invalidEdit = await app.inject({ method: 'PUT', url: `/api/parent/chores/${dishes.id}`,
+      headers: { ...jsonHeaders, cookie }, payload: {
+        title: dishes.title, rewardCents: 110, schedule: dishes.schedule
+      } });
+    expect(invalidEdit.statusCode).toBe(400);
+  });
+
   it('expires the parent session at exactly seven days and revokes it on sign-out', async () => {
     const cookie = await setupParent();
     let status = await app.inject({ method: 'GET', url: '/api/parent/status', headers: { cookie } });

@@ -12,6 +12,13 @@ export interface ChoreDetailItem {
   eligible: boolean;
   future: boolean;
   decisionNote: string | null;
+  approvedRewardCents: number | null;
+}
+
+export interface ChoreDecisionInput {
+  action: 'approve' | 'reject';
+  note?: string;
+  approvedRewardCents?: number;
 }
 
 function money(cents: number): string {
@@ -22,6 +29,12 @@ function longDate(date: string): string {
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC'
   }).format(new Date(`${date}T00:00:00Z`));
+}
+
+function parseMoneyToCents(value: string): number | null {
+  if (!/^\d+(?:\.\d{1,2})?$/.test(value.trim())) return null;
+  const cents = Number(value) * 100;
+  return Number.isSafeInteger(cents) ? cents : null;
 }
 
 function stateLabel(item: ChoreDetailItem): string {
@@ -40,18 +53,22 @@ export function ChoreDetailDialog({ item, parentAuthorized, busy, onClose,
   busy: boolean;
   onClose: () => void;
   onAuthenticate: (pin: string) => Promise<boolean>;
-  onDecision: (id: string, action: 'approve' | 'reject', note?: string) => Promise<boolean>;
+  onDecision: (id: string, decision: ChoreDecisionInput) => Promise<boolean>;
 }) {
   const [stage, setStage] = useState<'details' | 'auth' | 'review'>('details');
   const [pin, setPin] = useState('');
-  const [rejectionNote, setRejectionNote] = useState('');
+  const [parentComment, setParentComment] = useState('');
+  const [awardAmount, setAwardAmount] = useState((item.rewardCents / 100).toFixed(2));
+  const [validationMessage, setValidationMessage] = useState('');
   const dialogRef = useDialogFocus<HTMLElement>(true);
 
   useEffect(() => {
     setStage('details');
     setPin('');
-    setRejectionNote('');
-  }, [item.id]);
+    setParentComment('');
+    setAwardAmount((item.rewardCents / 100).toFixed(2));
+    setValidationMessage('');
+  }, [item.id, item.rewardCents]);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
@@ -68,9 +85,34 @@ export function ChoreDetailDialog({ item, parentAuthorized, busy, onClose,
   }
 
   async function decide(action: 'approve' | 'reject') {
-    const completed = await onDecision(item.id, action, action === 'reject' ? rejectionNote : undefined);
+    const note = parentComment.trim() || undefined;
+    if (action === 'reject') {
+      const completed = await onDecision(item.id, { action, note });
+      if (completed) onClose();
+      return;
+    }
+    const approvedRewardCents = parseMoneyToCents(awardAmount);
+    if (approvedRewardCents === null || approvedRewardCents <= 0 || approvedRewardCents > 100000) {
+      setValidationMessage('Enter an award between $0.25 and $1,000.00. Use Reject for $0.');
+      return;
+    }
+    if (approvedRewardCents !== item.rewardCents && approvedRewardCents % 25 !== 0) {
+      setValidationMessage('Adjusted awards must use $0.25 increments.');
+      return;
+    }
+    if (approvedRewardCents < item.rewardCents && !note) {
+      setValidationMessage('Explain why the award is lower than the scheduled reward.');
+      return;
+    }
+    setValidationMessage('');
+    const completed = await onDecision(item.id, { action, note, approvedRewardCents });
     if (completed) onClose();
   }
+
+  const adjusted = item.state === 'approved' && item.approvedRewardCents !== null
+    && item.approvedRewardCents !== item.rewardCents;
+  const enteredCents = parseMoneyToCents(awardAmount);
+  const reduction = enteredCents !== null && enteredCents < item.rewardCents;
 
   const content = <section ref={dialogRef} tabIndex={-1}
     className="chore-detail-dialog" role="dialog"
@@ -84,7 +126,11 @@ export function ChoreDetailDialog({ item, parentAuthorized, busy, onClose,
       <div><dt>Scheduled reward</dt><dd>{money(item.rewardCents)}</dd></div>
       <div><dt>Status</dt><dd className={`detail-state ${item.state}`}>{stateLabel(item)}</dd></div>
     </dl>
-    {item.state === 'rejected' && item.decisionNote && <p className="detail-note"><strong>Parent note</strong>{item.decisionNote}</p>}
+    {adjusted && <dl className="chore-detail-award">
+      <div><dt>Final awarded amount</dt><dd>{money(item.approvedRewardCents!)}</dd></div>
+    </dl>}
+    {(item.state === 'rejected' || item.state === 'approved') && item.decisionNote
+      && <p className="detail-note"><strong>Parent comment</strong>{item.decisionNote}</p>}
 
     {item.state === 'pending' && stage === 'details' && <div className="chore-detail-review-entry">
       <p>This claim can be approved or rejected without reviewing the rest of the week.</p>
@@ -101,12 +147,16 @@ export function ChoreDetailDialog({ item, parentAuthorized, busy, onClose,
     </form>}
 
     {item.state === 'pending' && stage === 'review' && <div className="chore-detail-decision">
-      <div><strong>Review {item.title}</strong><p>Approval adds {money(item.rewardCents)} to the available allowance balance.</p></div>
-      <label>Optional rejection note<input maxLength={240} value={rejectionNote}
-        onChange={(event) => setRejectionNote(event.target.value)} /></label>
+      <div><strong>Review {item.title}</strong><p>Adjusting this award affects only this chore occurrence.</p></div>
+      <label>Award amount ($)<input type="number" min="0.25" max="1000" step="0.25" inputMode="decimal"
+        value={awardAmount} onChange={(event) => { setAwardAmount(event.target.value); setValidationMessage(''); }} /></label>
+      <label>{reduction ? 'Parent explanation (required)' : 'Parent comment (optional)'}
+        <input maxLength={240} value={parentComment} placeholder={reduction ? 'Why was the reward reduced?' : 'Optional note for this decision'}
+          onChange={(event) => { setParentComment(event.target.value); setValidationMessage(''); }} /></label>
+      {validationMessage && <p className="detail-validation" role="alert">{validationMessage}</p>}
       <div className="review-decision-actions">
         <button className="reject" disabled={busy} onClick={() => void decide('reject')}>Reject · $0</button>
-        <button className="approve primary" disabled={busy} onClick={() => void decide('approve')}>Approve · {money(item.rewardCents)}</button>
+        <button className="approve primary" disabled={busy} onClick={() => void decide('approve')}>Approve · {enteredCents !== null ? money(enteredCents) : '—'}</button>
       </div>
     </div>}
   </section>;

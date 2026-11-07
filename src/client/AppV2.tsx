@@ -12,7 +12,7 @@ import type {
   ScheduleKind
 } from '../shared/types';
 import { CalendarSection } from './CalendarSection';
-import { ChoreDetailDialog } from './ChoreDetailDialog';
+import { ChoreDetailDialog, type ChoreDecisionInput } from './ChoreDetailDialog';
 import { OverworldScene } from './OverworldScene';
 import { getDeviceThemeId, saveDeviceTheme, themes } from './themes';
 import { useDialogFocus } from './useDialogFocus';
@@ -32,6 +32,12 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
 
 function money(cents: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+}
+
+function parseMoneyToCents(value: string): number | null {
+  if (!/^\d+(?:\.\d{1,2})?$/.test(value.trim())) return null;
+  const cents = Number(value) * 100;
+  return Number.isSafeInteger(cents) ? cents : null;
 }
 
 function shortDate(date: string): string {
@@ -242,7 +248,10 @@ export function App() {
   async function saveChore(event: FormEvent) {
     event.preventDefault();
     await run(async () => {
-      const rewardCents = Math.round(Number(form.reward) * 100);
+      const rewardCents = parseMoneyToCents(form.reward);
+      if (rewardCents === null || rewardCents % 25 !== 0) {
+        throw new Error('Scheduled rewards must use $0.25 increments');
+      }
       const schedule: ScheduleDefinition = form.kind === 'daily' ? { kind: 'daily' }
         : form.kind === 'one_time' ? { kind: 'one_time', date: form.date }
         : { kind: form.kind, weekdays: form.kind === 'weekly' ? [form.weekdays[0] ?? 0] : form.weekdays };
@@ -268,7 +277,8 @@ export function App() {
       ? current.weekdays.filter((value) => value !== day) : [...current.weekdays, day].sort() }));
   }
 
-  async function decideOccurrenceAction(id: string, action: 'approve' | 'reject' | 'override', suppliedNote?: string): Promise<boolean> {
+  async function decideOccurrenceAction(id: string, action: 'approve' | 'reject' | 'override', suppliedNote?: string,
+    approvedRewardCents?: number): Promise<boolean> {
     if (!parent.authorized) { setParentOpen(true); return false; }
     if (action === 'override' && !window.confirm('Complete and approve this historical chore? This is final.')) return false;
     let note = suppliedNote;
@@ -279,8 +289,8 @@ export function App() {
     }
     return runResult(async () => {
       await api(`/api/parent/occurrences/${id}/${action}`, {
-        method: 'POST', headers: action === 'reject' ? jsonHeaders : mutationHeaders,
-        body: action === 'reject' ? JSON.stringify({ note }) : undefined
+        method: 'POST', headers: action === 'override' ? mutationHeaders : jsonHeaders,
+        body: action === 'override' ? undefined : JSON.stringify({ note, approvedRewardCents })
       });
       await refreshAll();
       if (action !== 'reject') {
@@ -290,10 +300,10 @@ export function App() {
     });
   }
 
-  async function decideFromDetails(id: string, action: 'approve' | 'reject', note?: string): Promise<boolean> {
-    const completed = await decideOccurrenceAction(id, action, note);
+  async function decideFromDetails(id: string, decision: ChoreDecisionInput): Promise<boolean> {
+    const completed = await decideOccurrenceAction(id, decision.action, decision.note, decision.approvedRewardCents);
     if (completed) {
-      setDecisionConfirmation(action === 'approve' ? 'Chore approved and allowance updated.' : 'Chore rejected. No allowance was added.');
+      setDecisionConfirmation(decision.action === 'approve' ? 'Chore approved and allowance updated.' : 'Chore rejected. No allowance was added.');
       window.setTimeout(() => setDecisionConfirmation(null), 2200);
     }
     return completed;
@@ -378,7 +388,7 @@ export function App() {
       </label>
       <button type="button" className="chore-row-detail" data-chore-detail-id={item.id}
         onClick={() => setDetailOccurrenceId(item.id)} aria-label={`View details for ${item.title}`}>
-        <span className="chore-title">{item.title}</span><span className="reward">{money(item.rewardCents)}</span>
+        <span className="chore-title">{item.title}</span><span className="reward">{money(item.approvedRewardCents ?? item.rewardCents)}</span>
         <span className={`chore-state ${item.state}`}>{item.state === 'pending' ? 'Pending approval' : item.state}</span>
       </button>
     </div>;
@@ -455,7 +465,7 @@ export function App() {
               <h3>{editingId ? 'Edit chore' : 'Add a chore'}</h3>
               <div className="form-grid">
                 <label className="wide">Chore name<input value={form.title} maxLength={80} required onChange={(event) => setForm({ ...form, title: event.target.value })} /></label>
-                <label>Reward ($)<input type="number" min="0" max="1000" step="0.01" value={form.reward} required onChange={(event) => setForm({ ...form, reward: event.target.value })} /></label>
+                <label>Reward ($)<input type="number" min="0" max="1000" step="0.25" value={form.reward} required onChange={(event) => setForm({ ...form, reward: event.target.value })} /></label>
                 <label>Schedule<select value={form.kind} onChange={(event) => setForm({ ...form, kind: event.target.value as ScheduleKind })}>
                   <option value="daily">Daily</option><option value="weekdays">Selected weekdays</option><option value="weekly">Weekly</option><option value="one_time">One time</option>
                 </select></label>
@@ -489,10 +499,18 @@ export function App() {
             </form>
             <div className="approved-history"><h3>Approved history</h3>{approved.map((week) => <article className="approved-week" key={week.id}>
               <header><div><strong>Week of {shortDate(week.weekStart)}</strong><span>{money(week.totalCents)} · {week.approvedByLabel}</span></div></header>
-              {week.lines.filter((line) => line.approvedRewardCents > 0 || line.currentHistoricalCents > 0).map((line) => <div className="approval-line" key={line.id}>
-                <div><strong>{line.title}</strong><span>{shortDate(line.date)} · Current record {money(line.currentHistoricalCents)}</span></div>
-                <button onClick={() => { setCorrectionLine(line.id); setCorrectionAmount((line.currentHistoricalCents / 100).toFixed(2)); setCorrectionNote(''); }}>Correct</button>
-              </div>)}
+              {week.lines.map((line) => <details className="approval-line" key={line.id}>
+                <summary><span><strong>{line.title}</strong><small>{shortDate(line.date)} · {line.decision === 'rejected' ? 'Rejected · $0' : `${money(line.approvedRewardCents)} awarded`}</small></span></summary>
+                <dl className="approval-line-details">
+                  <div><dt>Outcome</dt><dd>{line.decision}</dd></div>
+                  <div><dt>Scheduled reward</dt><dd>{money(line.originalRewardCents)}</dd></div>
+                  <div><dt>Final awarded amount</dt><dd>{money(line.approvedRewardCents)}</dd></div>
+                  {line.currentHistoricalCents !== line.approvedRewardCents && <div><dt>Current historical record</dt><dd>{money(line.currentHistoricalCents)}</dd></div>}
+                  {line.note && <div><dt>Parent comment</dt><dd>{line.note}</dd></div>}
+                  <div><dt>Decision source</dt><dd>{line.source?.replaceAll('_', ' ') ?? 'legacy weekly'}</dd></div>
+                </dl>
+                {line.decision !== 'rejected' && <button onClick={() => { setCorrectionLine(line.id); setCorrectionAmount((line.currentHistoricalCents / 100).toFixed(2)); setCorrectionNote(''); }}>Correct</button>}
+              </details>)}
             </article>)}</div>
             {correctionLine && <form className="correction-form" onSubmit={saveCorrection}><h3>Historical correction</h3>
               <label>Corrected reward ($)<input type="number" min="0" step="0.01" value={correctionAmount} onChange={(event) => setCorrectionAmount(event.target.value)} required /></label>

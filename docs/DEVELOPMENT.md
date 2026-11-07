@@ -73,7 +73,8 @@ The browser workflow verifies:
 - parent setup, authorization, and sign-out;
 - independent checkbox and chore-detail interactions;
 - PIN continuation back to the selected pending chore;
-- individual approval/rejection, exact-retry idempotency, and itemized bulk coexistence;
+- individual approval/rejection, optional comments, adjusted awards, required reduction explanations, exact-retry idempotency, and itemized bulk coexistence;
+- quarter-dollar validation and unchanged legacy reward compatibility;
 - calendar-to-chore dialog transitions, focus containment, and opener-focus restoration;
 - payment, correction, and export behavior;
 - all three themes and device-local persistence;
@@ -85,9 +86,9 @@ The browser workflow verifies:
 For verification without replacing a running household build, direct Vite and TypeScript output to an ignored QA directory and point the browser workflow at that client build:
 
 ```powershell
-pnpm exec vite build --outDir .qa/independent-review-release/client --emptyOutDir
-pnpm exec tsc -p tsconfig.server.json --outDir .qa/independent-review-release/server
-$env:SENSEI_QA_STATIC_DIR = '.qa/independent-review-release/client'
+pnpm exec vite build --outDir .qa/parent-review-enhancements/client --emptyOutDir
+pnpm exec tsc -p tsconfig.server.json --outDir .qa/parent-review-enhancements/server
+$env:SENSEI_QA_STATIC_DIR = '.qa/parent-review-enhancements/client'
 pnpm qa:browser
 ```
 

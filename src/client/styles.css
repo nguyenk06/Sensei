@@ -159,6 +159,10 @@ h3 { margin: 0; }
 .chore-detail-facts > div { display: grid; grid-template-columns: minmax(120px, .8fr) 1.2fr; gap: 18px; padding: 12px; background: var(--surface); }
 .chore-detail-facts dt { color: var(--muted); font-size: 11px; font-weight: 750; }
 .chore-detail-facts dd { margin: 0; font-weight: 800; text-align: right; }
+.chore-detail-award { margin: -8px 0 18px; padding: 12px; border: 1px solid var(--accent); background: var(--accent-soft); }
+.chore-detail-award > div { display: flex; justify-content: space-between; gap: 18px; }
+.chore-detail-award dt { color: var(--muted); font-size: 11px; font-weight: 750; }
+.chore-detail-award dd { margin: 0; color: var(--accent); font-weight: 900; }
 .detail-state.pending { color: var(--warning-ink); }
 .detail-state.approved { color: var(--accent); }
 .detail-state.rejected { color: var(--danger); }
@@ -167,6 +171,7 @@ h3 { margin: 0; }
 .chore-detail-review-entry p, .detail-pin-form p, .chore-detail-decision p { margin: 4px 0 0; color: var(--muted); }
 .detail-pin-form label, .chore-detail-decision label { display: grid; gap: 6px; font-weight: 750; }
 .detail-pin-form input, .chore-detail-decision input { min-height: 44px; }
+.detail-validation { padding: 10px 12px; border-left: 4px solid var(--danger); background: color-mix(in srgb, var(--danger) 9%, var(--surface)); color: var(--danger) !important; font-weight: 750; }
 .review-decision-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .review-decision-actions button { min-height: 44px; border: 1px solid var(--border); border-radius: var(--radius-control); padding: 9px 12px; font-weight: 850; }
 .review-decision-actions .reject { color: var(--danger); background: var(--surface); }
@@ -223,7 +228,16 @@ input, select { min-height: 43px; border: 1px solid var(--border); border-radius
 .approved-history { margin-top: 28px; }
 .approved-week { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-card); overflow: hidden; margin-bottom: 11px; }
 .approved-week > header { padding: 14px; background: var(--surface-subtle); }
-.approval-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--border); }
+.approval-line { padding: 12px 14px; border-top: 1px solid var(--border); }
+.approval-line summary { display: flex; cursor: pointer; list-style: none; }
+.approval-line summary::-webkit-details-marker { display: none; }
+.approval-line summary::after { content: '⌄'; margin-left: auto; color: var(--muted); font-size: 18px; transform: rotate(-90deg); }
+.approval-line[open] summary::after { transform: rotate(0); }
+.approval-line summary span, .approval-line summary strong, .approval-line summary small { display: block; }
+.approval-line-details { display: grid; gap: 7px; margin: 12px 0; padding: 12px; background: var(--surface-subtle); }
+.approval-line-details > div { display: grid; grid-template-columns: minmax(120px, .8fr) 1.2fr; gap: 12px; }
+.approval-line-details dt { color: var(--muted); font-size: 11px; }
+.approval-line-details dd { margin: 0; text-align: right; font-weight: 750; overflow-wrap: anywhere; }
 .correction-form { margin-top: 18px; display: grid; gap: 12px; }
 .export-button { width: 100%; margin-top: 20px; padding: 12px; }
 .theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }

@@ -148,20 +148,28 @@ try {
   if (!((await pendingDetail.getByRole('heading').textContent()) ?? '').includes('Clear dishes')) {
     throw new Error('PIN authorization did not retain the selected chore');
   }
+  await pendingDetail.getByLabel('Award amount ($)').fill('1.25');
+  await pendingDetail.getByLabel('Parent comment (optional)').fill('Great extra effort');
   await pendingDetail.screenshot({ path: path.join(qaDir, 'independent-chore-review-desktop.png') });
   const individualApprove = childOne.waitForResponse((response) => response.url().includes('/api/parent/occurrences/') && response.url().endsWith('/approve'));
   await pendingDetail.getByRole('button', { name: /Approve/ }).click();
   const individualApprovalResponse = await individualApprove;
   const individualApproval = await individualApprovalResponse.json() as { occurrenceId: string; creditedCents: number };
   await childOne.getByRole('status').filter({ hasText: 'Chore approved' }).waitFor();
-  if (individualApproval.creditedCents !== 100) throw new Error('Individual approval did not credit the scheduled reward');
+  if (individualApproval.creditedCents !== 125) throw new Error('Individual approval did not credit the adjusted reward');
   if (!await pendingDetailTrigger.evaluate((element) => element === document.activeElement)) throw new Error('Individual review did not return to its originating row');
+  await pendingDetailTrigger.click();
+  const adjustedDetail = childOne.getByRole('dialog', { name: /Clear dishes/ });
+  await adjustedDetail.getByText('Final awarded amount').waitFor();
+  await adjustedDetail.getByText('$1.25', { exact: true }).waitFor();
+  await adjustedDetail.getByText('Great extra effort').waitFor();
+  await adjustedDetail.getByRole('button', { name: 'Close chore details' }).click();
   const retry = await childOne.request.post(`${address}/api/parent/occurrences/${individualApproval.occurrenceId}/approve`, {
     headers: mutationHeaders
   });
   if (!(await retry.json() as { idempotent: boolean }).idempotent) throw new Error('Individual approval retry was not idempotent');
   const afterRetry = await (await childOne.request.get(`${address}/api/allowance`)).json() as { approvedBalanceCents: number };
-  if (afterRetry.approvedBalanceCents !== 100) throw new Error('Individual approval retry duplicated allowance credit');
+  if (afterRetry.approvedBalanceCents !== 125) throw new Error('Individual approval retry duplicated allowance credit');
 
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();
   const parentDialog = childOne.getByRole('dialog', { name: 'Household controls' });
@@ -208,7 +216,12 @@ try {
   await individualRejectEntry.locator('.weeksheet-detail-trigger').click();
   const rejectDetail = childOne.getByRole('dialog', { name: 'Browser QA individual reject' });
   await rejectDetail.getByRole('button', { name: 'Review claim' }).click();
-  await rejectDetail.getByLabel('Optional rejection note').fill('Handled independently in browser QA');
+  const awardInput = rejectDetail.getByLabel('Award amount ($)');
+  if (await awardInput.getAttribute('step') !== '0.25') throw new Error('Individual award input does not enforce quarter-dollar steps');
+  await awardInput.fill('1.00');
+  await rejectDetail.getByRole('button', { name: /Approve/ }).click();
+  await rejectDetail.getByRole('alert').filter({ hasText: 'Explain why the award is lower' }).waitFor();
+  await rejectDetail.getByLabel('Parent explanation (required)').fill('Handled independently in browser QA');
   const individualReject = childOne.waitForResponse((response) => response.url().includes('/api/parent/occurrences/') && response.url().endsWith('/reject'));
   await rejectDetail.getByRole('button', { name: /Reject/ }).click();
   await individualReject;
@@ -327,7 +340,7 @@ try {
   await completeDialog.waitFor();
   await completeDialog.getByRole('button', { name: 'Done' }).click();
   const approvedSummary = await (await childOne.request.get(`${address}/api/allowance`)).json() as { approvedBalanceCents: number };
-  if (approvedSummary.approvedBalanceCents !== 100) throw new Error(`Independent and bulk review produced ${approvedSummary.approvedBalanceCents} cents instead of 100`);
+  if (approvedSummary.approvedBalanceCents !== 125) throw new Error(`Independent and bulk review produced ${approvedSummary.approvedBalanceCents} cents instead of 125`);
 
   const remainingClaim = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
   await remainingClaim.getByText('Rejected · $0 gained').waitFor();
@@ -336,7 +349,7 @@ try {
   if (!(await calendarSection.isVisible())) await childOne.locator('.history-summary').click();
   const earnedMarker = calendarSection.locator('.calendar-day-status.earned');
   await earnedMarker.waitFor();
-  if (!((await earnedMarker.textContent()) ?? '').includes('$1.00')) throw new Error('Calendar approved marker does not show $1.00');
+  if (!((await earnedMarker.textContent()) ?? '').includes('$1.25')) throw new Error('Calendar approved marker does not show $1.25');
   await earnedMarker.locator('xpath=ancestor::button').click();
   const calendarDayDialog = childOne.getByRole('dialog', { name: /Chores for/ });
   await calendarDayDialog.waitFor();
@@ -368,8 +381,10 @@ try {
   await childOne.getByLabel('Amount ($)').fill('0.40');
   await childOne.getByLabel('Note').fill('Browser QA payment');
   await childOne.getByRole('button', { name: 'Record payment' }).click();
-  await childOne.getByText('$0.60', { exact: true }).first().waitFor();
-  await childOne.getByRole('button', { name: 'Correct' }).first().click();
+  await childOne.getByText('$0.85', { exact: true }).first().waitFor();
+  const firstApprovalHistory = childOne.locator('.approval-line').filter({ hasText: 'Clear dishes' }).first();
+  await firstApprovalHistory.locator('summary').click();
+  await firstApprovalHistory.getByRole('button', { name: 'Correct' }).click();
   await childOne.getByLabel('Corrected reward ($)').fill('0');
   await childOne.getByLabel('Reason').fill('Browser QA correction');
   await childOne.getByRole('button', { name: 'Save correction' }).click();

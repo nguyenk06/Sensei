@@ -39,7 +39,7 @@ There are no microservices, containers, external identity providers, cloud datab
 - `weeks` and `chore_occurrences` materialize the applicable revision into immutable historical snapshots.
 - `claim_events` records claim and undo actions.
 - `weekly_approvals` groups final decisions for presentation and history.
-- `approval_lines` gives each occurrence at most one final decision and stores its title/reward snapshots plus decision source.
+- `approval_lines` gives each occurrence at most one final decision and stores its scheduled reward snapshot, final awarded amount, optional parent comment, and decision source.
 - `allowance_transactions` distinguishes earnings, adjustments, and payments; idempotency keys protect repeat submissions.
 - `audit_events` records sensitive parent-authorized changes.
 - `parent_credentials` and `parent_sessions` store only Argon2id PIN hashes and SHA-256 session-token hashes.
@@ -56,7 +56,7 @@ The browser sends the date represented by its current checklist. The API compare
 
 ### Parent decisions and bulk approval
 
-Individual approval/rejection operates transactionally and uses the unique occurrence decision constraint. Bulk approval submits both the reviewed snapshot IDs and selected IDs; any new or changed pending claim invalidates the snapshot. Deselected items stay pending. Repeating the same completed request cannot duplicate credit.
+Individual approval/rejection operates transactionally and uses the unique occurrence decision constraint. An individual approval may provide a final integer-cent amount; changed amounts must use $0.25 increments, be positive, and include an explanation when below the immutable scheduled snapshot. Optional comments and the final amount are written with the approval line and audit event. Bulk approval submits both the reviewed snapshot IDs and decisions, always uses standard snapshotted rewards, and invalidates stale snapshots. Repeating the same completed request cannot duplicate credit.
 
 The shared chore-detail dialog is presentation only; it does not create a parallel approval service. Pending claims call the existing protected occurrence endpoints. If the device lacks a valid parent session, the dialog uses the existing PIN login route, retains the selected occurrence ID, and reveals the decision controls only after authorization. A completed individual decision refreshes checklist, allowance, calendar, and parent history before restoring focus to the originating row.
 
@@ -66,7 +66,7 @@ An individually reviewed occurrence gains its unique approval line and no longer
 
 ### Allowance ledger
 
-An approved occurrence creates one earning transaction. Payments and historical adjustments are separate transaction kinds. The balance is derived from transaction effects, never silently overwritten, and corrections cannot create negative debt.
+An approved occurrence creates one earning transaction for its final award. The transaction idempotency key remains occurrence-specific, so retries cannot add a second credit. Payments and later historical adjustments are separate transaction kinds. The balance is derived from transaction effects, never silently overwritten, and corrections cannot create negative debt.
 
 ## Security boundaries
 
@@ -76,7 +76,7 @@ An approved occurrence creates one earning transaction. Payments and historical 
 - Mutation requests require a Sensei header and same-origin checks.
 - Host allowlisting rejects unexpected host headers.
 - API and HTML responses use `no-store` policies to reduce stale-page reuse.
-- Request schemas reject unknown or malformed fields; monetary values are integer cents with bounds.
+- Request schemas and domain validation reject malformed fields; monetary values are integer cents with bounds. Newly entered/edited scheduled rewards and changed individual awards use $0.25 increments, while unchanged legacy snapshots are preserved exactly.
 - SQLite foreign keys, checks, uniqueness constraints, WAL, synchronous writes, and transactions protect integrity.
 
 HTTP remains unencrypted. These controls do not make public exposure safe; the intended boundary is a private household LAN.

@@ -40,7 +40,7 @@ function dayOutcome(day: ChecklistDay): string {
   const missed = day.occurrences.filter(isMissed).length;
   if (pending) return `${pending} awaiting review`;
   if (rejected && approved.length === 0) return 'Rejected · $0 gained';
-  if (approved.length) return `${money(approved.reduce((sum, item) => sum + item.rewardCents, 0))} approved`;
+  if (approved.length) return `${money(approved.reduce((sum, item) => sum + (item.approvedRewardCents ?? item.rewardCents), 0))} approved`;
   if (day.isFuture) return `${money(day.occurrences.reduce((sum, item) => sum + item.rewardCents, 0))} available`;
   if (missed === day.occurrences.length) return 'Missed · unavailable';
   if (missed) return `${missed} missed`;
@@ -83,7 +83,7 @@ export function WeekSheet({ checklist, allowance, busy, claimCelebration, parent
         onClick={() => onOpenDetails(item)} aria-label={`View details for ${item.title}`}>
         <span className="weeksheet-chore-copy"><strong>{item.title}</strong><small>{statusText(item)}</small>
           {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span>
-        <b>{item.state === 'rejected' || missed ? '$0' : money(item.rewardCents)}</b>
+        <b>{item.state === 'rejected' || missed ? '$0' : money(item.approvedRewardCents ?? item.rewardCents)}</b>
       </button>
     </li>;
   }

@@ -17,6 +17,7 @@ function normalizeInput(input: ChoreInput): ChoreInput {
   if (!Number.isInteger(input.rewardCents) || input.rewardCents < 0 || input.rewardCents > 100000) {
     throw new Error('Reward must be a whole number of cents between 0 and 100000');
   }
+  if (input.rewardCents % 25 !== 0) throw new Error('Reward must be in $0.25 increments');
   const schedule = normalizeSchedule(input.schedule);
   if (schedule.date) assertDate(schedule.date);
   return { title, rewardCents: input.rewardCents, schedule };

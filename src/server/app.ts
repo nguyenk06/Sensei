@@ -50,7 +50,7 @@ interface PendingReviewBody {
   snapshotIds: string[];
   decisions: Array<{ occurrenceId: string; decision: 'approved' | 'rejected'; note?: string }>;
 }
-interface DecisionBody { note?: string }
+interface DecisionBody { note?: string; approvedRewardCents?: number }
 interface PaymentBody { amountCents: number; note?: string; idempotencyKey: string }
 interface AdjustmentBody { correctedRewardCents: number; note: string; idempotencyKey: string }
 
@@ -66,7 +66,7 @@ const choreSchema = {
     type: 'object', additionalProperties: false, required: ['title', 'rewardCents', 'schedule'],
     properties: {
       title: { type: 'string', minLength: 1, maxLength: 80 },
-      rewardCents: { type: 'integer', minimum: 0, maximum: 100000 },
+      rewardCents: { type: 'integer', minimum: 0, maximum: 100000, multipleOf: 25 },
       schedule: {
         type: 'object', additionalProperties: false, required: ['kind'],
         properties: {
@@ -179,7 +179,9 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
         claimed: Boolean(row.claimed), state, approvalSource: (row.approvalSource ?? null) as ChecklistResponse['days'][number]['occurrences'][number]['approvalSource'],
         eligible: !decision && compareDates(date, today) <= 0 && compareDates(date, yesterday) >= 0,
         future: compareDates(date, today) > 0,
-        locked: Boolean(decision), decisionNote: typeof row.decisionNote === 'string' ? row.decisionNote : null
+        locked: Boolean(decision), decisionNote: typeof row.decisionNote === 'string' ? row.decisionNote : null,
+        approvedRewardCents: row.approvedRewardCents === null || row.approvedRewardCents === undefined
+          ? null : Number(row.approvedRewardCents)
       };
     });
     const days = labelsForWeek(weekStart).map(({ date, label }) => ({
@@ -378,11 +380,13 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       try {
         const note = request.body?.note;
         if (note !== undefined && (typeof note !== 'string' || note.trim().length > 240)) {
-          throw new Error('Rejection notes must be 240 characters or fewer');
+          throw new Error('Parent comments must be 240 characters or fewer');
         }
+        const approvedRewardCents = request.body?.approvedRewardCents;
+        if (mode !== 'approve' && approvedRewardCents !== undefined) throw new Error('Only approvals can set an awarded amount');
         const parent = sessionForRequest(db, request, clock());
         return decideOccurrence(db, request.params.id, mode, parent?.parentLabel ?? 'Parent', clock(),
-          formatLocalDate(clock(), timezone), mode === 'reject' ? note : undefined);
+          formatLocalDate(clock(), timezone), note, approvedRewardCents);
       } catch (error) { return reply.code(409).send({ error: (error as Error).message }); }
     });
   }

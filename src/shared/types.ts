@@ -20,6 +20,7 @@ export interface ChecklistOccurrence {
   future: boolean;
   locked: boolean;
   decisionNote: string | null;
+  approvedRewardCents: number | null;
 }
 
 export interface ChecklistDay {
@@ -145,6 +146,7 @@ export interface CalendarOccurrenceView {
   childEligible: boolean;
   overrideEligible: boolean;
   decisionNote: string | null;
+  approvedRewardCents: number | null;
 }
 
 export interface CalendarResponse {

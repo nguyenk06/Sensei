@@ -81,7 +81,7 @@ export function pendingOccurrences(db: SenseiDatabase, weekStart: string): Revie
       state: 'pending', approvalSource: null }));
 }
 
-type DecisionMode = 'approve' | 'reject' | 'override' | 'parent_direct';
+type DecisionMode = 'approve' | 'bulk_approve' | 'reject' | 'override' | 'parent_direct';
 
 function ensureApprovalGroup(db: SenseiDatabase, weekStart: string, parentLabel: string, createdAt: string): string {
   const existing = db.prepare('SELECT id FROM weekly_approvals WHERE week_start = ?').get(weekStart) as { id: string } | undefined;
@@ -99,7 +99,8 @@ function decideOccurrenceWithin(
   parentLabel: string,
   now: Date,
   today: string,
-  optionalNote?: string
+  optionalNote?: string,
+  requestedRewardCents?: number
 ): { occurrenceId: string; state: ChoreApprovalState; creditedCents: number; decidedAt: string; idempotent: boolean } {
   const row = occurrenceDecisionRow(db, occurrenceId);
   if (!row) throw new Error('Occurrence not found');
@@ -113,7 +114,7 @@ function decideOccurrenceWithin(
     throw new Error('This chore already has a final parent decision');
   }
   if (compareDates(row.date, today) > 0) throw new Error('Future chores cannot be decided');
-  if (mode === 'approve' || mode === 'reject') {
+  if (mode === 'approve' || mode === 'bulk_approve' || mode === 'reject') {
     if (!row.claimed) throw new Error('Only pending claims can be approved or rejected');
   } else if (mode === 'override') {
     if (row.claimed) throw new Error('Only an unclaimed historical chore can be overridden');
@@ -125,10 +126,21 @@ function decideOccurrenceWithin(
   const createdAt = now.toISOString();
   const source: Exclude<ChoreApprovalSource, null> = mode === 'override' ? 'parent_override'
     : mode === 'parent_direct' ? 'parent_direct' : 'child_claim';
-  const amount = desiredDecision === 'approved' ? row.rewardCents : 0;
+  const amount = desiredDecision === 'approved' ? requestedRewardCents ?? row.rewardCents : 0;
+  if (mode === 'approve') {
+    if (!Number.isInteger(amount) || amount <= 0 || amount > 100000) {
+      throw new Error('Approved reward must be between $0.25 and $1,000.00');
+    }
+    if (amount !== row.rewardCents && amount % 25 !== 0) {
+      throw new Error('Adjusted reward must be in $0.25 increments');
+    }
+    if (amount < row.rewardCents && !optionalNote?.trim()) {
+      throw new Error('A parent explanation is required when reducing the reward');
+    }
+  }
   const approvalId = ensureApprovalGroup(db, row.weekStart, parentLabel, createdAt);
   const lineId = randomUUID();
-  const note = mode === 'reject' ? optionalNote?.trim() || null
+  const note = mode === 'approve' || mode === 'reject' ? optionalNote?.trim() || null
     : source === 'parent_override' ? 'Parent historical override'
       : source === 'parent_direct' ? 'Parent direct completion' : null;
   db.prepare(`INSERT INTO approval_lines
@@ -163,9 +175,10 @@ export function decideOccurrence(
   parentLabel: string,
   now: Date,
   today: string,
-  note?: string
+  note?: string,
+  approvedRewardCents?: number
 ) {
-  return db.transaction(() => decideOccurrenceWithin(db, occurrenceId, mode, parentLabel, now, today, note))();
+  return db.transaction(() => decideOccurrenceWithin(db, occurrenceId, mode, parentLabel, now, today, note, approvedRewardCents))();
 }
 
 export function bulkApprovePending(
@@ -196,7 +209,7 @@ export function bulkApprovePending(
       throw new Error('Pending claims changed. Refresh the review before approving.');
     }
     let totalCents = 0;
-    for (const id of selected) totalCents += decideOccurrenceWithin(db, id, 'approve', parentLabel, now, today).creditedCents;
+    for (const id of selected) totalCents += decideOccurrenceWithin(db, id, 'bulk_approve', parentLabel, now, today).creditedCents;
     return { approvedCount: selected.length, totalCents, idempotent: false };
   })();
 }
@@ -257,7 +270,7 @@ export function completePendingReview(
     let totalCents = 0;
     for (const id of snapshot) {
       const decision = supplied.get(id)!;
-      const result = decideOccurrenceWithin(db, id, decision.decision === 'approved' ? 'approve' : 'reject',
+      const result = decideOccurrenceWithin(db, id, decision.decision === 'approved' ? 'bulk_approve' : 'reject',
         parentLabel, now, today, decision.note);
       if (decision.decision === 'approved') {
         approvedCount += 1;
@@ -544,6 +557,7 @@ export function calendarMonth(db: SenseiDatabase, month: string, today: string):
         return {
           id: row.id, date: row.date, title: row.title, rewardCents: Number(row.rewardCents),
           claimed: Boolean(row.claimed), state, approvalSource: row.approvalSource ?? null, decisionNote: row.decisionNote ?? null,
+          approvedRewardCents: row.approvedCents === null ? null : Number(row.approvedCents),
           childEligible: !row.decision && compareDates(row.date, today) <= 0 && compareDates(row.date, addDays(today, -1)) >= 0,
           overrideEligible: !row.decision && !row.claimed && compareDates(row.date, addDays(today, -1)) < 0
         };

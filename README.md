@@ -11,7 +11,7 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 - Generates a Monday–Sunday checklist from daily, selected-weekday, weekly, and one-time chores.
 - Lets a child claim or undo eligible chores for today and yesterday without an account.
 - Opens every chore in a shared detail panel without changing its claim state.
-- Lets an authorized parent approve or reject one pending claim from its details, alongside itemized weekly review.
+- Lets an authorized parent approve, adjust, or reject one pending claim from its details, with optional decision comments and an explanation required for reductions.
 - Preserves historical chore titles, schedules, rewards, decisions, adjustments, and payments.
 - Maintains a rolling approved-but-unpaid allowance balance with full or partial payments.
 - Shows a monthly calendar with approved earnings, pending claims, and missed chores.
@@ -36,7 +36,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-The November 7, 2026 checkpoint is a functional household release. Its independent chore-review workflow separates claim checkboxes from chore details, preserves the selected chore through parent PIN authorization, and safely coexists with weekly bulk review. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, payments, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, and stale-page claim protection. The checkpoint passes 33 automated tests plus the isolated end-to-end browser workflow.
+The November 7, 2026 phase-completion candidate extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, and child-visible historical details. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, and stale-page claim protection. The candidate passes 37 automated tests plus the isolated end-to-end browser workflow.
 
 The application is intentionally small and household-specific: one child, no public internet exposure, no cloud sync, no offline mutation queue, and no generalized account system.
 
@@ -61,6 +61,7 @@ The safe defaults bind to `127.0.0.1:3000` and store development data under `.lo
 - [Screenshot and artwork showcase](docs/SHOWCASE.md)
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Planner handoff](docs/PLANNER_HANDOFF.md)
+- [Current phase closure](docs/PHASE_CLOSURE.md)
 
 ## Privacy, security, and artwork
 

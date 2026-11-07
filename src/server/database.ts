@@ -233,14 +233,16 @@ export function ensureWeek(db: SenseiDatabase, weekStart: string): void {
 
 export function checklistRows(db: SenseiDatabase, weekStart: string): Array<Record<string, unknown>> {
   return db.prepare(`SELECT o.id AS id, o.occurrence_date AS date, o.title_snapshot AS title,
-    o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.note AS decisionNote, l.source AS approvalSource
+    o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.note AS decisionNote,
+    l.source AS approvalSource, l.approved_reward_cents AS approvedRewardCents
     FROM chore_occurrences o LEFT JOIN approval_lines l ON l.occurrence_id = o.id
     WHERE o.week_start = ? ORDER BY o.occurrence_date, o.created_at`).all(weekStart) as Array<Record<string, unknown>>;
 }
 
 export function checklistRowsForDate(db: SenseiDatabase, date: string): Array<Record<string, unknown>> {
   return db.prepare(`SELECT o.id, o.occurrence_date AS date, o.title_snapshot AS title,
-    o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.note AS decisionNote, l.source AS approvalSource
+    o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.note AS decisionNote,
+    l.source AS approvalSource, l.approved_reward_cents AS approvedRewardCents
     FROM chore_occurrences o LEFT JOIN approval_lines l ON l.occurrence_id = o.id
     WHERE o.occurrence_date = ? ORDER BY o.created_at`).all(date) as Array<Record<string, unknown>>;
 }

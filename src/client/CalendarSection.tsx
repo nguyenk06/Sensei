@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CalendarOccurrenceView, CalendarResponse } from '../shared/types';
-import { ChoreDetailDialog, type ChoreDetailItem } from './ChoreDetailDialog';
+import { ChoreDetailDialog, type ChoreDecisionInput, type ChoreDetailItem } from './ChoreDetailDialog';
 import { useDialogFocus } from './useDialogFocus';
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -38,7 +38,7 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
   busy: boolean;
   onToggleClaim: (id: string, claimed: boolean) => void;
   onAuthenticate: (pin: string) => Promise<boolean>;
-  onDecision: (id: string, action: 'approve' | 'reject', note?: string) => Promise<boolean>;
+  onDecision: (id: string, decision: ChoreDecisionInput) => Promise<boolean>;
   onOverride: (id: string) => void;
   onApproveWeek: (weekStart: string) => void;
 }) {
@@ -59,7 +59,8 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
   function detailItem(item: CalendarOccurrenceView): ChoreDetailItem {
     return { id: item.id, date: item.date, title: item.title, rewardCents: item.rewardCents,
       claimed: item.claimed, state: item.state, eligible: item.childEligible,
-      future: householdToday ? item.date > householdToday : false, decisionNote: item.decisionNote };
+      future: householdToday ? item.date > householdToday : false, decisionNote: item.decisionNote,
+      approvedRewardCents: item.approvedRewardCents };
   }
 
   function returnToDay(id: string) {
@@ -134,7 +135,7 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
               onChange={() => onToggleClaim(item.id, item.claimed)} /></label>
           <button type="button" className="calendar-chore-detail" data-calendar-chore-detail-id={item.id}
             onClick={() => openOccurrenceDetails(item.id)} aria-label={`View details for ${item.title}`}><span><strong>{item.title}</strong>
-              <small>{item.state === 'rejected' ? '$0 gained · Rejected' : `$${(item.rewardCents / 100).toFixed(2)} · ${item.state === 'pending' ? 'Pending approval' : item.state}`}</small>
+              <small>{item.state === 'rejected' ? '$0 gained · Rejected' : `$${((item.approvedRewardCents ?? item.rewardCents) / 100).toFixed(2)} · ${item.state === 'pending' ? 'Pending approval' : item.state}`}</small>
               {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span></button>
           {parentAuthorized && item.overrideEligible && <button className="override-button" onClick={() => onOverride(item.id)}>Complete & approve</button>}
         </article>)}</div>

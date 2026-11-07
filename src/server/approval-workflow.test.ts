@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
+import Database from 'better-sqlite3';
 import type { ChecklistResponse } from '../shared/types.js';
 import { buildApp } from './app.js';
 import { formatLocalDate } from './dates.js';
@@ -80,7 +81,8 @@ describe('rolling chore approval workflow', () => {
     await claim(yesterday.id);
     await claim(today.id);
     const cookie = await parentCookie();
-    const approve = () => app.inject({ method: 'POST', url: `/api/parent/occurrences/${today.id}/approve`, headers: { ...mutationHeaders, cookie } });
+    const approve = () => app.inject({ method: 'POST', url: `/api/parent/occurrences/${today.id}/approve`,
+      headers: { ...jsonHeaders, cookie }, payload: { note: 'Nice work' } });
     expect((await approve()).statusCode).toBe(200);
     expect((await approve()).json()).toMatchObject({ idempotent: true, creditedCents: 100 });
     expect((await app.inject({ method: 'POST', url: `/api/parent/occurrences/${today.id}/reject`, headers: { ...mutationHeaders, cookie } })).statusCode).toBe(409);
@@ -88,6 +90,7 @@ describe('rolling chore approval workflow', () => {
 
     expect((await app.inject({ method: 'POST', url: `/api/parent/occurrences/${yesterday.id}/reject`, headers: { ...mutationHeaders, cookie } })).statusCode).toBe(200);
     expect((await app.inject({ method: 'POST', url: `/api/parent/occurrences/${yesterday.id}/approve`, headers: { ...mutationHeaders, cookie } })).statusCode).toBe(409);
+    expect((await checklist()).days[2].occurrences[0]).toMatchObject({ decisionNote: 'Nice work', approvedRewardCents: 100 });
     const summary = await app.inject({ method: 'GET', url: '/api/allowance' });
     expect(summary.json<{ approvedBalanceCents: number; totalApprovedCents: number }>()).toMatchObject({ approvedBalanceCents: 100, totalApprovedCents: 100 });
     const calendar = (await app.inject({ method: 'GET', url: '/api/calendar?month=2026-10' }))
@@ -205,6 +208,66 @@ describe('rolling chore approval workflow', () => {
       } });
     expect(finish.statusCode).toBe(200);
     expect((await app.inject({ method: 'GET', url: '/api/allowance' })).json<{ approvedBalanceCents: number }>().approvedBalanceCents).toBe(100);
+  });
+
+  it('stores optional approval comments and adjusted awards without changing the scheduled snapshot', async () => {
+    const current = await checklist();
+    const today = current.days[2].occurrences[0];
+    await claim(today.id);
+    const cookie = await parentCookie();
+    const payload = { note: 'Excellent extra effort', approvedRewardCents: 175 };
+    const decide = () => app.inject({ method: 'POST', url: `/api/parent/occurrences/${today.id}/approve`,
+      headers: { ...jsonHeaders, cookie }, payload });
+    expect((await decide()).json()).toMatchObject({ creditedCents: 175, idempotent: false });
+    expect((await decide()).json()).toMatchObject({ creditedCents: 175, idempotent: true });
+
+    const refreshed = await checklist();
+    expect(refreshed.days[2].occurrences[0]).toMatchObject({
+      rewardCents: 100, approvedRewardCents: 175, decisionNote: 'Excellent extra effort', state: 'approved'
+    });
+    const history = (await app.inject({ method: 'GET', url: '/api/parent/approved-weeks', headers: { cookie } }))
+      .json<{ weeks: Array<{ lines: Array<{ originalRewardCents: number; approvedRewardCents: number; note: string | null }> }> }>();
+    expect(history.weeks[0].lines[0]).toMatchObject({
+      originalRewardCents: 100, approvedRewardCents: 175, note: 'Excellent extra effort'
+    });
+    const ledger = (await app.inject({ method: 'GET', url: '/api/allowance' }))
+      .json<{ approvedBalanceCents: number; recentActivity: unknown[] }>();
+    expect(ledger).toMatchObject({ approvedBalanceCents: 175 });
+    expect(ledger.recentActivity).toHaveLength(1);
+  });
+
+  it('requires an explanation for reductions and rejects invalid individual award amounts', async () => {
+    const current = await checklist();
+    const today = current.days[2].occurrences[0];
+    await claim(today.id);
+    const cookie = await parentCookie();
+    const approve = (approvedRewardCents: number, note?: string) => app.inject({ method: 'POST',
+      url: `/api/parent/occurrences/${today.id}/approve`, headers: { ...jsonHeaders, cookie },
+      payload: { approvedRewardCents, note } });
+    expect((await approve(50)).statusCode).toBe(409);
+    expect((await approve(90, 'Reduced')).statusCode).toBe(409);
+    expect((await approve(0, 'Use rejection')).statusCode).toBe(409);
+    expect((await approve(-25, 'Invalid')).statusCode).toBe(409);
+    expect((await approve(50, 'Only part of the chore was completed')).json()).toMatchObject({ creditedCents: 50 });
+    expect((await checklist()).days[2].occurrences[0]).toMatchObject({
+      rewardCents: 100, approvedRewardCents: 50, decisionNote: 'Only part of the chore was completed'
+    });
+  });
+
+  it('accepts a note-free standard approval and preserves an unchanged legacy non-quarter snapshot', async () => {
+    const current = await checklist();
+    const today = current.days[2].occurrences[0];
+    const legacy = new Database(databasePath);
+    legacy.prepare('UPDATE chore_occurrences SET reward_cents_snapshot = 110 WHERE id = ?').run(today.id);
+    legacy.close();
+    await claim(today.id);
+    const cookie = await parentCookie();
+    const response = await app.inject({ method: 'POST', url: `/api/parent/occurrences/${today.id}/approve`,
+      headers: { ...jsonHeaders, cookie }, payload: { approvedRewardCents: 110 } });
+    expect(response.json()).toMatchObject({ creditedCents: 110, idempotent: false });
+    expect((await checklist()).days[2].occurrences[0]).toMatchObject({
+      rewardCents: 110, approvedRewardCents: 110, decisionNote: null
+    });
   });
 
   it('bulk-approves an exact snapshot, leaves deselected claims pending, and handles retries', async () => {

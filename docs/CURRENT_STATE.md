@@ -2,7 +2,7 @@
 
 Checkpoint date: November 7, 2026.
 
-Repository baseline: the combined Independent Chore Review release at the tip of local `main`.
+Repository baseline: local Parent Review Enhancements phase-completion candidate, developed from published `main` commit `1532c3b`. Publication and household deployment remain separately gated.
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 
@@ -24,6 +24,11 @@ Sensei is a working, privately deployed household application for one child and 
 - Shared chore details on the weeksheet, mobile checklist, grace-period list, and calendar.
 - Separate checkbox and detail interactions: opening details never claims or undoes a chore.
 - Protected per-occurrence approval and rejection directly from a pending claim's details.
+- Optional parent comments on individual approvals and rejections.
+- Per-occurrence final award adjustment without changing the snapshotted scheduled reward.
+- Server-required explanation for an award below the scheduled reward.
+- Quarter-dollar validation for new/edited scheduled rewards and changed individual awards; unchanged legacy snapshots remain valid.
+- Child-visible scheduled/final amounts and parent explanations in chore details, plus compact expandable decision history.
 - Parent PIN continuation preserves the selected chore and returns focus to its originating row.
 - Exact-snapshot bulk approval; deselected claims remain pending.
 - Historical parent override and direct completion of one-time chores.
@@ -48,11 +53,11 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Verification baseline
 
-- 33 automated tests pass across six test files.
+- 37 automated tests pass across six test files.
 - TypeScript client and server checks pass.
 - Production build passes.
 - Isolated browser workflow passes on desktop and 390 px mobile width.
-- Two-client persistence, claim/undo, detail isolation, PIN continuation, individual decisions, bulk coexistence, exact retries, payments, corrections, themes, reduced motion, assets, and sign-out are covered.
+- Two-client persistence, claim/undo, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, themes, reduced motion, assets, and sign-out are covered.
 - Runtime database integrity was verified before repository preparation; the database itself is not included.
 
 ## Known limitations and intentional boundaries
@@ -67,6 +72,4 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Repository status at this checkpoint
 
-Local `main` contains the combined application release and documentation handoff. The working tree is clean. The pre-release comparison base is `b32b7cc`.
-
-The household release was rebuilt and restarted through the existing Windows startup task after a verified SQLite-native backup. No schema migration, dependency installation, network change, startup change, or authentication change was required.
+The candidate is intentionally not deployed. It introduces no schema migration, dependency, network, startup, or authentication change. Production release requires a separate authorization, verified SQLite backup, build/restart through the existing mechanism, and non-mutating smoke checks.
