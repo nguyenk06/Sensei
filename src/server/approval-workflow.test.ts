@@ -92,7 +92,13 @@ describe('rolling chore approval workflow', () => {
     expect((await app.inject({ method: 'POST', url: `/api/parent/occurrences/${yesterday.id}/approve`, headers: { ...mutationHeaders, cookie } })).statusCode).toBe(409);
     expect((await checklist()).days[2].occurrences[0]).toMatchObject({ decisionNote: 'Nice work', approvedRewardCents: 100 });
     const summary = await app.inject({ method: 'GET', url: '/api/allowance' });
-    expect(summary.json<{ approvedBalanceCents: number; totalApprovedCents: number }>()).toMatchObject({ approvedBalanceCents: 100, totalApprovedCents: 100 });
+    expect(summary.json<{ approvedBalanceCents: number; totalApprovedCents: number; lifetimeEarnedCents: number;
+      monthlyEarnedCents: number; earningsMonth: string }>()).toMatchObject({ approvedBalanceCents: 100,
+      totalApprovedCents: 100, lifetimeEarnedCents: 100, monthlyEarnedCents: 100, earningsMonth: '2026-10' });
+    now = new Date('2026-11-02T20:00:00.000Z');
+    expect((await app.inject({ method: 'GET', url: '/api/allowance' })).json()).toMatchObject({
+      lifetimeEarnedCents: 100, monthlyEarnedCents: 0, earningsMonth: '2026-11'
+    });
     const calendar = (await app.inject({ method: 'GET', url: '/api/calendar?month=2026-10' }))
       .json<{ days: Array<{ date: string; approvedCents: number | null; missedCount: number }> }>();
     expect(calendar.days.find((day) => day.date === yesterday.date)).toMatchObject({ approvedCents: null, missedCount: 1 });

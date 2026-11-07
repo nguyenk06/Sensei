@@ -372,8 +372,18 @@ try {
   await childOne.getByRole('button', { name: 'View detailed activity' }).click();
   const activityDialog = childOne.getByRole('dialog', { name: 'Money history' });
   await activityDialog.waitFor();
+  await activityDialog.getByText('Lifetime earned', { exact: true }).waitFor();
+  await activityDialog.getByText('Lifetime paid', { exact: true }).waitFor();
+  await activityDialog.getByText(/earned$/).first().waitFor();
   if (await activityDialog.getByText('Browser QA chore').count()) throw new Error('Rejected chores appeared in the allowance activity ledger');
   await activityDialog.screenshot({ path: path.join(qaDir, 'allowance-activity-panel.png') });
+  await childOne.setViewportSize({ width: 390, height: 844 });
+  const activityMobileWidth = await activityDialog.evaluate((element) => ({
+    viewport: document.documentElement.clientWidth, right: element.getBoundingClientRect().right
+  }));
+  if (activityMobileWidth.right > activityMobileWidth.viewport) throw new Error('Money History totals overflow on mobile');
+  await activityDialog.screenshot({ path: path.join(qaDir, 'allowance-activity-panel-mobile.png') });
+  await childOne.setViewportSize({ width: 1100, height: 800 });
   await activityDialog.getByRole('button', { name: 'Close allowance activity' }).click();
 
   await childOne.getByRole('button', { name: 'Parent Mode' }).click();

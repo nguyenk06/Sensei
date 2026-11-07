@@ -75,6 +75,9 @@ export interface AllowanceSummary {
   approvedBalanceCents: number;
   totalApprovedCents: number;
   totalPaidCents: number;
+  lifetimeEarnedCents: number;
+  monthlyEarnedCents: number;
+  earningsMonth: string;
   payments: AllowanceActivity[];
   recentActivity: AllowanceActivity[];
 }

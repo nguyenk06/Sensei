@@ -645,6 +645,11 @@ html[data-theme="minecraft"] main { padding-top: 38px; }
 .review-complete-dialog .primary { min-width: 150px; }
 .activity-panel { width: min(720px, 100%); height: 100%; overflow-y: auto; background: var(--page-soft); padding: 28px; box-shadow: -20px 0 70px rgba(0,0,0,.35); }
 .activity-panel .panel-header p { margin: 6px 0 0; color: var(--muted); }
+.activity-totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 20px; border: 1px solid var(--border); background: var(--border); }
+.activity-totals > div { min-width: 0; padding: 15px; background: var(--surface); }
+.activity-totals span, .activity-totals strong { display: block; }
+.activity-totals span { color: var(--muted); font-size: 11px; }
+.activity-totals strong { margin-top: 5px; color: var(--accent); font-family: var(--font-display); font-size: 23px; font-variant-numeric: tabular-nums; }
 .activity-panel .activity-list { margin-top: 20px; }
 .activity-balance { display: flex; align-items: center; justify-content: space-between; padding: 20px 18px; border: 1px solid var(--border); border-top: 0; background: var(--surface); }
 .activity-balance span { color: var(--muted); }
@@ -726,6 +731,7 @@ html[data-theme="minecraft"] .week-day-column + .week-day-column { border-left: 
   .review-decision button { flex: 1; }
   .bulk-review-dialog footer { align-items: stretch; flex-direction: column; }
   .activity-panel { padding: 20px 14px; }
+  .activity-totals { grid-template-columns: 1fr; }
   html[data-theme="minecraft"] .overworld-banner { height: 240px; }
   html[data-theme="minecraft"] main { margin-top: -24px; padding-top: 0; }
 }

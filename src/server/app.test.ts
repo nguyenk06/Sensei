@@ -279,7 +279,8 @@ describe('Sensei API', () => {
       headers: { ...jsonHeaders, cookie }, payload: { correctedRewardCents: 0, note: 'Verified incomplete', idempotencyKey: 'correction-test-1' } });
     expect(correction.json()).toMatchObject({ balanceCents: 0, nominalDeltaCents: -100, balanceEffectCents: -40 });
     const summary = await app.inject({ method: 'GET', url: '/api/allowance' });
-    expect(summary.json<{ approvedBalanceCents: number }>().approvedBalanceCents).toBe(0);
+    expect(summary.json<{ approvedBalanceCents: number; lifetimeEarnedCents: number; monthlyEarnedCents: number }>())
+      .toMatchObject({ approvedBalanceCents: 0, lifetimeEarnedCents: 0, monthlyEarnedCents: 0 });
     const updated = await app.inject({ method: 'GET', url: '/api/parent/approved-weeks', headers: { cookie } });
     expect(updated.json<{ weeks: Array<{ lines: Array<{ currentHistoricalCents: number }> }> }>().weeks[0].lines
       .some((item) => item.currentHistoricalCents === 0)).toBe(true);

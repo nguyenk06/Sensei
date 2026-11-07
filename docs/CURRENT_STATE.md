@@ -34,6 +34,7 @@ Sensei is a working, privately deployed household application for one child and 
 - Historical parent override and direct completion of one-time chores.
 - One earning transaction per approved occurrence.
 - Rolling unpaid balance, partial/full payments, corrections, and audit history.
+- Money History totals for the current household month, lifetime earned, lifetime paid, and available balance.
 - Manual SQLite export; restoration remains an external maintenance operation.
 
 ### Interface and themes

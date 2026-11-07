@@ -290,6 +290,7 @@ export function allowanceBalance(db: SenseiDatabase): number {
 
 export function allowanceSummary(db: SenseiDatabase, today: string): AllowanceSummary {
   const weekStart = weekStartFor(today);
+  const earningsMonth = today.slice(0, 7);
   const claimed = db.prepare(`SELECT COALESCE(SUM(reward_cents_snapshot), 0) AS amount
     FROM chore_occurrences o LEFT JOIN approval_lines l ON l.occurrence_id = o.id
     WHERE o.week_start = ? AND o.claimed = 1 AND l.id IS NULL`).get(weekStart) as { amount: number };
@@ -297,6 +298,15 @@ export function allowanceSummary(db: SenseiDatabase, today: string): AllowanceSu
     COALESCE(SUM(CASE WHEN kind = 'earning' THEN nominal_cents ELSE 0 END), 0) AS approved,
     COALESCE(SUM(CASE WHEN kind = 'payment' THEN -nominal_cents ELSE 0 END), 0) AS paid
     FROM allowance_transactions`).get() as { approved: number; paid: number };
+  const earned = db.prepare(`SELECT
+    COALESCE(SUM(l.approved_reward_cents + COALESCE(adjustments.amount, 0)), 0) AS lifetime,
+    COALESCE(SUM(CASE WHEN substr(l.occurrence_date, 1, 7) = ?
+      THEN l.approved_reward_cents + COALESCE(adjustments.amount, 0) ELSE 0 END), 0) AS monthly
+    FROM approval_lines l
+    LEFT JOIN (
+      SELECT approval_line_id, SUM(nominal_cents) AS amount
+      FROM allowance_transactions WHERE kind = 'adjustment' GROUP BY approval_line_id
+    ) adjustments ON adjustments.approval_line_id = l.id`).get(earningsMonth) as { lifetime: number; monthly: number };
   const recentRows = db.prepare(`SELECT id, kind, nominal_cents, balance_effect_cents, description,
     parent_label, created_at, week_start FROM allowance_transactions ORDER BY created_at DESC LIMIT 30`)
     .all() as TransactionRow[];
@@ -305,6 +315,9 @@ export function allowanceSummary(db: SenseiDatabase, today: string): AllowanceSu
     approvedBalanceCents: allowanceBalance(db),
     totalApprovedCents: Number(totals.approved),
     totalPaidCents: Number(totals.paid),
+    lifetimeEarnedCents: Number(earned.lifetime),
+    monthlyEarnedCents: Number(earned.monthly),
+    earningsMonth,
     payments: recentRows.filter((row) => row.kind === 'payment').map(activity),
     recentActivity: recentRows.map(activity)
   };

@@ -14,6 +14,7 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 - Lets an authorized parent approve, adjust, or reject one pending claim from its details, with optional decision comments and an explanation required for reductions.
 - Preserves historical chore titles, schedules, rewards, decisions, adjustments, and payments.
 - Maintains a rolling approved-but-unpaid allowance balance with full or partial payments.
+- Summarizes current-month earnings, lifetime earnings, lifetime payments, and available balance from the audited ledger.
 - Shows a monthly calendar with approved earnings, pending claims, and missed chores.
 - Protects parent actions with Argon2id PIN verification, server-side sessions, throttling, and request validation.
 - Runs as one Node process serving the React client, same-origin API, and SQLite database.

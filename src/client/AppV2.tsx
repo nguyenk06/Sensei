@@ -74,6 +74,11 @@ function monthName(month: string): string {
     .format(new Date(`${month}-01T00:00:00Z`));
 }
 
+function monthYearName(month: string): string {
+  return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${month}-01T00:00:00Z`));
+}
+
 function scheduleLabel(schedule: ScheduleDefinition): string {
   if (schedule.kind === 'daily') return 'Every day';
   if (schedule.kind === 'one_time') return `Once · ${schedule.date}`;
@@ -581,6 +586,12 @@ export function App() {
         <header className="panel-header"><div><p className="eyebrow">ALLOWANCE ACTIVITY</p><h2 id="activity-title">Money history</h2>
           <p>Only earnings, corrections, and payments affect this ledger.</p></div>
           <button className="icon-button" aria-label="Close allowance activity" onClick={() => setActivityOpen(false)}>×</button></header>
+        <div className="activity-totals" aria-label="Money history totals">
+          <div><span>{monthYearName(allowance?.earningsMonth ?? calendarMonth)} earned</span>
+            <strong>{money(allowance?.monthlyEarnedCents ?? 0)}</strong></div>
+          <div><span>Lifetime earned</span><strong>{money(allowance?.lifetimeEarnedCents ?? 0)}</strong></div>
+          <div><span>Lifetime paid</span><strong>{money(allowance?.totalPaidCents ?? 0)}</strong></div>
+        </div>
         <div className="activity-list">
           {allowance?.recentActivity.length ? allowance.recentActivity.map((item) => <article key={item.id}>
             <span className={`activity-icon ${item.kind}`}>{item.kind === 'earning' ? '+' : item.kind === 'payment' ? '−' : '±'}</span>
