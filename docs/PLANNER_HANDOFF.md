@@ -10,7 +10,7 @@ Handoff date: November 7, 2026.
 - Parent Review Enhancements are implemented, verified, published, and deployed.
 - LAN HTTP payment/correction compatibility is implemented through a client idempotency-key fallback.
 - Money History exposes current-month earned, lifetime earned, lifetime paid, and available balance from audited records.
-- A local `feature/overworld-night-encounters` checkpoint adds bounded decorative night encounters and awaits separate publication/deployment authorization.
+- Overworld Night Encounters are published on `main` and deployed to the existing household installation.
 
 Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not the current application baseline. Resolve the exact current release SHA with `git rev-parse HEAD` when preparing future work.
 
@@ -68,14 +68,13 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 
 ## Production status
 
-The current `main` checkpoint is the household release. It was released through the existing scheduled-task mechanism after a SQLite-native backup and passed non-mutating health, database integrity/count, LAN binding, browser, and theme checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
+The current `main` checkpoint is the household release, including Overworld Night Encounters. It was released through the existing scheduled-task mechanism after a SQLite-native backup and passed non-mutating health, database integrity/count, LAN binding, browser, weekly-board, History, Parent Mode entry, and live night-scene checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
 
 ## Remaining planner items
 
-1. Review and explicitly authorize publication/deployment of the local Night Encounters checkpoint if desired; current production remains unchanged.
-2. No corrective application implementation is otherwise required for this phase.
-3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
-4. Preserve the existing production backup and rollback practice for future releases.
+1. No corrective application implementation is currently required for this phase.
+2. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
+3. Preserve the existing production backup and rollback practice for future releases.
 
 ## Release and rollback boundary
 

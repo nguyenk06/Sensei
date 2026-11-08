@@ -76,4 +76,4 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Repository status at this checkpoint
 
-The household release described above remains published and deployed. The Overworld Night Encounters work is a verified local visual checkpoint only: it has not been pushed, published, deployed, or used to restart the household service. It changes no schema, dependency, business logic, network, startup, authentication, or household data.
+The Overworld Night Encounters checkpoint is published and deployed to the existing household installation. Release used a verified SQLite-native backup, rebuilt the existing production assets, restarted only the established Sensei scheduled task, retained the private-LAN binding, and passed non-mutating health, database-integrity, browser, weekly-board, History, Parent Mode entry, and live night-scene checks. It changed no schema, dependency, business logic, network, startup, authentication, or household data.
