@@ -199,11 +199,25 @@ try {
   await childOne.getByLabel('Chore date').fill(checklist.today);
   await childOne.getByRole('button', { name: 'Add chore' }).click();
   await childOne.getByText('Browser QA individual reject').last().waitFor();
+  await childOne.getByLabel('Chore name').fill('Browser QA future calendar');
+  await childOne.getByLabel('Reward ($)').fill('0.75');
+  await childOne.getByLabel('Schedule').selectOption('daily');
+  await childOne.getByRole('button', { name: 'Add chore' }).click();
+  await childOne.getByText('Browser QA future calendar').last().waitFor();
 
   await childOne.getByRole('button', { name: 'Close Parent Mode' }).click();
   if (!await childOne.getByRole('button', { name: 'Parent Mode' }).evaluate((element) => element === document.activeElement)) {
     throw new Error('Closing Parent Mode did not restore opener focus');
   }
+  const projectedCalendarDay = childOne.locator('.calendar-day').filter({ hasText: 'Browser QA future calendar' }).first();
+  await projectedCalendarDay.waitFor();
+  if (!((await projectedCalendarDay.innerText()).includes('scheduled'))) {
+    throw new Error('The calendar did not identify the new future chore as scheduled');
+  }
+  await projectedCalendarDay.click();
+  const projectedDayDialog = childOne.getByRole('dialog', { name: /Chores for/ });
+  await projectedDayDialog.getByRole('button', { name: 'View details for Browser QA future calendar' }).waitFor();
+  await projectedDayDialog.getByRole('button', { name: 'Close day details' }).click();
   const browserQaEntry = childOne.locator('.week-day-column.today .weeksheet-chore').filter({ hasText: 'Browser QA chore' });
   const secondClaim = childOne.waitForResponse((response) => response.url().includes('/api/occurrences/') && response.url().endsWith('/claim') && response.request().method() === 'POST');
   await browserQaEntry.locator('.weeksheet-checkbox').click();
@@ -243,6 +257,9 @@ try {
   await childOne.getByLabel('Device theme').selectOption('minecraft');
   if (await childOne.locator('html').getAttribute('data-theme') !== 'minecraft') throw new Error('Minecraft theme did not apply');
   await assertHeaderActions(childOne, 'Overworld desktop');
+  await childOne.locator('.overworld-lab summary').click();
+  await childOne.getByLabel('Light').selectOption('day');
+  await childOne.locator('.overworld-lab summary').click();
   const bannerStyle = await childOne.locator('.overworld-banner').evaluate((element) => {
     return { display: getComputedStyle(element).display, height: element.getBoundingClientRect().height };
   });

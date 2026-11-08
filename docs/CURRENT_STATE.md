@@ -40,7 +40,8 @@ Sensei is a working, privately deployed household application for one child and 
 
 ### Interface and themes
 
-- Responsive weekly checklist and monthly historical calendar.
+- Responsive weekly checklist and full monthly calendar showing persisted history plus every expected scheduled chore.
+- Future calendar expectations are projected read-only from effective-dated revisions; viewing a month does not materialize or freeze future weekly snapshots.
 - Calendar markers for approved earnings, pending claims, and missed chores.
 - NovaPay, Sensei Classic, and Overworld Adventure themes.
 - Device-local theme preference in the global header.
@@ -57,11 +58,11 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Verification baseline
 
-- 40 automated tests pass across seven test files.
+- 41 automated tests pass across seven test files.
 - TypeScript client and server checks pass.
 - Production build passes.
 - Isolated browser workflow passes on desktop and 390 px mobile width.
-- Two-client persistence, claim/undo, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, themes, deterministic night-encounter rarity, day/night replacement, encounter despawn, reduced motion, assets, and sign-out are covered.
+- Two-client persistence, claim/undo, full-month recurrence projections, future-snapshot isolation, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, themes, deterministic night-encounter rarity, day/night replacement, encounter despawn, reduced motion, assets, and sign-out are covered.
 - Runtime database integrity was verified before repository preparation; the database itself is not included.
 
 ## Known limitations and intentional boundaries
@@ -77,3 +78,5 @@ Sensei is a working, privately deployed household application for one child and 
 ## Repository status at this checkpoint
 
 The Overworld Night Encounters checkpoint is published and deployed to the existing household installation. Release used a verified SQLite-native backup, rebuilt the existing production assets, restarted only the established Sensei scheduled task, retained the private-LAN binding, and passed non-mutating health, database-integrity, browser, weekly-board, History, Parent Mode entry, and live night-scene checks. It changed no schema, dependency, business logic, network, startup, authentication, or household data.
+
+The full-calendar expected-chores correction is implemented and verified on a local feature branch. It has not been published or deployed and requires no schema migration.

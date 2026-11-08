@@ -15,7 +15,7 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 - Preserves historical chore titles, schedules, rewards, decisions, adjustments, and payments.
 - Maintains a rolling approved-but-unpaid allowance balance with full or partial payments.
 - Summarizes current-month earnings, lifetime earnings, lifetime payments, and available balance from the audited ledger.
-- Shows a monthly calendar with approved earnings, pending claims, and missed chores.
+- Shows every expected monthly chore alongside approved earnings, pending claims, and missed chores.
 - Protects parent actions with Argon2id PIN verification, server-side sessions, throttling, and request validation.
 - Runs as one Node process serving the React client, same-origin API, and SQLite database.
 
@@ -37,7 +37,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, audited monthly/lifetime Money History totals, and original Overworld night encounters. The existing bulk review remains a fast standard-reward workflow, and the visual enhancement changes no household behavior or data. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The release passes 40 automated tests plus the isolated end-to-end browser workflow.
+The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, audited monthly/lifetime Money History totals, and original Overworld night encounters. The existing bulk review remains a fast standard-reward workflow, and the visual enhancement changes no household behavior or data. A verified follow-up checkpoint makes the full calendar include newly configured and future expected chores without materializing their weekly snapshots early. Automated coverage includes scheduling, date eligibility, calendar projections, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The checkpoint passes 41 automated tests plus the isolated end-to-end browser workflow.
 
 The application is intentionally small and household-specific: one child, no public internet exposure, no cloud sync, no offline mutation queue, and no generalized account system.
 

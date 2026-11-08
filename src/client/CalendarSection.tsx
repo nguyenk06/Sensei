@@ -104,12 +104,14 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
     <div className="calendar-grid" aria-busy={!calendar}>
       {weekDays.map((day) => <div className="calendar-weekday" key={day}>{day}</div>)}
       {calendar?.days.map((day) => <button type="button" key={day.date}
-        className={`calendar-day ${day.inMonth ? '' : 'outside'} ${day.approvedCents !== null ? 'approved' : ''} ${day.missedCount > 0 ? 'missed' : ''}`}
+        className={`calendar-day ${day.inMonth ? '' : 'outside'} ${householdToday && day.date > householdToday ? 'future' : ''} ${day.approvedCents !== null ? 'approved' : ''} ${day.missedCount > 0 ? 'missed' : ''}`}
         disabled={day.occurrenceCount === 0} onClick={() => setSelectedDate(day.date)}>
         <header><time dateTime={day.date}>{Number(day.date.slice(-2))}</time></header>
         {day.occurrenceCount > 0 ? <>
-          <strong>{day.claimedCount}/{day.occurrenceCount} done</strong>
-          <p>{day.titles.slice(0, 2).join(' · ')}</p>
+          <strong>{householdToday && day.date > householdToday
+            ? `${day.occurrenceCount} scheduled`
+            : `${day.claimedCount}/${day.occurrenceCount} done`}</strong>
+          <p>{day.titles.join(' · ')}</p>
           <div className="calendar-day-statuses">
             {day.approvedCents !== null && <span className="calendar-day-status earned">
               <span aria-hidden="true">$</span>{(day.approvedCents / 100).toFixed(2)}<span className="sr-only"> approved</span>
@@ -135,7 +137,9 @@ export function CalendarSection({ calendar, month, onMonthChange, currentWeekSta
               onChange={() => onToggleClaim(item.id, item.claimed)} /></label>
           <button type="button" className="calendar-chore-detail" data-calendar-chore-detail-id={item.id}
             onClick={() => openOccurrenceDetails(item.id)} aria-label={`View details for ${item.title}`}><span><strong>{item.title}</strong>
-              <small>{item.state === 'rejected' ? '$0 gained · Rejected' : `$${((item.approvedRewardCents ?? item.rewardCents) / 100).toFixed(2)} · ${item.state === 'pending' ? 'Pending approval' : item.state}`}</small>
+              <small>{item.state === 'rejected' ? '$0 gained · Rejected'
+                : `$${((item.approvedRewardCents ?? item.rewardCents) / 100).toFixed(2)} · ${householdToday && item.date > householdToday
+                  ? 'Scheduled' : item.state === 'pending' ? 'Pending approval' : item.state}`}</small>
               {item.state === 'rejected' && item.decisionNote && <em>{item.decisionNote}</em>}</span></button>
           {parentAuthorized && item.overrideEligible && <button className="override-button" onClick={() => onOverride(item.id)}>Complete & approve</button>}
         </article>)}</div>

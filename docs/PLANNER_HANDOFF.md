@@ -11,6 +11,7 @@ Handoff date: November 7, 2026.
 - LAN HTTP payment/correction compatibility is implemented through a client idempotency-key fallback.
 - Money History exposes current-month earned, lifetime earned, lifetime paid, and available balance from audited records.
 - Overworld Night Encounters are published on `main` and deployed to the existing household installation.
+- The local `feature/calendar-expected-chores` checkpoint makes the month view show all expected chores without materializing future weeks; it is verified but not published or deployed.
 
 Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not the current application baseline. Resolve the exact current release SHA with `git rev-parse HEAD` when preparing future work.
 
@@ -60,10 +61,10 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 ## Verification evidence
 
 - Type checking passed.
-- Seven automated test files passed with 40 tests.
+- Seven automated test files passed with 41 tests.
 - Client production build and server compilation passed in isolated QA output.
 - The isolated browser workflow passed desktop and 390 px mobile verification.
-- Covered flows include PIN continuation, individual approve/reject, exact retries, stale bulk snapshots, bulk coexistence, focus restoration, payments, corrections, calendar, all three themes, deterministic night-creature selection, clean day/night transitions, finite encounter traversal, and reduced motion.
+- Covered flows include PIN continuation, individual approve/reject, exact retries, stale bulk snapshots, bulk coexistence, focus restoration, payments, corrections, full-month expected-chore projection, future-snapshot isolation, all three themes, deterministic night-creature selection, clean day/night transitions, finite encounter traversal, and reduced motion.
 - Synthetic data and temporary SQLite databases were used for tests.
 
 ## Production status
@@ -72,9 +73,10 @@ The current `main` checkpoint is the household release, including Overworld Nigh
 
 ## Remaining planner items
 
-1. No corrective application implementation is currently required for this phase.
-2. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
-3. Preserve the existing production backup and rollback practice for future releases.
+1. Review and authorize publication/deployment of `feature/calendar-expected-chores` if the verified calendar behavior is accepted.
+2. No other corrective application implementation is currently required for this phase.
+3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
+4. Preserve the existing production backup and rollback practice for future releases.
 
 ## Release and rollback boundary
 

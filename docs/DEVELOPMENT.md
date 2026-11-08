@@ -83,6 +83,7 @@ The browser workflow verifies:
 - Overworld assets, scene layers, motion, and reduced-motion behavior;
 - desktop/mobile overflow and header ordering;
 - calendar navigation and outcome badges;
+- full-month recurring and one-time chore projections without future-week materialization;
 - no-store cache headers and unexpected browser errors.
 
 For verification without replacing a running household build, direct Vite and TypeScript output to an ignored QA directory and point the browser workflow at that client build:
