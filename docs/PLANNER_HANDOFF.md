@@ -11,7 +11,7 @@ Handoff date: November 7, 2026.
 - LAN HTTP payment/correction compatibility is implemented through a client idempotency-key fallback.
 - Money History exposes current-month earned, lifetime earned, lifetime paid, and available balance from audited records.
 - Overworld Night Encounters are published on `main` and deployed to the existing household installation.
-- The full-calendar expected-chores checkpoint is published on `main` but not deployed. It makes the month view show all expected chores without materializing future weeks.
+- The full-calendar expected-chores checkpoint is published and deployed. It makes the month view show all expected chores without materializing future weeks.
 
 Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not the current application baseline. Resolve the exact current release SHA with `git rev-parse HEAD` when preparing future work.
 
@@ -73,10 +73,9 @@ The current `main` checkpoint is the household release, including Overworld Nigh
 
 ## Remaining planner items
 
-1. Deploy the published full-calendar expected-chores checkpoint when explicitly authorized; current household production remains on the preceding release.
-2. No other corrective application implementation is currently required for this phase.
-3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
-4. Preserve the existing production backup and rollback practice for future releases.
+1. No corrective application implementation is currently required for this phase.
+2. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
+3. Preserve the existing production backup and rollback practice for future releases.
 
 ## Release and rollback boundary
 
