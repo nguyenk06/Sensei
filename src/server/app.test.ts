@@ -4,7 +4,7 @@ import path from 'node:path';
 import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
-import type { ChecklistResponse, ChoreSummary } from '../shared/types.js';
+import type { CalendarResponse, ChecklistResponse, ChoreSummary } from '../shared/types.js';
 import { SESSION_SECONDS, setCredential } from './auth.js';
 import { buildApp } from './app.js';
 import { openDatabase } from './database.js';
@@ -169,6 +169,40 @@ describe('Sensei API', () => {
     expect(all.filter((item) => item.title === 'Daily practice')).toHaveLength(7);
     expect(all.filter((item) => item.title === 'Plant days')).toHaveLength(3);
     expect(all.filter((item) => item.title === 'Saturday sweep')).toHaveLength(1);
+  });
+
+  it('projects every expected chore into the full month calendar without materializing future weeks', async () => {
+    const cookie = await setupParent();
+    const create = (payload: unknown) => app.inject({
+      method: 'POST', url: '/api/parent/chores', headers: { ...jsonHeaders, cookie }, payload
+    });
+    expect((await create({ title: 'Future daily', rewardCents: 50, schedule: { kind: 'daily' } })).statusCode).toBe(201);
+    expect((await create({ title: 'Future school days', rewardCents: 75,
+      schedule: { kind: 'weekdays', weekdays: [0, 2, 4] } })).statusCode).toBe(201);
+    expect((await create({ title: 'Future Sunday reset', rewardCents: 125,
+      schedule: { kind: 'weekly', weekdays: [6] } })).statusCode).toBe(201);
+    expect((await create({ title: 'Month special', rewardCents: 200,
+      schedule: { kind: 'one_time', date: '2026-11-20' } })).statusCode).toBe(201);
+
+    const before = new Database(databasePath, { readonly: true });
+    expect((before.prepare('SELECT COUNT(*) AS count FROM weeks').get() as { count: number }).count).toBe(0);
+    expect((before.prepare('SELECT COUNT(*) AS count FROM chore_occurrences').get() as { count: number }).count).toBe(0);
+    before.close();
+
+    const response = await app.inject({ method: 'GET', url: '/api/calendar?month=2026-11' });
+    expect(response.statusCode).toBe(200);
+    const calendar = response.json<CalendarResponse>();
+    const titlesOn = (date: string) => calendar.days.find((day) => day.date === date)!.titles;
+    expect(titlesOn('2026-11-02')).toEqual(expect.arrayContaining(['Clear dishes', 'Future daily', 'Future school days']));
+    expect(titlesOn('2026-11-04')).toEqual(expect.arrayContaining(['Clear dishes', 'Future daily', 'Future school days']));
+    expect(titlesOn('2026-11-08')).toEqual(expect.arrayContaining(['Clear dishes', 'Clean room', 'Future daily', 'Future Sunday reset']));
+    expect(titlesOn('2026-11-20')).toEqual(expect.arrayContaining(['Clear dishes', 'Future daily', 'Future school days', 'Month special']));
+    expect(titlesOn('2026-11-03')).not.toContain('Future school days');
+
+    const after = new Database(databasePath, { readonly: true });
+    expect((after.prepare('SELECT COUNT(*) AS count FROM weeks').get() as { count: number }).count).toBe(0);
+    expect((after.prepare('SELECT COUNT(*) AS count FROM chore_occurrences').get() as { count: number }).count).toBe(0);
+    after.close();
   });
 
   it('requires quarter-dollar increments for newly entered scheduled rewards', async () => {

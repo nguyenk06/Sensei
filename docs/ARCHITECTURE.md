@@ -50,6 +50,8 @@ There are no microservices, containers, external identity providers, cloud datab
 
 The checklist request derives the Pacific household date and Monday week start, then transactionally creates any missing week and occurrences. Unique `(chore_id, occurrence_date)` constraints make repeated or concurrent generation safe. Recurring revisions take effect on Monday boundaries; one-time chores can be added to the current week.
 
+The monthly calendar combines those authoritative persisted snapshots with read-only projections from effective-dated chore revisions. This makes newly configured and future chores visible across the whole displayed month without creating future weeks or freezing their snapshots early. Once an occurrence exists, its persisted title, reward, claim, and decision always take precedence over a projection.
+
 ### Child claims
 
 The browser sends the date represented by its current checklist. The API compares that value with the current server-derived household date before checking the occurrence. This rejects a page left open across midnight. The server then enforces today/yesterday eligibility, future-date rejection, and final-decision locking.

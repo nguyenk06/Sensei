@@ -7,11 +7,13 @@ import type {
   CalendarResponse,
   ChoreApprovalSource,
   ChoreApprovalState,
+  ScheduleDefinition,
   ReviewOccurrence,
   ReviewWeek
 } from '../shared/types.js';
 import type { SenseiDatabase } from './database.js';
 import { addDays, assertDate, compareDates, dayIndex, formatLocalDate, weekStartFor } from './dates.js';
+import { occursOn } from './schedule.js';
 
 interface TransactionRow {
   id: string;
@@ -540,15 +542,50 @@ export function calendarMonth(db: SenseiDatabase, month: string, today: string):
   const last = addDays(nextMonth, -1);
   const gridStart = addDays(first, -dayIndex(first));
   const gridEnd = addDays(last, 6 - dayIndex(last));
-  const occurrences = db.prepare(`SELECT o.id, o.occurrence_date AS date, o.title_snapshot AS title,
+  const occurrences = db.prepare(`SELECT o.id, o.chore_id AS choreId, o.revision_id AS revisionId,
+    o.occurrence_date AS date, o.title_snapshot AS title,
     o.reward_cents_snapshot AS rewardCents, o.claimed, l.decision, l.note AS decisionNote, l.source AS approvalSource,
     l.approved_reward_cents AS approvedCents, CASE WHEN l.id IS NULL THEN 0 ELSE 1 END AS locked
     FROM chore_occurrences o
     LEFT JOIN approval_lines l ON l.occurrence_id = o.id
     WHERE o.occurrence_date BETWEEN ? AND ? ORDER BY o.occurrence_date, o.created_at`)
-    .all(gridStart, gridEnd) as Array<{ id: string; date: string; title: string; rewardCents: number;
+    .all(gridStart, gridEnd) as Array<{ id: string; choreId: string; revisionId: string; date: string; title: string; rewardCents: number;
       claimed: number; decision: OccurrenceDecisionRow['decision']; decisionNote: string | null; approvalSource: ChoreApprovalSource;
       approvedCents: number | null; locked: number }>;
+
+  // Future weeks stay virtual until their checklist is opened so viewing the calendar cannot freeze
+  // snapshots before a scheduled edit takes effect. Persisted occurrences always win.
+  const revisions = db.prepare(`SELECT id, chore_id AS choreId, title, reward_cents AS rewardCents,
+    schedule_json AS scheduleJson, effective_from AS effectiveFrom, effective_to AS effectiveTo
+    FROM chore_revisions
+    WHERE archived = 0 AND effective_from <= ? AND (effective_to IS NULL OR effective_to >= ?)
+    ORDER BY created_at`)
+    .all(gridEnd, gridStart) as Array<{ id: string; choreId: string; title: string; rewardCents: number;
+      scheduleJson: string; effectiveFrom: string; effectiveTo: string | null }>;
+  const persisted = new Set(occurrences.map((row) => `${row.choreId}:${row.date}`));
+  for (let date = gridStart; compareDates(date, gridEnd) <= 0; date = addDays(date, 1)) {
+    for (const revision of revisions) {
+      if (compareDates(revision.effectiveFrom, date) > 0
+        || (revision.effectiveTo && compareDates(revision.effectiveTo, date) < 0)
+        || persisted.has(`${revision.choreId}:${date}`)
+        || !occursOn(JSON.parse(revision.scheduleJson) as ScheduleDefinition, date)) continue;
+      occurrences.push({
+        id: `projected:${revision.id}:${date}`,
+        choreId: revision.choreId,
+        revisionId: revision.id,
+        date,
+        title: revision.title,
+        rewardCents: Number(revision.rewardCents),
+        claimed: 0,
+        decision: null,
+        decisionNote: null,
+        approvalSource: null,
+        approvedCents: null,
+        locked: 0
+      });
+    }
+  }
+  occurrences.sort((left, right) => left.date.localeCompare(right.date) || left.title.localeCompare(right.title));
   const days = [];
   for (let date = gridStart; compareDates(date, gridEnd) <= 0; date = addDays(date, 1)) {
     const rows = occurrences.filter((row) => row.date === date);
