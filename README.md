@@ -25,7 +25,7 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 | --- | --- | --- |
 | ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) |
 
-Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system; Overworld builds on it with seasonal landscapes, lighting, decorative weather, animated voxel animals, responsive scene composition, and reduced-motion support.
+Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system; Overworld builds on it with seasonal landscapes, lighting, decorative weather, daytime voxel animals, randomized night encounters, responsive scene composition, and reduced-motion support.
 
 ## Stack
 
@@ -37,7 +37,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, and audited monthly/lifetime Money History totals. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, and stale-page claim protection. The release passes 37 automated tests plus the isolated end-to-end browser workflow.
+The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, and audited monthly/lifetime Money History totals. The existing bulk review remains a fast standard-reward workflow. The next verified visual checkpoint adds original Overworld night encounters without changing household behavior or data. Automated coverage includes scheduling, date eligibility, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The checkpoint passes 40 automated tests plus the isolated end-to-end browser workflow.
 
 The application is intentionally small and household-specific: one child, no public internet exposure, no cloud sync, no offline mutation queue, and no generalized account system.
 

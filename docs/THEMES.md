@@ -38,11 +38,17 @@ Overworld combines the token system with `OverworldScene.tsx` and theme-scoped C
 - clear, partly cloudy, cloudy, rain, snow, and fog overlays;
 - a fixed approximate Seattle weather reference cached by the backend for 30 minutes;
 - sheep, pig, cow, chicken, and aquatic axolotl sprite sheets;
-- CSS sprite stepping and horizontal wandering without a game engine;
+- daytime CSS sprite stepping and horizontal wandering without a game engine;
+- a full nighttime animal replacement with common zombies, occasional skeletons, rare teleporting Endermen, and very rare fast chicken jockey crossings;
+- centralized weighted encounter timing, a three-creature concurrency cap, clean day/night transitions, and automatic despawn;
 - a motion toggle, `prefers-reduced-motion`, and page-visibility pausing;
 - responsive scene cropping and a compact header/control layout.
 
 ![Overworld Adventure](assets/screenshots/showcase-overworld.png)
+
+| Night encounters — desktop | Night encounters — mobile |
+| --- | --- |
+| ![A zombie crossing the desktop Overworld scene at night](assets/screenshots/overworld-night-encounters.png) | ![A skeleton crossing the mobile Overworld scene at night](assets/screenshots/overworld-night-encounters-mobile.png) |
 
 ## Asset organization
 
@@ -52,6 +58,7 @@ Overworld combines the token system with `OverworldScene.tsx` and theme-scoped C
 | `public/assets/overworld-v04/lighting/` | Active transparent time-of-day overlays |
 | `public/assets/overworld-v04/weather/` | Active transparent decorative weather overlays |
 | `public/assets/overworld-v04/animals/` | Active eight-frame sprite sheets for five species |
+| `public/assets/overworld-v04/night-creatures/` | Active original eight-frame night-encounter sprite sheets |
 | `public/assets/overworld-v04/terrain/` | Active foreground/detail layers |
 | `public/assets/overworld/` | Earlier production support assets; emerald UI art remains in use |
 
@@ -61,7 +68,9 @@ The repository contains browser-ready derivatives, not the isolated high-resolut
 
 Shared layouts collapse from multi-column desktop grids to single-column mobile cards. At narrow widths the header keeps Theme followed by Parent Mode on the far right. Overworld changes crop position, animal sizing, scene height, and its scene-control layout without changing application data or behavior.
 
-Decorative layers use empty alternative text or are hidden from the accessibility tree. Keyboard focus remains visible. Reduced-motion removes continuous animal and weather animation while preserving scenery and status information.
+Decorative layers use empty alternative text or are hidden from the accessibility tree. Keyboard focus remains visible. Reduced-motion removes continuous animal, encounter, and weather animation while preserving scenery and a single static night creature. Hidden pages stop encounter timers and render no night creatures until visible again.
+
+Night encounters are decorative only. `overworldEncounters.ts` owns the tunable spawn interval, maximum concurrency, weighted species rarity, movement duration, randomized lane, direction, and initial position. Daytime animals never overlap the night set. The initial encounter is created immediately after a night transition; later encounters arrive at quiet randomized intervals and remove themselves after crossing or teleporting through the scene.
 
 ## Adding another theme
 
@@ -76,4 +85,4 @@ A theme that adds an environmental scene may follow the Overworld pattern: one i
 
 ## Attribution and reuse
 
-The Overworld artwork is original Sensei-specific block-world material, not extracted Minecraft artwork. Decorative weather data is provided by [Open-Meteo](https://open-meteo.com/) and attributed in the application. No general artwork reuse license is declared by this checkpoint.
+The Overworld artwork, including the night creatures, is original Sensei-specific block-world material generated for this repository and is not extracted from Minecraft. Decorative weather data is provided by [Open-Meteo](https://open-meteo.com/) and attributed in the application. No general artwork reuse license is declared by this checkpoint.

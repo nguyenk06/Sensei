@@ -10,6 +10,7 @@ Handoff date: November 7, 2026.
 - Parent Review Enhancements are implemented, verified, published, and deployed.
 - LAN HTTP payment/correction compatibility is implemented through a client idempotency-key fallback.
 - Money History exposes current-month earned, lifetime earned, lifetime paid, and available balance from audited records.
+- A local `feature/overworld-night-encounters` checkpoint adds bounded decorative night encounters and awaits separate publication/deployment authorization.
 
 Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not the current application baseline. Resolve the exact current release SHA with `git rev-parse HEAD` when preparing future work.
 
@@ -47,13 +48,22 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 - Money History earnings use finalized approval-line values plus audited corrections, grouped by occurrence month; pending claims and payments are excluded.
 - Client-generated payment/correction idempotency keys prefer `crypto.randomUUID()`, fall back to `crypto.getRandomValues()`, and are never treated as authentication secrets.
 
+## Overworld Night Encounters checkpoint
+
+- Night fully replaces the ordinary sheep, pig, cow, chicken, and axolotl set with zombies, skeletons, Endermen, and chicken jockeys.
+- Encounter behavior is centralized in `src/client/overworldEncounters.ts`: zombies are common, skeletons occasional, Endermen rare, and chicken jockeys very rare.
+- At most three encounters coexist. Each uses randomized direction, lane, position, timing, and a finite lifetime; chicken jockeys cross faster and Endermen use a restrained two-position teleport.
+- The motion preference and `prefers-reduced-motion` stop movement while retaining one static creature; hidden pages suspend the encounter system.
+- All new artwork is local, original Sensei-specific material under `public/assets/overworld-v04/night-creatures/`.
+- This checkpoint is presentation-only. It introduces no API, schema, data, authentication, allowance, deployment, or dependency change.
+
 ## Verification evidence
 
 - Type checking passed.
-- Six automated test files passed with 37 tests.
+- Seven automated test files passed with 40 tests.
 - Client production build and server compilation passed in isolated QA output.
 - The isolated browser workflow passed desktop and 390 px mobile verification.
-- Covered flows include PIN continuation, individual approve/reject, exact retries, stale bulk snapshots, bulk coexistence, focus restoration, payments, corrections, calendar, all three themes, and reduced motion.
+- Covered flows include PIN continuation, individual approve/reject, exact retries, stale bulk snapshots, bulk coexistence, focus restoration, payments, corrections, calendar, all three themes, deterministic night-creature selection, clean day/night transitions, finite encounter traversal, and reduced motion.
 - Synthetic data and temporary SQLite databases were used for tests.
 
 ## Production status
@@ -62,9 +72,10 @@ The current `main` checkpoint is the household release. It was released through 
 
 ## Remaining planner items
 
-1. No corrective implementation is currently required for this phase.
-2. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
-3. Preserve the existing production backup and rollback practice for future releases.
+1. Review and explicitly authorize publication/deployment of the local Night Encounters checkpoint if desired; current production remains unchanged.
+2. No corrective application implementation is otherwise required for this phase.
+3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
+4. Preserve the existing production backup and rollback practice for future releases.
 
 ## Release and rollback boundary
 
