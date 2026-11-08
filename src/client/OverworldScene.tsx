@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import type { OverworldWeatherAppearance, OverworldWeatherResponse } from '../shared/types';
+import { createNightEncounter, NIGHT_ENCOUNTER_CONFIG, randomEncounterDelay, type NightEncounter } from './overworldEncounters';
 
 type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 type LightPeriod = 'morning' | 'day' | 'evening' | 'night';
@@ -87,6 +89,7 @@ export function OverworldScene() {
   const [reducedMotion, setReducedMotion] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [pageVisible, setPageVisible] = useState(!document.hidden);
   const [now, setNow] = useState(() => new Date());
+  const [nightEncounters, setNightEncounters] = useState<NightEncounter[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -116,6 +119,50 @@ export function OverworldScene() {
     autumn: ['pig', 'cow', 'chicken'], winter: ['sheep', 'cow', 'chicken']
   };
   const moving = motionEnabled && !reducedMotion && pageVisible;
+
+  useEffect(() => {
+    let active = true;
+    let spawnTimer: number | undefined;
+    let encounterSequence = 0;
+
+    if (light !== 'night' || !pageVisible) {
+      setNightEncounters([]);
+      return undefined;
+    }
+
+    const nextEncounter = (stationary = false) => createNightEncounter(
+      Math.random,
+      `night-${Date.now()}-${encounterSequence++}`,
+      stationary
+    );
+
+    if (!moving) {
+      setNightEncounters([nextEncounter(true)]);
+      return () => { active = false; };
+    }
+
+    setNightEncounters([nextEncounter()]);
+    const scheduleSpawn = () => {
+      spawnTimer = window.setTimeout(() => {
+        if (!active) return;
+        setNightEncounters((current) => current.length >= NIGHT_ENCOUNTER_CONFIG.maxConcurrent
+          ? current
+          : [...current, nextEncounter()]);
+        scheduleSpawn();
+      }, randomEncounterDelay(Math.random));
+    };
+    scheduleSpawn();
+
+    return () => {
+      active = false;
+      if (spawnTimer !== undefined) window.clearTimeout(spawnTimer);
+    };
+  }, [light, moving, pageVisible]);
+
+  function finishNightEncounter(id: string, animationName: string) {
+    if (!animationName.includes('night-encounter-travel') && !animationName.includes('enderman-teleport')) return;
+    setNightEncounters((current) => current.filter((encounter) => encounter.id !== id));
+  }
 
   function toggleMotion() {
     const next = !motionEnabled;
@@ -155,8 +202,20 @@ export function OverworldScene() {
         <i className="overworld-comet comet-two" />
       </div>
       <img className="overworld-layer overworld-weather" src={`${assetRoot}/weather/${weatherAppearance}.svg`} alt="" />
-      {landAnimals[displaySeason].map((species, index) => <div key={species} className={`overworld-animal ${species} land-slot-${index + 1}`} />)}
-      <div className="overworld-animal axolotl" />
+      {light !== 'night' && <>
+        {landAnimals[displaySeason].map((species, index) => <div key={species} className={`overworld-animal ${species} land-slot-${index + 1}`} />)}
+        <div className="overworld-animal axolotl" />
+      </>}
+      {light === 'night' && nightEncounters.map((encounter) => <div
+        key={encounter.id}
+        className={`overworld-night-creature ${encounter.species} ${encounter.direction} lane-${encounter.lane}${encounter.stationary ? ' stationary' : ''}`}
+        data-species={encounter.species}
+        style={{
+          '--encounter-duration': `${encounter.durationMs}ms`,
+          '--encounter-position': `${encounter.positionPercent}%`
+        } as CSSProperties}
+        onAnimationEnd={(event) => finishNightEncounter(encounter.id, event.animationName)}
+      />)}
       <img className="overworld-layer overworld-foreground" src={`${assetRoot}/terrain/foreground.png`} alt="" />
     </div>
     {header && createPortal(headerTools, header)}

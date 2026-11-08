@@ -259,33 +259,62 @@ try {
   if (!chickenAnimation.includes('overworld-animal-wander-reverse')) {
     throw new Error(`Chicken facing direction is invalid: ${chickenAnimation}`);
   }
+  await childOne.screenshot({ path: path.join(qaDir, 'overworld-day-animals.png') });
   await childOne.locator('.overworld-lab summary').click();
   await childOne.getByLabel('Season').selectOption('winter');
+  await childOne.evaluate(() => { Math.random = () => .1; });
   await childOne.getByLabel('Light').selectOption('night');
   await childOne.getByLabel('Weather').selectOption('snow');
   if (!((await childOne.locator('.overworld-landscape').first().getAttribute('src')) ?? '').endsWith('/winter.webp')) throw new Error('Winter scene override failed');
   if (!((await childOne.locator('.overworld-light').getAttribute('src')) ?? '').endsWith('/night.png')) throw new Error('Night light override failed');
   if (!((await childOne.locator('.overworld-weather').getAttribute('src')) ?? '').endsWith('/snow.svg')) throw new Error('Snow weather override failed');
+  await childOne.locator('.overworld-night-creature.zombie').waitFor();
+  if (await childOne.locator('.overworld-animal').count() !== 0) throw new Error('Day animals remain visible at night');
   const sceneLayers = await childOne.locator('.overworld-scene').evaluate((scene) => {
-    const axolotl = scene.querySelector('.axolotl')!.getBoundingClientRect();
-    const bounds = scene.getBoundingClientRect();
     return {
       foreground: Number(getComputedStyle(scene.querySelector('.overworld-foreground')!).zIndex),
-      animal: Number(getComputedStyle(scene.querySelector('.overworld-animal')!).zIndex),
+      creature: Number(getComputedStyle(scene.querySelector('.overworld-night-creature')!).zIndex),
       light: Number(getComputedStyle(scene.querySelector('.overworld-light')!).zIndex),
       nightDisplay: getComputedStyle(scene.querySelector('.overworld-night-sky')!).display,
       cometAnimation: getComputedStyle(scene.querySelector('.overworld-comet')!).animationName,
-      weather: Number(getComputedStyle(scene.querySelector('.overworld-weather')!).zIndex),
-      axolotlBottomGap: Math.round(bounds.bottom - axolotl.bottom)
+      weather: Number(getComputedStyle(scene.querySelector('.overworld-weather')!).zIndex)
     };
   });
-  if (!(sceneLayers.foreground < sceneLayers.animal && sceneLayers.animal < sceneLayers.light && sceneLayers.light < sceneLayers.weather)) {
+  if (!(sceneLayers.foreground < sceneLayers.creature && sceneLayers.creature < sceneLayers.light && sceneLayers.light < sceneLayers.weather)) {
     throw new Error(`Overworld layer order is invalid: ${JSON.stringify(sceneLayers)}`);
   }
   if (sceneLayers.nightDisplay === 'none' || !sceneLayers.cometAnimation.includes('overworld-comet')) {
     throw new Error(`Night sky motion is not active: ${JSON.stringify(sceneLayers)}`);
   }
-  if (sceneLayers.axolotlBottomGap > 24) throw new Error(`Axolotl is too high: ${sceneLayers.axolotlBottomGap}px`);
+  await childOne.locator('.overworld-night-creature.zombie').evaluate((element) => (element as HTMLElement).style.setProperty('--encounter-duration', '6000ms'));
+  await childOne.waitForTimeout(1_200);
+  await childOne.screenshot({ path: path.join(qaDir, 'overworld-night-encounters.png') });
+
+  const forcedEncounters = [
+    { random: .1, species: 'zombie' },
+    { random: .7, species: 'skeleton' },
+    { random: .9, species: 'enderman' },
+    { random: .97, species: 'chicken-jockey' }
+  ];
+  for (const forced of forcedEncounters) {
+    await childOne.getByLabel('Light').selectOption('day');
+    if (await childOne.locator('.overworld-night-creature').count() !== 0) throw new Error(`${forced.species} persisted into daytime`);
+    await childOne.evaluate((randomValue) => { Math.random = () => randomValue; }, forced.random);
+    await childOne.getByLabel('Light').selectOption('night');
+    const creature = childOne.locator(`.overworld-night-creature.${forced.species}`);
+    await creature.waitFor();
+    if (await childOne.locator('.overworld-animal').count() !== 0) throw new Error(`Day animals overlap ${forced.species}`);
+    const animation = await creature.evaluate((element) => getComputedStyle(element).animationName);
+    if (!animation.includes(forced.species === 'enderman' ? 'enderman-teleport' : 'night-encounter-travel')) {
+      throw new Error(`${forced.species} encounter animation is invalid: ${animation}`);
+    }
+    if (forced.species === 'chicken-jockey') {
+      const initialBounds = await creature.boundingBox();
+      if (!initialBounds || initialBounds.x < 1_000) throw new Error(`Chicken jockey did not begin beyond the right scene edge: ${JSON.stringify(initialBounds)}`);
+      await creature.evaluate((element) => (element as HTMLElement).style.setProperty('--encounter-duration', '700ms'));
+      await creature.waitFor({ state: 'detached', timeout: 2_500 });
+    }
+  }
   await childOne.getByRole('button', { name: 'Pause motion' }).click();
   if (!(await childOne.locator('.overworld-banner').getAttribute('class'))?.includes('motion-off')) throw new Error('Motion control did not pause the scene');
   const minecraftWidth = await childOne.evaluate(() => ({
@@ -308,11 +337,26 @@ try {
   }));
   if (minecraftMobileWidth.content > minecraftMobileWidth.viewport) throw new Error('Minecraft mobile theme has horizontal overflow');
   await childTwo.screenshot({ path: path.join(qaDir, 'minecraft-theme-mobile.png'), fullPage: true });
+  await childTwo.locator('.overworld-lab summary').click();
+  await childTwo.evaluate(() => { Math.random = () => .7; });
+  await childTwo.getByLabel('Light').selectOption('night');
+  const mobileSkeleton = childTwo.locator('.overworld-night-creature.skeleton');
+  await mobileSkeleton.waitFor();
+  await mobileSkeleton.evaluate((element) => (element as HTMLElement).style.setProperty('--encounter-duration', '6000ms'));
+  await childTwo.locator('.overworld-lab summary').click();
+  await childTwo.waitForTimeout(1_100);
+  if (await childTwo.locator('.overworld-animal').count() !== 0) throw new Error('Mobile night retained daytime animals');
+  await childTwo.screenshot({ path: path.join(qaDir, 'overworld-night-encounters-mobile.png'), fullPage: true });
   const reducedPage = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
   await reducedPage.goto(address, { waitUntil: 'networkidle' });
   await reducedPage.getByLabel('Device theme').selectOption('minecraft');
-  const reducedAnimation = await reducedPage.locator('.overworld-animal').first().evaluate((element) => getComputedStyle(element).animationName);
-  if (reducedAnimation !== 'none') throw new Error(`Reduced motion did not disable animal animation: ${reducedAnimation}`);
+  await reducedPage.locator('.overworld-lab summary').click();
+  await reducedPage.getByLabel('Light').selectOption('night');
+  const reducedCreature = reducedPage.locator('.overworld-night-creature').first();
+  await reducedCreature.waitFor();
+  const reducedAnimation = await reducedCreature.evaluate((element) => getComputedStyle(element).animationName);
+  if (reducedAnimation !== 'none') throw new Error(`Reduced motion did not disable night encounter animation: ${reducedAnimation}`);
+  if (await reducedPage.locator('.overworld-night-creature').count() > 1) throw new Error('Reduced motion rendered multiple night encounters');
   await reducedPage.close();
   await childOne.getByRole('button', { name: /Review 1 pending/ }).click();
   const bulkDialog = childOne.getByRole('dialog', { name: '1 claims need a decision' });

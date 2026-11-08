@@ -45,6 +45,8 @@ Sensei is a working, privately deployed household application for one child and 
 - NovaPay, Sensei Classic, and Overworld Adventure themes.
 - Device-local theme preference in the global header.
 - Overworld seasonal crossfades, day/night lighting, cached decorative weather, animated animals, motion toggle, and reduced-motion behavior.
+- Overworld daytime animals are fully replaced at night by bounded, weighted encounters: zombies, skeletons, Endermen, and chicken jockeys.
+- Night encounters use original local sprite sheets, randomized lanes/directions/timing, a three-creature cap, finite lifetimes, hidden-page suspension, and a static reduced-motion presentation.
 
 ### Hosting
 
@@ -55,11 +57,11 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Verification baseline
 
-- 37 automated tests pass across six test files.
+- 40 automated tests pass across seven test files.
 - TypeScript client and server checks pass.
 - Production build passes.
 - Isolated browser workflow passes on desktop and 390 px mobile width.
-- Two-client persistence, claim/undo, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, themes, reduced motion, assets, and sign-out are covered.
+- Two-client persistence, claim/undo, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, themes, deterministic night-encounter rarity, day/night replacement, encounter despawn, reduced motion, assets, and sign-out are covered.
 - Runtime database integrity was verified before repository preparation; the database itself is not included.
 
 ## Known limitations and intentional boundaries
@@ -74,4 +76,4 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Repository status at this checkpoint
 
-The current checkpoint is published and deployed to the existing household installation. Release used a verified SQLite-native backup, preserved the previous build for rollback, restarted only the Sensei task, and passed non-mutating production health, data-integrity, LAN-binding, theme, and browser checks. No schema migration, dependency, network, startup, or authentication change was required.
+The household release described above remains published and deployed. The Overworld Night Encounters work is a verified local visual checkpoint only: it has not been pushed, published, deployed, or used to restart the household service. It changes no schema, dependency, business logic, network, startup, authentication, or household data.
