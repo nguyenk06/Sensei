@@ -2,6 +2,10 @@
 
 Handoff date: November 7, 2026.
 
+## Pending visual-review branch
+
+`feature/living-overworld-seasons` is an unmerged, undeployed visual-development branch. It adds a separate Living Overworld theme with four seasonal scenes, four daylight periods, and a detailed phased round moon. Controlled rain proves the layered environmental boundary, but complete weather behavior, seasonal crossfades, asset optimization, and creatures remain incomplete. Product Owner visual acceptance is pending; review the evidence in [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md) before planning another bounded milestone.
+
 ## Authoritative baseline
 
 - Project: Sensei — Household Chore & Allowance Tracker.

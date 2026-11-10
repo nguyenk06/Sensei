@@ -4,6 +4,26 @@ Checkpoint date: November 7, 2026.
 
 Repository baseline: the current published `main` household release, including Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
 
+## Unmerged Living Overworld review branch
+
+Branch `feature/living-overworld-seasons` contains a separate Living Overworld theme for Product Owner visual review. It is not part of the authoritative `main` release and has not been deployed to the household installation.
+
+Implemented and verified on the branch:
+
+- Layered fixed-camera scenery with consistent spring, summer, autumn, and winter geography.
+- Automatic meteorological seasons in `America/Los_Angeles`.
+- Morning, day, evening, and night lighting using the existing Seattle-area sunrise/sunset response plus deterministic fallback periods.
+- A detailed round moon with eight deterministic phases, controlled rain proof, motion preferences, reduced-motion handling, responsive desktop/mobile composition, and device-local theme selection.
+- 48 automated tests, TypeScript checks, production build, and isolated browser QA passing at the latest implementation checkpoint.
+
+Incomplete and outside the current visual proof:
+
+- Full weather behavior, including snow, fog, wind, wet surfaces, accumulation, and weather-driven environmental response.
+- Seasonal crossfades and asset-format optimization.
+- Living Overworld creatures.
+
+Product Owner visual acceptance, merge, release, and deployment remain pending. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
+
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 
 ## Completed capabilities

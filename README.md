@@ -37,6 +37,8 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
+> **Feature-branch review:** Living Overworld seasonal scenery and daylight cycles are available for Product Owner review on `feature/living-overworld-seasons`. See the [Living Overworld visual review](docs/LIVING_OVERWORLD_VISUAL_REVIEW.md). This work is unmerged and undeployed.
+
 The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, audited monthly/lifetime Money History totals, original Overworld night encounters, and a full calendar containing newly configured and future expected chores without materializing their weekly snapshots early. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, calendar projections, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The release passes 41 automated tests plus the isolated end-to-end browser workflow.
 
 The application is intentionally small and household-specific: one child, no public internet exposure, no cloud sync, no offline mutation queue, and no generalized account system.
@@ -56,6 +58,7 @@ The safe defaults bind to `127.0.0.1:3000` and store development data under `.lo
 
 ## Documentation
 
+- [Living Overworld visual review](docs/LIVING_OVERWORLD_VISUAL_REVIEW.md)
 - [Current state](docs/CURRENT_STATE.md)
 - [Architecture and data integrity](docs/ARCHITECTURE.md)
 - [Theme system and Overworld assets](docs/THEMES.md)
