@@ -612,6 +612,139 @@ html[data-theme="minecraft"] main { padding-top: 38px; }
   .brand-copy { display: none; }
 }
 
+/* Living Overworld 1A: isolated layered-scene proof. */
+html[data-theme="living-overworld"] .topbar {
+  margin-bottom: -76px;
+  border-bottom: 0;
+  background: linear-gradient(180deg, rgba(15, 35, 31, .82), rgba(15, 35, 31, .24));
+  box-shadow: none;
+}
+html[data-theme="living-overworld"] .brand-copy strong,
+html[data-theme="living-overworld"] .brand-copy span,
+html[data-theme="living-overworld"] .theme-quick-control { color: #fffdf0; text-shadow: 2px 2px 0 rgba(16, 36, 27, .58); }
+html[data-theme="living-overworld"] .brand-mark {
+  color: #17351f; border: 2px solid #c8ed92; background: #79b952;
+  box-shadow: inset 2px 2px #aede75, inset -2px -2px #39712d, 3px 3px 0 #152b1b;
+}
+html[data-theme="living-overworld"] .theme-quick-control select {
+  color: #fffdf0; background: rgba(27, 61, 42, .84); border: 2px solid #a9d978;
+}
+html[data-theme="living-overworld"] .parent-button {
+  color: #fffdf0; background: #467e35; border: 2px solid #b6df7c;
+  box-shadow: inset 2px 2px #6ca44a, inset -2px -2px #285524, 3px 3px 0 rgba(13, 38, 25, .7);
+}
+html[data-theme="living-overworld"] main { position: relative; z-index: 15; margin-top: -42px; padding-top: 38px; }
+html[data-theme="living-overworld"] .weeksheet {
+  border: 4px solid #65513a; box-shadow: 7px 7px 0 rgba(37, 56, 35, .30);
+}
+html[data-theme="living-overworld"] .weeksheet-heading {
+  border-top: 9px solid #5f9e42; box-shadow: inset 0 4px #9cd46c;
+}
+
+.living-overworld-banner {
+  position: relative; isolation: isolate; display: block; height: clamp(320px, 31vw, 430px); overflow: hidden;
+  background: #66bdf0; border-bottom: 7px solid #4b8c32; box-shadow: 0 5px 0 #73563a;
+}
+.living-overworld-scene { position: absolute; inset: 0; overflow: hidden; background: #68bef1; contain: paint; }
+.living-overworld-sky {
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, #55b5f1 0%, #8fd8f5 56%, #c9edf3 100%);
+}
+.living-overworld-layer {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 51%;
+  pointer-events: none; user-select: none;
+}
+.living-overworld-sun {
+  position: absolute; z-index: 1; top: 14%; left: 61%; width: clamp(62px, 6.7vw, 94px); aspect-ratio: 1;
+  background: #fff09b; border: 7px solid #ffd65b;
+  box-shadow: 0 0 0 8px rgba(255, 232, 116, .22), 0 0 44px 18px rgba(255, 239, 153, .55), inset 7px 7px rgba(255,255,255,.25);
+}
+.living-overworld-cloud { position: absolute; z-index: 2; height: 42px; opacity: .72; pointer-events: none; }
+.living-overworld-cloud i { position: absolute; display: block; height: 18px; background: rgba(245, 253, 255, .88); box-shadow: 0 8px rgba(181, 218, 233, .40); }
+.living-overworld-cloud i:nth-child(1) { left: 0; bottom: 0; width: 118px; }
+.living-overworld-cloud i:nth-child(2) { left: 24px; bottom: 17px; width: 58px; }
+.living-overworld-cloud i:nth-child(3) { left: 74px; bottom: 8px; width: 72px; }
+.living-overworld-cloud.cloud-a { left: 34%; top: 17%; width: 150px; }
+.living-overworld-cloud.cloud-b { left: 82%; top: 30%; width: 150px; transform: scale(.72); opacity: .55; }
+.layer-mountains { z-index: 3; }
+.layer-terrain { z-index: 5; }
+.layer-water { z-index: 6; }
+.layer-retreat { z-index: 7; }
+.layer-vegetation { z-index: 8; transform-origin: 50% 100%; }
+.living-overworld-daylight {
+  position: absolute; inset: 0; z-index: 9; pointer-events: none;
+  background: radial-gradient(circle at 72% 17%, rgba(255, 244, 172, .18), transparent 31%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(72,135,83,.05));
+  mix-blend-mode: soft-light;
+}
+.living-overworld-rain { display: none; position: absolute; z-index: 10; inset: -18% -7%; pointer-events: none; }
+.weather-rain .living-overworld-rain { display: block; }
+.living-overworld-rain.rain-far {
+  opacity: .38; background: repeating-linear-gradient(105deg, transparent 0 32px, rgba(183, 226, 248, .8) 33px 35px, transparent 36px 70px);
+}
+.living-overworld-rain.rain-near {
+  z-index: 11; opacity: .58; background: repeating-linear-gradient(105deg, transparent 0 58px, rgba(213, 240, 252, .9) 59px 62px, transparent 63px 106px);
+}
+.weather-rain .living-overworld-daylight { background: linear-gradient(rgba(36,65,76,.18), rgba(30,65,60,.13)); mix-blend-mode: multiply; }
+
+.motion-on .living-overworld-cloud.cloud-a { animation: living-cloud-drift 44s linear infinite; }
+.motion-on .living-overworld-cloud.cloud-b { animation: living-cloud-drift-small 58s -26s linear infinite; }
+.motion-on .layer-water { animation: living-water-breathe 4.8s ease-in-out infinite; }
+.motion-on .layer-vegetation { animation: living-vegetation-sway 5.6s ease-in-out infinite; }
+.weather-rain.motion-on .rain-far { animation: living-rain-fall .9s linear infinite; }
+.weather-rain.motion-on .rain-near { animation: living-rain-fall .62s linear infinite; }
+@keyframes living-cloud-drift { from { translate: -18vw 0; } to { translate: 70vw 0; } }
+@keyframes living-cloud-drift-small { from { translate: -88vw 0; transform: scale(.72); } to { translate: 18vw 0; transform: scale(.72); } }
+@keyframes living-water-breathe { 0%, 100% { filter: brightness(1); opacity: .98; } 50% { filter: brightness(1.08) saturate(1.04); opacity: 1; } }
+@keyframes living-vegetation-sway { 0%, 100% { transform: skewX(0); } 50% { transform: skewX(.35deg); } }
+@keyframes living-rain-fall { from { transform: translate3d(0, -8%, 0); } to { transform: translate3d(-3%, 8%, 0); } }
+.motion-off .living-overworld-cloud,
+.motion-off .layer-water,
+.motion-off .layer-vegetation,
+.motion-off .living-overworld-rain { animation: none !important; }
+
+.living-overworld-header-tools { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; color: #fffdf0; }
+.living-overworld-status {
+  padding: 7px 9px; border: 1px solid rgba(255,255,255,.52); background: rgba(18,49,37,.75);
+  box-shadow: 2px 2px 0 rgba(12,32,24,.38); font-size: 10px; font-weight: 850; white-space: nowrap;
+}
+.living-overworld-proof-controls { position: relative; z-index: 24; }
+.living-overworld-proof-controls summary {
+  list-style: none; cursor: pointer; padding: 9px 11px; border: 2px solid #a9d978; background: rgba(30,69,43,.88);
+  box-shadow: inset 2px 2px #6fa84c, inset -2px -2px #315c27, 3px 3px 0 #152b1b; font-size: 10px; font-weight: 850;
+}
+.living-overworld-proof-controls summary::-webkit-details-marker { display: none; }
+.living-overworld-proof-controls > div {
+  position: absolute; top: calc(100% + 7px); right: 0; width: 230px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  padding: 10px; background: rgba(17,42,29,.95); border: 2px solid #6c583d; box-shadow: 4px 4px 0 rgba(21,43,27,.65);
+}
+.living-overworld-proof-controls label { display: grid; gap: 4px; font-size: 9px; font-weight: 800; }
+.living-overworld-proof-controls select,
+.living-overworld-proof-controls button { min-height: 35px; padding: 6px 8px; color: #fffdf0; background: #2c5837; border: 1px solid #9acb71; border-radius: 0; font-size: 10px; }
+.living-overworld-proof-controls button { align-self: end; font-weight: 850; }
+
+@media (max-width: 700px) {
+  html[data-theme="living-overworld"] .topbar { margin-bottom: -68px; }
+  html[data-theme="living-overworld"] main { margin-top: -22px; padding-top: 0; }
+  .living-overworld-banner { height: 250px; }
+  .living-overworld-layer { object-fit: contain; object-position: center bottom; }
+  .living-overworld-sun { top: 29%; left: 61%; width: 52px; border-width: 5px; }
+  .living-overworld-cloud { transform: scale(.58); transform-origin: left top; }
+  .living-overworld-cloud.cloud-a { left: 10%; top: 31%; }
+  .living-overworld-cloud.cloud-b { left: 72%; top: 42%; transform: scale(.45); }
+  .motion-on .living-overworld-cloud.cloud-b { animation-name: living-cloud-drift-mobile; }
+  @keyframes living-cloud-drift-mobile { from { translate: -78vw 0; transform: scale(.45); } to { translate: 20vw 0; transform: scale(.45); } }
+  .living-overworld-header-tools {
+    position: absolute; top: calc(100% + 8px); left: 10px; right: 10px; justify-content: space-between; pointer-events: none;
+  }
+  .living-overworld-status, .living-overworld-proof-controls { pointer-events: auto; }
+  .living-overworld-proof-controls > div { width: min(230px, calc(100vw - 20px)); }
+}
+
+@media (max-width: 480px) {
+  .living-overworld-status { display: none; }
+  .living-overworld-header-tools { justify-content: flex-end; }
+}
+
 /* Chore-first weeksheet redesign. */
 .weeksheet { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow-card); }
 .weeksheet.loading { min-height: 360px; display: grid; place-items: center; color: var(--muted); }

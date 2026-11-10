@@ -374,7 +374,80 @@ try {
   const reducedAnimation = await reducedCreature.evaluate((element) => getComputedStyle(element).animationName);
   if (reducedAnimation !== 'none') throw new Error(`Reduced motion did not disable night encounter animation: ${reducedAnimation}`);
   if (await reducedPage.locator('.overworld-night-creature').count() > 1) throw new Error('Reduced motion rendered multiple night encounters');
+  await reducedPage.getByLabel('Device theme').selectOption('living-overworld');
+  const reducedLivingAnimation = await reducedPage.locator('.living-overworld-cloud.cloud-a')
+    .evaluate((element) => getComputedStyle(element).animationName);
+  if (reducedLivingAnimation !== 'none') throw new Error(`Living Overworld ignored reduced motion: ${reducedLivingAnimation}`);
   await reducedPage.close();
+
+  await childOne.getByLabel('Device theme').selectOption('living-overworld');
+  if (await childOne.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld theme did not apply');
+  if (await childOne.locator('.overworld-banner').count() !== 0) throw new Error('Living Overworld exposed the existing Overworld scene');
+  await assertHeaderActions(childOne, 'Living Overworld desktop');
+  const livingBanner = childOne.locator('.living-overworld-banner');
+  const livingBannerHeight = await livingBanner.evaluate((element) => element.getBoundingClientRect().height);
+  if (livingBannerHeight < 320 || livingBannerHeight > 440) throw new Error(`Living Overworld desktop height is invalid: ${livingBannerHeight}`);
+  const livingAssetWidths = await livingBanner.locator('.living-overworld-layer')
+    .evaluateAll((elements) => elements.map((element) => (element as HTMLImageElement).naturalWidth));
+  if (livingAssetWidths.length !== 5 || livingAssetWidths.some((width) => width !== 2172)) {
+    throw new Error(`Living Overworld assets failed to load: ${JSON.stringify(livingAssetWidths)}`);
+  }
+  const livingLayerOrder = await livingBanner.locator('.living-overworld-scene').evaluate((scene) => {
+    return {
+      mountains: Number(getComputedStyle(scene.querySelector('.layer-mountains')!).zIndex),
+      terrain: Number(getComputedStyle(scene.querySelector('.layer-terrain')!).zIndex),
+      water: Number(getComputedStyle(scene.querySelector('.layer-water')!).zIndex),
+      retreat: Number(getComputedStyle(scene.querySelector('.layer-retreat')!).zIndex),
+      vegetation: Number(getComputedStyle(scene.querySelector('.layer-vegetation')!).zIndex),
+      rain: Number(getComputedStyle(scene.querySelector('.rain-near')!).zIndex)
+    };
+  });
+  if (!(livingLayerOrder.mountains < livingLayerOrder.terrain && livingLayerOrder.terrain < livingLayerOrder.water
+    && livingLayerOrder.water < livingLayerOrder.retreat && livingLayerOrder.retreat < livingLayerOrder.vegetation
+    && livingLayerOrder.vegetation < livingLayerOrder.rain)) {
+    throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
+  }
+  await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-desktop.png'), fullPage: true });
+  await childOne.locator('.living-overworld-proof-controls summary').click();
+  await childOne.getByLabel('Living Overworld weather proof').selectOption('rain');
+  const rainAnimation = await childOne.locator('.living-overworld-rain.rain-near').evaluate((element) => ({
+    display: getComputedStyle(element).display,
+    animation: getComputedStyle(element).animationName
+  }));
+  if (rainAnimation.display === 'none' || !rainAnimation.animation.includes('living-rain-fall')) {
+    throw new Error(`Living Overworld rain proof is inactive: ${JSON.stringify(rainAnimation)}`);
+  }
+  await childOne.getByRole('button', { name: 'Pause motion' }).click();
+  if (!(await livingBanner.getAttribute('class'))?.includes('motion-off')) throw new Error('Living Overworld motion preference did not pause the scene');
+  await childOne.getByRole('button', { name: 'Resume motion' }).click();
+  if (!(await livingBanner.getAttribute('class'))?.includes('motion-on')) throw new Error('Living Overworld motion preference did not resume the scene');
+  await childOne.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  if (!(await livingBanner.getAttribute('class'))?.includes('motion-off')) throw new Error('Living Overworld did not pause while hidden');
+  await childOne.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  if (!(await livingBanner.getAttribute('class'))?.includes('motion-on')) throw new Error('Living Overworld did not resume after visibility returned');
+  await childOne.locator('.living-overworld-proof-controls summary').click();
+  const livingWidth = await childOne.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
+  if (livingWidth.content > livingWidth.viewport) throw new Error('Living Overworld desktop has horizontal overflow');
+  await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-rain.png'), fullPage: true });
+  await childOne.reload({ waitUntil: 'networkidle' });
+  if (await childOne.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld theme did not persist after refresh');
+
+  await childTwo.getByLabel('Device theme').selectOption('living-overworld');
+  await childTwo.reload({ waitUntil: 'networkidle' });
+  if (await childTwo.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld mobile theme did not persist');
+  await assertHeaderActions(childTwo, 'Living Overworld mobile');
+  const livingMobileHeight = await childTwo.locator('.living-overworld-banner').evaluate((element) => element.getBoundingClientRect().height);
+  if (livingMobileHeight < 235 || livingMobileHeight > 270) throw new Error(`Living Overworld mobile height is invalid: ${livingMobileHeight}`);
+  const livingMobileWidth = await childTwo.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
+  if (livingMobileWidth.content > livingMobileWidth.viewport) throw new Error('Living Overworld mobile has horizontal overflow');
+  await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-mobile.png'), fullPage: true });
+
   await childOne.getByRole('button', { name: /Review 1 pending/ }).click();
   const bulkDialog = childOne.getByRole('dialog', { name: '1 claims need a decision' });
   await bulkDialog.waitFor();
@@ -500,6 +573,9 @@ try {
     databaseExport: 'passed',
     themeSwitching: 'passed',
     minecraftTheme: 'passed',
+    livingOverworldTheme: 'passed',
+    livingOverworldLayering: 'passed',
+    livingOverworldRainProof: 'passed',
     deviceThemePersistence: 'passed',
     deviceThemeIsolation: 'passed',
     landscapeCrop: 'passed',

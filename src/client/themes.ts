@@ -104,6 +104,39 @@ export const themes: ThemeDefinition[] = [
       '--heading-shadow': '2px 2px 0 rgba(255, 255, 255, .72)',
       '--grid-size': '24px'
     }
+  },
+  {
+    id: 'living-overworld',
+    name: 'Living Overworld',
+    description: 'A quiet layered block-world retreat with independently animated scenery.',
+    tokens: {
+      '--page': '#e9f2dc',
+      '--page-soft': '#f5f1dc',
+      '--surface': '#fffdf2',
+      '--surface-raised': '#d8e2cf',
+      '--surface-subtle': '#e4ecd6',
+      '--ink': '#203229',
+      '--muted': '#5a6b60',
+      '--brand': '#538e3b',
+      '--brand-strong': '#315f2b',
+      '--accent': '#168c70',
+      '--accent-soft': '#d5ead5',
+      '--border': '#6c583d',
+      '--danger': '#a33b2f',
+      '--warning-surface': '#f4dfae',
+      '--warning-ink': '#594629',
+      '--shadow': 'rgba(44, 58, 38, .25)',
+      '--grid-line': 'rgba(76, 124, 56, .065)',
+      '--font-body': '"Trebuchet MS", "Segoe UI", sans-serif',
+      '--font-display': '"Arial Black", "Trebuchet MS", sans-serif',
+      '--radius-card': '3px',
+      '--radius-control': '3px',
+      '--radius-pill': '3px',
+      '--radius-mark': '3px',
+      '--shadow-card': '5px 6px 0 var(--shadow)',
+      '--heading-shadow': '2px 2px 0 rgba(255, 255, 255, .68)',
+      '--grid-size': '24px'
+    }
   }
 ];
 

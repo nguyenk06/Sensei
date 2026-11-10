@@ -14,6 +14,7 @@ import type {
 import { CalendarSection } from './CalendarSection';
 import { ChoreDetailDialog, type ChoreDecisionInput } from './ChoreDetailDialog';
 import { OverworldScene } from './OverworldScene';
+import { LivingOverworldScene } from './LivingOverworldScene';
 import { getDeviceThemeId, saveDeviceTheme, themes } from './themes';
 import { useDialogFocus } from './useDialogFocus';
 import { WeekSheet } from './WeekSheet';
@@ -427,6 +428,7 @@ export function App() {
     </header>
 
     {themeId === 'minecraft' && <OverworldScene />}
+    {themeId === 'living-overworld' && <LivingOverworldScene />}
 
     <main id="sensei-main">
       {error && <div className="error-banner" role="alert"><span>{error}</span><button onClick={() => setError(null)}>Dismiss</button></div>}

@@ -11,7 +11,7 @@ const browser = await chromium.launch({ executablePath, headless: true });
 async function verifyPage(name, viewport, fullPage) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
-  await page.getByText('Clear dishes').first().waitFor();
+  await page.locator('strong:visible').filter({ hasText: 'Clear dishes' }).first().waitFor();
   const dimensions = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
     content: document.documentElement.scrollWidth
