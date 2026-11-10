@@ -21,3 +21,16 @@ The extracted layers were visually checked in the browser at desktop and Android
 ## Winter/night direction proof
 
 `docs/assets/screenshots/living-overworld-1b-winter-night-proof.png` was produced with the built-in OpenAI image-generation tool by editing `summer-master.png`. The prompt preserved the exact geography, camera, landmarks, waterfall, lake, retreat, and path while changing only the season, foliage state, settled snow, night lighting, warm windows, and chimney smoke. It explicitly excluded a painted moon, active snowfall, animals, text, and new landmarks so future celestial and weather layers remain independent.
+
+## Runtime seasonal variants
+
+The runtime spring, autumn, and winter layers were created with the built-in OpenAI image-generation tool as direct edits of their matching transparent summer layers. Each prompt required the original 2172 × 724 canvas, coordinates, scale, silhouette, negative space, alpha channel, and premium dimensional voxel/pixel-hybrid treatment to remain fixed.
+
+- Spring terrain and vegetation: fresh varied greens, young leaves, flowering trees, meadow blossoms, reeds, and fresh moss; no geometry or landmark changes.
+- Autumn terrain and vegetation: golden, amber, orange, and deep red foliage, muted evergreens, fallen leaves, dry grasses, and warmer earth; no geometry or landmark changes.
+- Winter mountains: expanded snow fields, frosted ledges, blue-gray rock, and cold haze within the original mountain silhouette.
+- Winter terrain and vegetation: snow blankets, frosted stone, dormant plants, winter evergreens, bare branches, and cool shadows while retaining the open lake and readable path.
+- Winter water: colder blue water, restrained reflections, thin shoreline ice, and small waterfall icicles while retaining visible flow.
+- Winter retreat: snow on roof tiles, railings, steps, and foundation ledges with the original building coordinates and warm windows retained.
+
+The generated outputs were copied into the project without altering or deleting their tool-produced originals. System.Drawing verification confirmed every production variant is 2172 × 724 with `Format32bppArgb` transparency.

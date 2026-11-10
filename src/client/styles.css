@@ -662,6 +662,8 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   background: #fff09b; border: 7px solid #ffd65b;
   box-shadow: 0 0 0 8px rgba(255, 232, 116, .22), 0 0 44px 18px rgba(255, 239, 153, .55), inset 7px 7px rgba(255,255,255,.25);
 }
+.light-morning .living-overworld-sun { top: 24%; left: 48%; background: #fff0b5; border-color: #ffc86b; }
+.light-evening .living-overworld-sun { top: 27%; left: 70%; background: #ffd18a; border-color: #f49a4f; }
 .living-overworld-moon {
   display: none; position: absolute; z-index: 1; top: 14%; left: 61%; width: clamp(64px, 6.9vw, 98px); aspect-ratio: 1;
   overflow: hidden; border: 7px solid #bfd0ea; background:
@@ -686,6 +688,12 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .phase-waning-crescent::after { right: 0; width: 76%; }
 .light-night .living-overworld-sun { display: none; }
 .light-night .living-overworld-moon { display: block; }
+.light-morning .living-overworld-sky {
+  background: linear-gradient(180deg, #77a8d0 0%, #efb28b 47%, #ffe0a7 74%, #d9edf0 100%);
+}
+.light-evening .living-overworld-sky {
+  background: linear-gradient(180deg, #4a5f8c 0%, #9d6680 38%, #e99266 67%, #f6c779 100%);
+}
 .light-night .living-overworld-sky {
   background:
     radial-gradient(circle at 8% 17%, rgba(255,255,255,.8) 0 1px, transparent 2px),
@@ -716,13 +724,18 @@ html[data-theme="living-overworld"] .weeksheet-heading {
     radial-gradient(ellipse 2.1% 5% at 83.1% 58%, rgba(255,173,55,.74), transparent 78%),
     radial-gradient(ellipse 2.1% 5% at 89.2% 57%, rgba(255,173,55,.74), transparent 78%);
 }
+.light-evening .living-overworld-window-glow { opacity: .48; }
 .light-night .living-overworld-window-glow { opacity: 1; }
 .living-overworld-smoke { display: none; position: absolute; z-index: 9; left: 82.4%; top: 10%; width: 54px; height: 120px; }
-.light-night .living-overworld-smoke { display: block; }
+.light-evening .living-overworld-smoke, .light-night .living-overworld-smoke { display: block; }
 .living-overworld-smoke i { position: absolute; bottom: 0; left: 18px; width: 13px; height: 13px; background: rgba(194,210,218,.48); box-shadow: 6px -5px rgba(169,190,202,.32); }
 .living-overworld-smoke i:nth-child(2) { left: 24px; opacity: .7; animation-delay: -2.4s !important; }
 .living-overworld-smoke i:nth-child(3) { left: 10px; opacity: .48; animation-delay: -4.6s !important; }
 .layer-vegetation { z-index: 10; transform-origin: 50% 100%; }
+.light-morning .living-overworld-layer { --scene-filter: brightness(.92) saturate(.88) sepia(.05); }
+.light-evening .living-overworld-layer { --scene-filter: brightness(.72) saturate(.88) sepia(.14) hue-rotate(-6deg); }
+.light-evening .layer-water { --scene-filter: brightness(.78) saturate(.9) sepia(.08); }
+.light-evening .layer-retreat { --scene-filter: brightness(.8) saturate(.86) sepia(.08); }
 .light-night .living-overworld-layer { --scene-filter: brightness(.54) saturate(.76) hue-rotate(10deg); }
 .light-night .layer-water { --scene-filter: brightness(.63) saturate(.92) hue-rotate(8deg); }
 .light-night .layer-retreat { --scene-filter: brightness(.62) saturate(.82) hue-rotate(5deg); }
@@ -730,6 +743,13 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   position: absolute; inset: 0; z-index: 12; pointer-events: none;
   background: radial-gradient(circle at 72% 17%, rgba(255, 244, 172, .18), transparent 31%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(72,135,83,.05));
   mix-blend-mode: soft-light;
+}
+.light-morning .living-overworld-daylight {
+  background: radial-gradient(circle at 51% 31%, rgba(255,220,158,.30), transparent 31%), linear-gradient(180deg, rgba(255,205,167,.08), rgba(90,130,112,.08));
+}
+.light-evening .living-overworld-daylight {
+  background: radial-gradient(circle at 73% 34%, rgba(255,171,96,.28), transparent 33%), linear-gradient(180deg, rgba(73,44,91,.06), rgba(71,38,54,.2));
+  mix-blend-mode: multiply;
 }
 .light-night .living-overworld-daylight {
   background: radial-gradient(circle at 65% 19%, rgba(168,207,255,.20), transparent 32%), linear-gradient(180deg, rgba(5,16,42,.12), rgba(5,25,48,.26));
@@ -750,6 +770,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .motion-on .living-overworld-cloud.cloud-b { animation: living-cloud-drift-small 58s -26s linear infinite; }
 .motion-on .layer-water { animation: living-water-breathe 4.8s ease-in-out infinite; }
 .motion-on .layer-vegetation { animation: living-vegetation-sway 5.6s ease-in-out infinite; }
+.light-evening.motion-on .living-overworld-smoke i,
 .light-night.motion-on .living-overworld-smoke i { animation: living-chimney-smoke 7s ease-out infinite; }
 .weather-rain.motion-on .rain-far { animation: living-rain-fall .9s linear infinite; }
 .weather-rain.motion-on .rain-near { animation: living-rain-fall .62s linear infinite; }
@@ -777,7 +798,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 }
 .living-overworld-proof-controls summary::-webkit-details-marker { display: none; }
 .living-overworld-proof-controls > div {
-  position: absolute; top: calc(100% + 7px); right: 0; width: 390px; display: grid; grid-template-columns: repeat(4, minmax(78px, 1fr)); gap: 8px;
+  position: absolute; top: calc(100% + 7px); right: 0; width: 480px; display: grid; grid-template-columns: repeat(5, minmax(78px, 1fr)); gap: 8px;
   padding: 10px; background: rgba(17,42,29,.95); border: 2px solid #6c583d; box-shadow: 4px 4px 0 rgba(21,43,27,.65);
 }
 .living-overworld-proof-controls label { display: grid; gap: 4px; font-size: 9px; font-weight: 800; }
@@ -790,6 +811,8 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   html[data-theme="living-overworld"] main { margin-top: -22px; padding-top: 0; }
   .living-overworld-banner { height: 250px; }
   .living-overworld-sun, .living-overworld-moon { top: 29%; left: 61%; width: 52px; border-width: 5px; }
+  .light-morning .living-overworld-sun { top: 36%; left: 45%; }
+  .light-evening .living-overworld-sun { top: 38%; left: 72%; }
   .living-overworld-cloud { transform: scale(.58); transform-origin: left top; }
   .living-overworld-cloud.cloud-a { left: 10%; top: 31%; }
   .living-overworld-cloud.cloud-b { left: 72%; top: 42%; transform: scale(.45); }

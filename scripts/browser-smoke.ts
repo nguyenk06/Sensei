@@ -412,8 +412,29 @@ try {
     && livingLayerOrder.vegetation < livingLayerOrder.rain)) {
     throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
   }
-  await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-desktop.png'), fullPage: true });
   await childOne.locator('.living-overworld-proof-controls summary').click();
+  const seasonalProofs = [
+    { season: 'spring', light: 'morning', file: 'living-overworld-spring-morning.png', asset: '/seasons/spring/terrain.png' },
+    { season: 'summer', light: 'day', file: 'living-overworld-summer-day.png', asset: '/terrain.png' },
+    { season: 'autumn', light: 'evening', file: 'living-overworld-autumn-evening.png', asset: '/seasons/autumn/terrain.png' },
+    { season: 'winter', light: 'night', file: 'living-overworld-winter-night.png', asset: '/seasons/winter/terrain.png' }
+  ] as const;
+  for (const proof of seasonalProofs) {
+    await childOne.getByLabel('Living Overworld season').selectOption(proof.season);
+    await childOne.getByLabel('Living Overworld light proof').selectOption(proof.light);
+    const bannerClass = await livingBanner.getAttribute('class');
+    const terrainSource = await livingBanner.locator('.layer-terrain').getAttribute('src');
+    if (!bannerClass?.includes(`season-${proof.season}`) || !bannerClass.includes(`light-${proof.light}`)
+      || !terrainSource?.endsWith(proof.asset)) {
+      throw new Error(`Living Overworld seasonal proof failed: ${proof.season}/${proof.light}/${terrainSource}`);
+    }
+    await childOne.locator('.living-overworld-proof-controls summary').click();
+    await childOne.waitForTimeout(250);
+    await childOne.screenshot({ path: path.join(qaDir, proof.file), fullPage: true });
+    await childOne.locator('.living-overworld-proof-controls summary').click();
+  }
+  await childOne.getByLabel('Living Overworld season').selectOption('summer');
+  await childOne.getByLabel('Living Overworld light proof').selectOption('day');
   await childOne.getByLabel('Living Overworld weather proof').selectOption('rain');
   const rainAnimation = await childOne.locator('.living-overworld-rain.rain-near').evaluate((element) => ({
     display: getComputedStyle(element).display,
@@ -472,6 +493,7 @@ try {
   if (livingMobileWidth.content > livingMobileWidth.viewport) throw new Error('Living Overworld mobile has horizontal overflow');
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-mobile.png'), fullPage: true });
   await childTwo.locator('.living-overworld-proof-controls summary').click();
+  await childTwo.getByLabel('Living Overworld season').selectOption('winter');
   await childTwo.getByLabel('Living Overworld light proof').selectOption('night');
   await childTwo.getByLabel('Living Overworld moon phase').selectOption('first-quarter');
   await childTwo.locator('.living-overworld-proof-controls summary').click();
