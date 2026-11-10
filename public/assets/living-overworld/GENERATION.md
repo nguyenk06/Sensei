@@ -34,3 +34,7 @@ The runtime spring, autumn, and winter layers were created with the built-in Ope
 - Winter retreat: snow on roof tiles, railings, steps, and foundation ledges with the original building coordinates and warm windows retained.
 
 The generated outputs were copied into the project without altering or deleting their tool-produced originals. System.Drawing verification confirmed every production variant is 2172 × 724 with `Format32bppArgb` transparency.
+
+## Detailed round moon
+
+`moon-detailed.png` was generated with the built-in OpenAI image-generation tool as a centered isolated full moon with a genuinely transparent background. The prompt requested a perfectly round silhouette, detailed craters, maria, ridges, cool silver-gray material, transparent padding for CSS glow, and readability at 100–150 CSS pixels. It explicitly excluded square or Minecraft styling, baked phase shadows, sky, stars, clouds, text, and watermarks. The 1254 × 1254 output was downscaled with high-quality bicubic interpolation to a production-sized 768 × 768 32-bit RGBA PNG. CSS supplies the glow and eight deterministic phase shadows.

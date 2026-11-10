@@ -10,10 +10,11 @@ All raster assets use the same 2172 × 724 scene coordinates:
 - `water.png`: transparent connected waterfall and lake layer.
 - `retreat.png`: transparent East Asian retreat and foundation layer.
 - `foreground-vegetation.png`: transparent reeds, flowers, and grass tufts.
+- `moon-detailed.png`: transparent 768 × 768 detailed round full-moon source used beneath the deterministic phase shadow.
 
 The browser supplies the sky, square sun, clouds, daylight, rain, and restrained motion with theme-scoped CSS. The original scene and every extracted layer were generated with the built-in OpenAI image-generation tool from one approved composition master. No third-party game artwork is included.
 
-Milestone 1B adds a CSS-rendered phased square moon, night lighting, aligned warm-window glow, and restrained chimney smoke. The isolated winter/night direction proof is stored at `docs/assets/screenshots/living-overworld-1b-winter-night-proof.png` and remains a reference rather than a runtime asset.
+Milestone 1B adds deterministic lunar phases, night lighting, aligned warm-window glow, and restrained chimney smoke. The original CSS square moon was subsequently replaced by a larger detailed circular moon asset while retaining the same eight calculated phases. The isolated winter/night direction proof is stored at `docs/assets/screenshots/living-overworld-1b-winter-night-proof.png` and remains a reference rather than a runtime asset.
 
 The seasons milestone adds coordinate-matched runtime variants beneath `seasons/`:
 

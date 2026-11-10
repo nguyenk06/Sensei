@@ -179,7 +179,9 @@ export function LivingOverworldScene() {
     <div className="living-overworld-scene" aria-hidden="true">
       <div className="living-overworld-sky" />
       <div className="living-overworld-sun" />
-      <div className={`living-overworld-moon phase-${moonPhase}`}><i /><i /><i /></div>
+      <div className={`living-overworld-moon phase-${moonPhase}`}>
+        <img src={`${assetRoot}/moon-detailed.png`} alt="" />
+      </div>
       <div className="living-overworld-cloud cloud-a"><i /><i /><i /></div>
       <div className="living-overworld-cloud cloud-b"><i /><i /><i /></div>
       <div className="living-overworld-world">

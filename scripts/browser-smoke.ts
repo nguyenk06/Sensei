@@ -470,11 +470,15 @@ try {
   const livingNight = await livingBanner.evaluate((banner) => ({
     sun: getComputedStyle(banner.querySelector('.living-overworld-sun')!).display,
     moon: getComputedStyle(banner.querySelector('.living-overworld-moon')!).display,
+    moonWidth: banner.querySelector('.living-overworld-moon')!.getBoundingClientRect().width,
+    moonRadius: getComputedStyle(banner.querySelector('.living-overworld-moon')!).borderRadius,
+    moonAssetWidth: (banner.querySelector('.living-overworld-moon img') as HTMLImageElement).naturalWidth,
     glow: Number(getComputedStyle(banner.querySelector('.living-overworld-window-glow')!).opacity),
     smoke: getComputedStyle(banner.querySelector('.living-overworld-smoke')!).display,
     smokeAnimation: getComputedStyle(banner.querySelector('.living-overworld-smoke i')!).animationName
   }));
-  if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.glow < .9
+  if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.moonWidth < 100
+    || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768 || livingNight.glow < .9
     || livingNight.smoke === 'none' || !livingNight.smokeAnimation.includes('living-chimney-smoke')
     || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
     throw new Error(`Living Overworld night proof is invalid: ${JSON.stringify(livingNight)}`);
