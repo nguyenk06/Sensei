@@ -378,6 +378,11 @@ try {
   const reducedLivingAnimation = await reducedPage.locator('.living-overworld-cloud.cloud-a')
     .evaluate((element) => getComputedStyle(element).animationName);
   if (reducedLivingAnimation !== 'none') throw new Error(`Living Overworld ignored reduced motion: ${reducedLivingAnimation}`);
+  await reducedPage.locator('.living-overworld-proof-controls summary').click();
+  await reducedPage.getByLabel('Living Overworld light proof').selectOption('night');
+  const reducedSmokeAnimation = await reducedPage.locator('.living-overworld-smoke i').first()
+    .evaluate((element) => getComputedStyle(element).animationName);
+  if (reducedSmokeAnimation !== 'none') throw new Error(`Living Overworld smoke ignored reduced motion: ${reducedSmokeAnimation}`);
   await reducedPage.close();
 
   await childOne.getByLabel('Device theme').selectOption('living-overworld');
@@ -435,6 +440,25 @@ try {
   const livingWidth = await childOne.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   if (livingWidth.content > livingWidth.viewport) throw new Error('Living Overworld desktop has horizontal overflow');
   await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-rain.png'), fullPage: true });
+  await childOne.locator('.living-overworld-proof-controls summary').click();
+  await childOne.getByLabel('Living Overworld weather proof').selectOption('clear');
+  await childOne.getByLabel('Living Overworld light proof').selectOption('night');
+  await childOne.getByLabel('Living Overworld moon phase').selectOption('full');
+  await childOne.locator('.living-overworld-proof-controls summary').click();
+  await childOne.waitForTimeout(850);
+  const livingNight = await livingBanner.evaluate((banner) => ({
+    sun: getComputedStyle(banner.querySelector('.living-overworld-sun')!).display,
+    moon: getComputedStyle(banner.querySelector('.living-overworld-moon')!).display,
+    glow: Number(getComputedStyle(banner.querySelector('.living-overworld-window-glow')!).opacity),
+    smoke: getComputedStyle(banner.querySelector('.living-overworld-smoke')!).display,
+    smokeAnimation: getComputedStyle(banner.querySelector('.living-overworld-smoke i')!).animationName
+  }));
+  if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.glow < .9
+    || livingNight.smoke === 'none' || !livingNight.smokeAnimation.includes('living-chimney-smoke')
+    || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
+    throw new Error(`Living Overworld night proof is invalid: ${JSON.stringify(livingNight)}`);
+  }
+  await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-night.png'), fullPage: true });
   await childOne.reload({ waitUntil: 'networkidle' });
   if (await childOne.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld theme did not persist after refresh');
 
@@ -447,6 +471,14 @@ try {
   const livingMobileWidth = await childTwo.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   if (livingMobileWidth.content > livingMobileWidth.viewport) throw new Error('Living Overworld mobile has horizontal overflow');
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-mobile.png'), fullPage: true });
+  await childTwo.locator('.living-overworld-proof-controls summary').click();
+  await childTwo.getByLabel('Living Overworld light proof').selectOption('night');
+  await childTwo.getByLabel('Living Overworld moon phase').selectOption('first-quarter');
+  await childTwo.locator('.living-overworld-proof-controls summary').click();
+  if (!(await childTwo.locator('.living-overworld-banner').getAttribute('class'))?.includes('moon-first-quarter')) {
+    throw new Error('Living Overworld mobile moon phase override failed');
+  }
+  await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-night-mobile.png'), fullPage: true });
 
   await childOne.getByRole('button', { name: /Review 1 pending/ }).click();
   const bulkDialog = childOne.getByRole('dialog', { name: '1 claims need a decision' });
@@ -576,6 +608,7 @@ try {
     livingOverworldTheme: 'passed',
     livingOverworldLayering: 'passed',
     livingOverworldRainProof: 'passed',
+    livingOverworldCelestialProof: 'passed',
     deviceThemePersistence: 'passed',
     deviceThemeIsolation: 'passed',
     landscapeCrop: 'passed',

@@ -612,7 +612,7 @@ html[data-theme="minecraft"] main { padding-top: 38px; }
   .brand-copy { display: none; }
 }
 
-/* Living Overworld 1A: isolated layered-scene proof. */
+/* Living Overworld 1A–1B: isolated layered-scene and celestial proof. */
 html[data-theme="living-overworld"] .topbar {
   margin-bottom: -76px;
   border-bottom: 0;
@@ -649,15 +649,52 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .living-overworld-sky {
   position: absolute; inset: 0; z-index: 0;
   background: linear-gradient(180deg, #55b5f1 0%, #8fd8f5 56%, #c9edf3 100%);
+  transition: background .8s ease;
 }
+.living-overworld-world { position: absolute; z-index: 3; left: 0; bottom: 0; width: 100%; aspect-ratio: 3 / 1; pointer-events: none; }
 .living-overworld-layer {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 51%;
+  --scene-filter: none;
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; filter: var(--scene-filter);
   pointer-events: none; user-select: none;
 }
 .living-overworld-sun {
   position: absolute; z-index: 1; top: 14%; left: 61%; width: clamp(62px, 6.7vw, 94px); aspect-ratio: 1;
   background: #fff09b; border: 7px solid #ffd65b;
   box-shadow: 0 0 0 8px rgba(255, 232, 116, .22), 0 0 44px 18px rgba(255, 239, 153, .55), inset 7px 7px rgba(255,255,255,.25);
+}
+.living-overworld-moon {
+  display: none; position: absolute; z-index: 1; top: 14%; left: 61%; width: clamp(64px, 6.9vw, 98px); aspect-ratio: 1;
+  overflow: hidden; border: 7px solid #bfd0ea; background:
+    radial-gradient(circle at 29% 31%, #aabbd3 0 7%, transparent 8%),
+    radial-gradient(circle at 66% 63%, #9cadc8 0 9%, transparent 10%),
+    radial-gradient(circle at 72% 24%, #dfe8f6 0 5%, transparent 6%),
+    linear-gradient(135deg, #eef4ff, #c8d7ec);
+  box-shadow: 0 0 0 8px rgba(172,204,244,.12), 0 0 42px 18px rgba(179,210,247,.38), inset 6px 6px rgba(255,255,255,.22);
+}
+.living-overworld-moon i { position: absolute; z-index: 1; width: 9%; aspect-ratio: 1; background: #879bb8; opacity: .58; }
+.living-overworld-moon i:nth-child(1) { left: 18%; top: 61%; }
+.living-overworld-moon i:nth-child(2) { left: 49%; top: 19%; width: 6%; }
+.living-overworld-moon i:nth-child(3) { right: 14%; top: 45%; width: 12%; }
+.living-overworld-moon::after { content: ""; position: absolute; z-index: 2; top: 0; bottom: 0; background: rgba(4,16,42,.88); }
+.phase-new::after { left: 0; width: 100%; }
+.phase-waxing-crescent::after { left: 0; width: 76%; }
+.phase-first-quarter::after { left: 0; width: 50%; }
+.phase-waxing-gibbous::after { left: 0; width: 24%; }
+.phase-full::after { display: none; }
+.phase-waning-gibbous::after { right: 0; width: 24%; }
+.phase-last-quarter::after { right: 0; width: 50%; }
+.phase-waning-crescent::after { right: 0; width: 76%; }
+.light-night .living-overworld-sun { display: none; }
+.light-night .living-overworld-moon { display: block; }
+.light-night .living-overworld-sky {
+  background:
+    radial-gradient(circle at 8% 17%, rgba(255,255,255,.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 24% 34%, rgba(190,218,255,.75) 0 1px, transparent 2px),
+    radial-gradient(circle at 44% 12%, rgba(255,255,255,.82) 0 1px, transparent 2px),
+    radial-gradient(circle at 69% 27%, rgba(202,225,255,.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 13%, rgba(255,255,255,.78) 0 1px, transparent 2px),
+    linear-gradient(180deg, #061632 0%, #0d3157 58%, #315f78 100%);
+  background-size: 148px 104px, 190px 136px, 226px 154px, 174px 128px, 210px 142px, 100% 100%;
 }
 .living-overworld-cloud { position: absolute; z-index: 2; height: 42px; opacity: .72; pointer-events: none; }
 .living-overworld-cloud i { position: absolute; display: block; height: 18px; background: rgba(245, 253, 255, .88); box-shadow: 0 8px rgba(181, 218, 233, .40); }
@@ -670,19 +707,42 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .layer-terrain { z-index: 5; }
 .layer-water { z-index: 6; }
 .layer-retreat { z-index: 7; }
-.layer-vegetation { z-index: 8; transform-origin: 50% 100%; }
+.living-overworld-window-glow {
+  position: absolute; inset: 0; z-index: 8; opacity: 0; transition: opacity .7s ease; mix-blend-mode: screen;
+  background:
+    radial-gradient(ellipse 2.3% 5.5% at 82.3% 44%, rgba(255,179,68,.74), transparent 75%),
+    radial-gradient(ellipse 2.3% 5.5% at 88.3% 43%, rgba(255,179,68,.74), transparent 75%),
+    radial-gradient(ellipse 2% 5% at 77.4% 57%, rgba(255,162,48,.72), transparent 78%),
+    radial-gradient(ellipse 2.1% 5% at 83.1% 58%, rgba(255,173,55,.74), transparent 78%),
+    radial-gradient(ellipse 2.1% 5% at 89.2% 57%, rgba(255,173,55,.74), transparent 78%);
+}
+.light-night .living-overworld-window-glow { opacity: 1; }
+.living-overworld-smoke { display: none; position: absolute; z-index: 9; left: 82.4%; top: 10%; width: 54px; height: 120px; }
+.light-night .living-overworld-smoke { display: block; }
+.living-overworld-smoke i { position: absolute; bottom: 0; left: 18px; width: 13px; height: 13px; background: rgba(194,210,218,.48); box-shadow: 6px -5px rgba(169,190,202,.32); }
+.living-overworld-smoke i:nth-child(2) { left: 24px; opacity: .7; animation-delay: -2.4s !important; }
+.living-overworld-smoke i:nth-child(3) { left: 10px; opacity: .48; animation-delay: -4.6s !important; }
+.layer-vegetation { z-index: 10; transform-origin: 50% 100%; }
+.light-night .living-overworld-layer { --scene-filter: brightness(.54) saturate(.76) hue-rotate(10deg); }
+.light-night .layer-water { --scene-filter: brightness(.63) saturate(.92) hue-rotate(8deg); }
+.light-night .layer-retreat { --scene-filter: brightness(.62) saturate(.82) hue-rotate(5deg); }
 .living-overworld-daylight {
-  position: absolute; inset: 0; z-index: 9; pointer-events: none;
+  position: absolute; inset: 0; z-index: 12; pointer-events: none;
   background: radial-gradient(circle at 72% 17%, rgba(255, 244, 172, .18), transparent 31%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(72,135,83,.05));
   mix-blend-mode: soft-light;
 }
-.living-overworld-rain { display: none; position: absolute; z-index: 10; inset: -18% -7%; pointer-events: none; }
+.light-night .living-overworld-daylight {
+  background: radial-gradient(circle at 65% 19%, rgba(168,207,255,.20), transparent 32%), linear-gradient(180deg, rgba(5,16,42,.12), rgba(5,25,48,.26));
+  mix-blend-mode: multiply;
+}
+.light-night .living-overworld-cloud { opacity: .25; filter: brightness(.58) saturate(.6); }
+.living-overworld-rain { display: none; position: absolute; z-index: 13; inset: -18% -7%; pointer-events: none; }
 .weather-rain .living-overworld-rain { display: block; }
 .living-overworld-rain.rain-far {
   opacity: .38; background: repeating-linear-gradient(105deg, transparent 0 32px, rgba(183, 226, 248, .8) 33px 35px, transparent 36px 70px);
 }
 .living-overworld-rain.rain-near {
-  z-index: 11; opacity: .58; background: repeating-linear-gradient(105deg, transparent 0 58px, rgba(213, 240, 252, .9) 59px 62px, transparent 63px 106px);
+  z-index: 14; opacity: .58; background: repeating-linear-gradient(105deg, transparent 0 58px, rgba(213, 240, 252, .9) 59px 62px, transparent 63px 106px);
 }
 .weather-rain .living-overworld-daylight { background: linear-gradient(rgba(36,65,76,.18), rgba(30,65,60,.13)); mix-blend-mode: multiply; }
 
@@ -690,17 +750,20 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .motion-on .living-overworld-cloud.cloud-b { animation: living-cloud-drift-small 58s -26s linear infinite; }
 .motion-on .layer-water { animation: living-water-breathe 4.8s ease-in-out infinite; }
 .motion-on .layer-vegetation { animation: living-vegetation-sway 5.6s ease-in-out infinite; }
+.light-night.motion-on .living-overworld-smoke i { animation: living-chimney-smoke 7s ease-out infinite; }
 .weather-rain.motion-on .rain-far { animation: living-rain-fall .9s linear infinite; }
 .weather-rain.motion-on .rain-near { animation: living-rain-fall .62s linear infinite; }
 @keyframes living-cloud-drift { from { translate: -18vw 0; } to { translate: 70vw 0; } }
 @keyframes living-cloud-drift-small { from { translate: -88vw 0; transform: scale(.72); } to { translate: 18vw 0; transform: scale(.72); } }
-@keyframes living-water-breathe { 0%, 100% { filter: brightness(1); opacity: .98; } 50% { filter: brightness(1.08) saturate(1.04); opacity: 1; } }
+@keyframes living-water-breathe { 0%, 100% { filter: var(--scene-filter) brightness(1); opacity: .98; } 50% { filter: var(--scene-filter) brightness(1.08) saturate(1.04); opacity: 1; } }
 @keyframes living-vegetation-sway { 0%, 100% { transform: skewX(0); } 50% { transform: skewX(.35deg); } }
 @keyframes living-rain-fall { from { transform: translate3d(0, -8%, 0); } to { transform: translate3d(-3%, 8%, 0); } }
+@keyframes living-chimney-smoke { 0% { opacity: 0; transform: translate(0, 5px) scale(.72); } 18% { opacity: .62; } 72% { opacity: .26; } 100% { opacity: 0; transform: translate(20px, -82px) scale(1.35); } }
 .motion-off .living-overworld-cloud,
 .motion-off .layer-water,
 .motion-off .layer-vegetation,
-.motion-off .living-overworld-rain { animation: none !important; }
+.motion-off .living-overworld-rain,
+.motion-off .living-overworld-smoke i { animation: none !important; }
 
 .living-overworld-header-tools { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; color: #fffdf0; }
 .living-overworld-status {
@@ -714,7 +777,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 }
 .living-overworld-proof-controls summary::-webkit-details-marker { display: none; }
 .living-overworld-proof-controls > div {
-  position: absolute; top: calc(100% + 7px); right: 0; width: 230px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  position: absolute; top: calc(100% + 7px); right: 0; width: 390px; display: grid; grid-template-columns: repeat(4, minmax(78px, 1fr)); gap: 8px;
   padding: 10px; background: rgba(17,42,29,.95); border: 2px solid #6c583d; box-shadow: 4px 4px 0 rgba(21,43,27,.65);
 }
 .living-overworld-proof-controls label { display: grid; gap: 4px; font-size: 9px; font-weight: 800; }
@@ -726,8 +789,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   html[data-theme="living-overworld"] .topbar { margin-bottom: -68px; }
   html[data-theme="living-overworld"] main { margin-top: -22px; padding-top: 0; }
   .living-overworld-banner { height: 250px; }
-  .living-overworld-layer { object-fit: contain; object-position: center bottom; }
-  .living-overworld-sun { top: 29%; left: 61%; width: 52px; border-width: 5px; }
+  .living-overworld-sun, .living-overworld-moon { top: 29%; left: 61%; width: 52px; border-width: 5px; }
   .living-overworld-cloud { transform: scale(.58); transform-origin: left top; }
   .living-overworld-cloud.cloud-a { left: 10%; top: 31%; }
   .living-overworld-cloud.cloud-b { left: 72%; top: 42%; transform: scale(.45); }
@@ -737,7 +799,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
     position: absolute; top: calc(100% + 8px); left: 10px; right: 10px; justify-content: space-between; pointer-events: none;
   }
   .living-overworld-status, .living-overworld-proof-controls { pointer-events: auto; }
-  .living-overworld-proof-controls > div { width: min(230px, calc(100vw - 20px)); }
+  .living-overworld-proof-controls > div { width: min(350px, calc(100vw - 20px)); grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 480px) {

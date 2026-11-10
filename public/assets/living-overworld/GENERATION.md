@@ -17,3 +17,7 @@ Each extraction used `summer-master.png` as its only source image, requested a g
 - `foreground-vegetation.png`: retain only loose foreground grass, reeds, flowers, and low plant clusters.
 
 The extracted layers were visually checked in the browser at desktop and Android viewport sizes after compositing over a CSS sky.
+
+## Winter/night direction proof
+
+`docs/assets/screenshots/living-overworld-1b-winter-night-proof.png` was produced with the built-in OpenAI image-generation tool by editing `summer-master.png`. The prompt preserved the exact geography, camera, landmarks, waterfall, lake, retreat, and path while changing only the season, foliage state, settled snow, night lighting, warm windows, and chimney smoke. It explicitly excluded a painted moon, active snowfall, animals, text, and new landmarks so future celestial and weather layers remain independent.
