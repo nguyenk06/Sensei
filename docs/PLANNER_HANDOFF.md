@@ -1,10 +1,12 @@
 # Planner handoff
 
-Handoff date: November 7, 2026.
+Handoff date: November 10, 2026.
 
 ## Pending visual-review branch
 
-`feature/living-overworld-seasons` is an unmerged, undeployed visual-development branch. It adds a separate Living Overworld theme with four seasonal scenes, four daylight periods, and a detailed phased round moon. Controlled rain proves the layered environmental boundary, but complete weather behavior, seasonal crossfades, asset optimization, and creatures remain incomplete. Product Owner visual acceptance is pending; review the evidence in [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md) before planning another bounded milestone.
+`feature/living-overworld-seasons` is an unmerged, undeployed visual-development branch. Gate 1 now provides four seasonal scenes, four daylight periods, a detailed phased round moon, seven-day adjacent-season transitions, a compact 140 px mobile crop, and all six appearances from the existing cached Open-Meteo service. Motion controls remain user-facing; season, light, weather, and moon overrides require `?living-preview=1`. Gate 1 Product Owner acceptance is pending; review the evidence in [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md) before authorizing Gate 2.
+
+Gate 2 has not started. Its intended bounded scope is a small, weather-aware creature population and supported habitat transitions, including the axolotl where existing art and the lake habitat are suitable. It must not change chores, allowance, authentication, or database behavior.
 
 ## Authoritative baseline
 

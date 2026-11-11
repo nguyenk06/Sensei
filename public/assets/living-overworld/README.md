@@ -12,7 +12,7 @@ All raster assets use the same 2172 × 724 scene coordinates:
 - `foreground-vegetation.png`: transparent reeds, flowers, and grass tufts.
 - `moon-detailed.png`: transparent 768 × 768 detailed round full-moon source used beneath the deterministic phase shadow.
 
-The browser supplies the sky, square sun, clouds, daylight, rain, and restrained motion with theme-scoped CSS. The original scene and every extracted layer were generated with the built-in OpenAI image-generation tool from one approved composition master. No third-party game artwork is included.
+The browser supplies the sky, square sun, clouds, daylight, six weather appearances, and restrained motion with theme-scoped CSS. The original scene and every extracted layer were generated with the built-in OpenAI image-generation tool from one approved composition master. No third-party game artwork is included.
 
 Milestone 1B adds deterministic lunar phases, night lighting, aligned warm-window glow, and restrained chimney smoke. The original CSS square moon was subsequently replaced by a larger detailed circular moon asset while retaining the same eight calculated phases. The isolated winter/night direction proof is stored at `docs/assets/screenshots/living-overworld-1b-winter-night-proof.png` and remains a reference rather than a runtime asset.
 
@@ -23,6 +23,8 @@ The seasons milestone adds coordinate-matched runtime variants beneath `seasons/
 - Autumn reuses the mountain, water, and retreat while replacing terrain and foreground vegetation with gold, orange, and red materials.
 - Winter replaces all five layers with coordinated snow, frost, cold water, and a snow-covered retreat.
 
-All seasonal PNGs are 2172 × 724, 32-bit RGBA, and share the original coordinates. The browser selects meteorological seasons in `America/Los_Angeles`. Morning, day, evening, and night are CSS lighting states selected from the existing Seattle-area sunrise/sunset response, with deterministic Pacific-time fallbacks when that response is unavailable. Manual selectors remain available as a visual-review tool.
+All seasonal PNGs are 2172 × 724, 32-bit RGBA, and share the original coordinates. The browser selects meteorological seasons in `America/Los_Angeles`, blending only the adjacent season during a seven-day transition window. Morning, day, evening, and night are CSS lighting states selected from the existing Seattle-area sunrise/sunset response, with deterministic Pacific-time fallbacks when that response is unavailable. The user-facing motion control remains outside the scenery. Manual season, weather, light, and moon selectors are available only with the `?living-preview=1` development flag.
+
+Gate 1 consumes the existing cached Open-Meteo appearance contract for clear, partly cloudy, cloudy, rain, snow, and fog. Rain, snow, fog, clouds, water, vegetation, and smoke are CSS effects; no additional runtime dependency is used.
 
 These remain production candidates: lossless PNG delivery favors fidelity over transfer size, so WebP/AVIF evaluation and small alpha-edge cleanup are sensible future optimization work.

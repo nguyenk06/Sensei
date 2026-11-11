@@ -1,6 +1,6 @@
 # Current state
 
-Checkpoint date: November 7, 2026.
+Checkpoint date: November 10, 2026.
 
 Repository baseline: the current published `main` household release, including Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
 
@@ -13,16 +13,18 @@ Implemented and verified on the branch:
 - Layered fixed-camera scenery with consistent spring, summer, autumn, and winter geography.
 - Automatic meteorological seasons in `America/Los_Angeles`.
 - Morning, day, evening, and night lighting using the existing Seattle-area sunrise/sunset response plus deterministic fallback periods.
-- A detailed round moon with eight deterministic phases, controlled rain proof, motion preferences, reduced-motion handling, responsive desktop/mobile composition, and device-local theme selection.
-- 48 automated tests, TypeScript checks, production build, and isolated browser QA passing at the latest implementation checkpoint.
+- A detailed round moon with eight deterministic phases, motion preferences, reduced-motion handling, hidden-page suspension, and device-local theme selection.
+- Actual cached Open-Meteo appearance data driving clear, partly cloudy, cloudy, rain, snow, and fog treatments, with stale and neutral-fallback status.
+- Seven-day adjacent-season transitions with controlled image mounting, a 140 px mobile scene, proportional mobile cropping, and controls outside the scenery.
+- 50 automated tests, TypeScript checks, production build, and the full isolated browser QA workflow passing at the Gate 1 checkpoint.
 
-Incomplete and outside the current visual proof:
+Intentionally outside Gate 1:
 
-- Full weather behavior, including snow, fog, wind, wet surfaces, accumulation, and weather-driven environmental response.
-- Seasonal crossfades and asset-format optimization.
 - Living Overworld creatures.
+- Persistent snow accumulation, environmental simulation, and generalized wind response.
+- Continuous celestial travel and asset-format conversion.
 
-Product Owner visual acceptance, merge, release, and deployment remain pending. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
+Gate 1 Product Owner acceptance, merge, release, and deployment remain pending. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 

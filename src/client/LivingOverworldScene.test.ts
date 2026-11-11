@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
-import { livingLightFor, livingOverworldAssets, livingSeasonFor, moonPhaseFor } from './LivingOverworldScene';
+import { livingLightFor, livingOverworldAssets, livingSeasonBlendFor, livingSeasonFor, livingWeatherFor, moonPhaseFor } from './LivingOverworldScene';
 
 describe('Living Overworld theme foundation', () => {
   it('registers independently from the existing Overworld theme', () => {
@@ -32,6 +32,14 @@ describe('Living Overworld theme foundation', () => {
     expect(livingSeasonFor(new Date('2026-12-15T20:00:00Z'))).toBe('winter');
   });
 
+  it('crossfades only during the seven days surrounding a season boundary', () => {
+    expect(livingSeasonBlendFor(new Date('2026-02-21T20:00:00Z'))).toEqual({ primary: 'winter', adjacent: null, adjacentOpacity: 0 });
+    expect(livingSeasonBlendFor(new Date('2026-02-22T20:00:00Z'))).toEqual({ primary: 'winter', adjacent: 'spring', adjacentOpacity: 0 });
+    expect(livingSeasonBlendFor(new Date('2026-03-01T20:00:00Z'))).toEqual({ primary: 'winter', adjacent: 'spring', adjacentOpacity: .5 });
+    expect(livingSeasonBlendFor(new Date('2026-03-08T20:00:00Z'))).toEqual({ primary: 'winter', adjacent: 'spring', adjacentOpacity: 1 });
+    expect(livingSeasonBlendFor(new Date('2026-03-09T20:00:00Z'))).toEqual({ primary: 'spring', adjacent: null, adjacentOpacity: 0 });
+  });
+
   it('uses Seattle sun times for four daily lighting periods', () => {
     const sunrise = '2026-07-15T05:27';
     const sunset = '2026-07-15T20:59';
@@ -48,7 +56,14 @@ describe('Living Overworld theme foundation', () => {
     expect(livingLightFor(new Date('2026-07-16T07:00:00Z'), null, null)).toBe('night');
   });
 
-  it('maps a synodic month into eight deterministic square-moon phases', () => {
+  it('uses real weather in auto mode and preserves preview overrides', () => {
+    const weather = { appearance: 'snow' } as Parameters<typeof livingWeatherFor>[1];
+    expect(livingWeatherFor('auto', weather)).toBe('snow');
+    expect(livingWeatherFor('rain', weather)).toBe('rain');
+    expect(livingWeatherFor('auto', null)).toBe('clear');
+  });
+
+  it('maps a synodic month into eight deterministic moon phases', () => {
     const epoch = Date.parse('2000-01-06T18:14:00Z');
     const phaseStep = 29.530588853 * 86_400_000 / 8;
     const expected = ['new', 'waxing-crescent', 'first-quarter', 'waxing-gibbous', 'full', 'waning-gibbous', 'last-quarter', 'waning-crescent'];
