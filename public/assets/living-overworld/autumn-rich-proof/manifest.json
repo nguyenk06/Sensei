@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "status": "proof-ready-for-product-owner-review",
+  "runtimeIntegrated": false,
+  "season": "autumn",
+  "assets": [
+    {
+      "id": "autumn-rich-rocky-hillside",
+      "file": "rocky-hillside.png",
+      "dimensions": [2172, 724],
+      "encodedBytes": 1332685,
+      "alpha": true,
+      "role": "structural-waterfall-approach"
+    },
+    {
+      "id": "autumn-rich-distant-forest",
+      "file": "distant-forest.png",
+      "dimensions": [2172, 724],
+      "encodedBytes": 765642,
+      "alpha": true,
+      "role": "atmospheric-background-depth"
+    }
+  ],
+  "proof": {
+    "html": "../../../../docs/prototypes/living-overworld-autumn-rich.html",
+    "viewports": [
+      { "id": "mobile", "width": 390, "sceneHeight": 175 },
+      { "id": "desktop-1100", "width": 1100, "sceneHeight": 300 },
+      { "id": "desktop-1920", "width": 1920, "sceneHeight": 300 },
+      { "id": "ultrawide-32x9", "width": 2560, "height": 720, "sceneHeight": 300 }
+    ]
+  }
+}

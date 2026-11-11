@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Living Overworld rich autumn proof</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #e8f2df; color: #fffdf0; font-family: Arial, sans-serif; }
+    .scene { position: relative; height: 300px; overflow: hidden; isolation: isolate; background: linear-gradient(#596e89 0%, #c47c67 48%, #f0b96f 100%); border-bottom: 7px solid #507f37; box-shadow: 0 5px #705238; }
+    .sky-glow { position: absolute; inset: 0; background: radial-gradient(circle at 51% 30%, rgba(255,237,178,.32), transparent 23%); }
+    .sun { position: absolute; z-index: 1; left: 51%; top: 78px; translate: -50%; width: 58px; aspect-ratio: 1; border-radius: 50%; background: #ffd889; border: 6px solid #ffbd58; box-shadow: 0 0 35px rgba(255,214,125,.62); }
+    .layer { position: absolute; height: auto; pointer-events: none; user-select: none; }
+    .mountain { z-index: 2; bottom: -3px; opacity: .68; filter: saturate(.64) brightness(.82); }
+    .mountain.primary { left: 42%; width: 900px; translate: -50%; }
+    .mountain.left { left: -150px; bottom: -25px; width: 690px; opacity: .27; }
+    .mountain.right { right: -110px; bottom: -36px; width: 620px; opacity: .2; }
+    .forest { z-index: 3; left: 41%; bottom: -4px; width: 1120px; translate: -50%; opacity: .42; filter: saturate(.72) brightness(.75); }
+    .ground-band { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; height: 38px; background: linear-gradient(#896329 0 18%, #6f4d2a 19% 34%, #4c351f 35%); }
+    .hillside { z-index: 4; left: calc(50% - 880px); bottom: -6px; width: 850px; }
+    .water-system { position: absolute; z-index: 5; left: calc(50% - 520px); bottom: 0; width: 760px; aspect-ratio: 3 / 1; }
+    .water-system img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .water-system .outcrop { z-index: 1; }
+    .water-system .water { z-index: 2; }
+    .meadow { z-index: 6; bottom: -20px; width: 1100px; }
+    .meadow.left { right: calc(50% + 500px); }
+    .meadow.right { left: calc(50% + 500px); transform: scaleX(-1); }
+    .ground { z-index: 7; left: 50%; bottom: -20px; width: min(1100px, 100vw); translate: -50%; }
+    .house { z-index: 8; right: calc(50% - 560px); bottom: -20px; width: 760px; }
+    .object-stage { position: absolute; z-index: 9; inset-block: 0; left: 50%; width: min(1400px, 100vw); translate: -50%; pointer-events: none; }
+    .scene-object { position: absolute; left: var(--x); bottom: var(--b); height: var(--h); width: auto; translate: -50%; filter: drop-shadow(0 4px 3px rgba(20,34,22,.24)); }
+    .scene-object.back { z-index: 1; filter: brightness(.82) saturate(.84) drop-shadow(0 3px 2px rgba(20,34,22,.18)); }
+    .scene-object.front { z-index: 3; }
+    @media (max-width: 1300px) { .scene-object.wide-only { display: none; } }
+    .header { position: absolute; z-index: 20; inset: 0 0 auto; min-height: 86px; padding: 12px max(18px, calc((100vw - 1280px) / 2)); background: linear-gradient(180deg, rgba(9,29,27,.82), rgba(9,29,27,.38) 70%, transparent); text-shadow: 2px 2px rgba(12,26,20,.55); }
+    .header-main, .header-status { display: flex; align-items: center; gap: 10px; }
+    .brand { font-family: Georgia, serif; font-size: 21px; font-weight: 700; }
+    .header-actions { margin-left: auto; display: flex; align-items: center; gap: 9px; font-size: 10px; }
+    .control { padding: 7px 9px; border: 2px solid #a7d678; background: rgba(38,78,47,.78); color: inherit; font-weight: 700; }
+    .header-status { margin-top: 7px; font-size: 10px; }
+    .header-status .motion { margin-left: auto; }
+    main { max-width: 1220px; margin: 28px auto; padding: 28px; color: #1a372d; background: #fffdf3; border: 3px solid #65513a; border-top: 9px solid #659f43; box-shadow: 7px 7px rgba(38,56,35,.25); }
+    main small { color: #16836c; letter-spacing: .14em; text-transform: uppercase; }
+    main h1 { margin: 8px 0 3px; font-family: Georgia, serif; font-size: 40px; }
+    main p { margin: 0; color: #58665f; }
+    @media (max-width: 700px) {
+      .scene { height: 175px; }
+      .sun { top: 64px; width: 42px; border-width: 4px; }
+      .mountain.primary { left: 45%; width: 430px; }
+      .mountain.left, .mountain.right { display: none; }
+      .forest { left: 42%; width: 500px; bottom: -1px; opacity: .34; }
+      .ground-band { height: 20px; }
+      .hillside { left: -260px; bottom: 0; width: 400px; }
+      .water-system { left: -2px; bottom: 4px; width: 390px; }
+      .meadow { display: none; }
+      .ground { width: 435px; bottom: -5px; }
+      .house { right: -8px; bottom: -2px; width: 365px; }
+      .object-stage { width: 430px; }
+      .scene-object { scale: .56; transform-origin: bottom center; }
+      .scene-object.desktop-detail { display: none; }
+      .header { min-height: 70px; padding: 9px 10px; }
+      .brand { font-size: 17px; }
+      .header-actions { gap: 5px; }
+      .header-actions span:first-child { display: none; }
+      .control { padding: 6px; font-size: 9px; }
+      .header-status { margin-top: 5px; font-size: 9px; }
+      .header-status span:nth-child(2), .header-status span:nth-child(3) { display: none; }
+      main { margin: 18px 10px; padding: 20px; }
+      main h1 { font-size: 29px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="scene" aria-label="Rich autumn Living Overworld composition proof">
+    <div class="sky-glow"></div><div class="sun"></div>
+    <img class="layer mountain left" src="../../public/assets/living-overworld/autumn-modular/distant-a.png" alt="">
+    <img class="layer mountain primary" src="../../public/assets/living-overworld/autumn-structural/mountains.png" alt="">
+    <img class="layer mountain right" src="../../public/assets/living-overworld/autumn-modular/distant-b.png" alt="">
+    <img class="layer forest" src="../../public/assets/living-overworld/autumn-rich-proof/distant-forest.png" alt="">
+    <div class="ground-band"></div>
+    <img class="layer hillside" src="../../public/assets/living-overworld/autumn-rich-proof/rocky-hillside.png" alt="">
+    <div class="water-system">
+      <img class="outcrop" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
+      <img class="water" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
+    </div>
+    <img class="layer meadow left" src="../../public/assets/living-overworld/autumn-structural/meadow-extension.png" alt="">
+    <img class="layer meadow right" src="../../public/assets/living-overworld/autumn-structural/meadow-extension.png" alt="">
+    <img class="layer ground" src="../../public/assets/living-overworld/autumn-structural/ground.png" alt="">
+    <img class="layer house" src="../../public/assets/living-overworld/retreat.png" alt="">
+    <div class="object-stage">
+      <img class="scene-object back desktop-detail" style="--x:8%;--b:13%;--h:78px" src="../../public/assets/living-overworld/autumn-modular/objects/tree-red.png" alt="">
+      <img class="scene-object back" style="--x:15%;--b:6%;--h:112px" src="../../public/assets/living-overworld/autumn-modular/objects/tree.png" alt="">
+      <img class="scene-object back desktop-detail" style="--x:21%;--b:21%;--h:72px" src="../../public/assets/living-overworld/autumn-modular/objects/tree-red.png" alt="">
+      <img class="scene-object back desktop-detail" style="--x:27%;--b:29%;--h:58px" src="../../public/assets/living-overworld/autumn-modular/objects/tree.png" alt="">
+      <img class="scene-object back" style="--x:70%;--b:7%;--h:82px" src="../../public/assets/living-overworld/autumn-modular/objects/tree-red.png" alt="">
+      <img class="scene-object back desktop-detail" style="--x:86%;--b:8%;--h:105px" src="../../public/assets/living-overworld/autumn-modular/objects/tree.png" alt="">
+      <img class="scene-object back desktop-detail wide-only" style="--x:95%;--b:5%;--h:92px" src="../../public/assets/living-overworld/autumn-modular/objects/tree-red.png" alt="">
+
+      <img class="scene-object front" style="--x:3%;--b:2%;--h:128px" src="../../public/assets/living-overworld/autumn-modular/objects/tree.png" alt="">
+      <img class="scene-object front desktop-detail" style="--x:10%;--b:4%;--h:58px" src="../../public/assets/living-overworld/autumn-modular/objects/bush.png" alt="">
+      <img class="scene-object front desktop-detail" style="--x:18%;--b:10%;--h:42px" src="../../public/assets/living-overworld/autumn-modular/objects/rock.png" alt="">
+      <img class="scene-object front desktop-detail" style="--x:24%;--b:18%;--h:38px" src="../../public/assets/living-overworld/autumn-modular/objects/bush.png" alt="">
+      <img class="scene-object front" style="--x:31%;--b:3%;--h:42px" src="../../public/assets/living-overworld/autumn-modular/objects/grass.png" alt="">
+      <img class="scene-object front" style="--x:39%;--b:2%;--h:38px" src="../../public/assets/living-overworld/autumn-modular/objects/flowers.png" alt="">
+      <img class="scene-object front desktop-detail" style="--x:48%;--b:2%;--h:46px" src="../../public/assets/living-overworld/autumn-modular/objects/bush.png" alt="">
+      <img class="scene-object front" style="--x:57%;--b:2%;--h:35px" src="../../public/assets/living-overworld/autumn-modular/objects/grass.png" alt="">
+      <img class="scene-object front desktop-detail" style="--x:64%;--b:2%;--h:33px" src="../../public/assets/living-overworld/autumn-modular/objects/flowers.png" alt="">
+      <img class="scene-object front" style="--x:75%;--b:3%;--h:48px" src="../../public/assets/living-overworld/autumn-modular/objects/bush.png" alt="">
+      <img class="scene-object front desktop-detail" style="--x:82%;--b:2%;--h:40px" src="../../public/assets/living-overworld/autumn-modular/objects/rock.png" alt="">
+      <img class="scene-object front" style="--x:91%;--b:2%;--h:44px" src="../../public/assets/living-overworld/autumn-modular/objects/grass.png" alt="">
+      <img class="scene-object front desktop-detail wide-only" style="--x:98%;--b:2%;--h:116px" src="../../public/assets/living-overworld/autumn-modular/objects/tree-red.png" alt="">
+    </div>
+    <header class="header">
+      <div class="header-main"><span class="brand">Sensei</span><div class="header-actions"><span>Theme</span><span class="control">Living Overworld</span><span class="control">Parent Mode</span></div></div>
+      <div class="header-status"><strong>Autumn · Evening</strong><span>Partly cloudy · 13°C</span><span>Weather by Open-Meteo</span><button class="control motion" type="button">Pause motion</button></div>
+    </header>
+  </section>
+  <main><small>This week</small><h1>Rich autumn composition proof</h1><p>Independent hillside, forest, landmarks, terrain, and authored vegetation layers.</p></main>
+</body>
+</html>
