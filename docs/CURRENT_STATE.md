@@ -4,9 +4,9 @@ Checkpoint date: November 10, 2026.
 
 Repository baseline: the current published `main` household release, including Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
 
-## Unmerged Living Overworld review branch
+## Living Overworld 1.0 release candidate
 
-Branch `feature/living-overworld-seasons` contains a separate Living Overworld theme for Product Owner visual review. It is not part of the authoritative `main` release and has not been deployed to the household installation.
+Branch `feature/living-overworld-seasons` contains the Product Owner-authorized Living Overworld 1.0 release candidate. Merge and household deployment remain controlled release steps.
 
 Implemented and verified on the branch:
 
@@ -16,15 +16,17 @@ Implemented and verified on the branch:
 - A detailed round moon with eight deterministic phases, motion preferences, reduced-motion handling, hidden-page suspension, and device-local theme selection.
 - Actual cached Open-Meteo appearance data driving clear, partly cloudy, cloudy, rain, snow, and fog treatments, with stale and neutral-fallback status.
 - Seven-day adjacent-season transitions with controlled image mounting, a 140 px mobile scene, proportional mobile cropping, and controls outside the scenery.
-- 50 automated tests, TypeScript checks, production build, and the full isolated browser QA workflow passing at the Gate 1 checkpoint.
+- A weather-, season-, and time-aware population of sheep, pig, cow, chicken, and aquatic axolotl using fixed habitat corridors and CSS-only movement.
+- A maximum of three land animals plus one axolotl in clear daytime conditions, with reduced activity during clouds, rain, snow, fog, evening, winter, and night.
+- 51 automated tests, TypeScript checks, production build, and the full isolated browser QA workflow passing at the Living Overworld 1.0 checkpoint.
 
-Intentionally outside Gate 1:
+Intentionally outside Living Overworld 1.0:
 
-- Living Overworld creatures.
 - Persistent snow accumulation, environmental simulation, and generalized wind response.
 - Continuous celestial travel and asset-format conversion.
+- Creature interaction, game mechanics, pathfinding, and chore-triggered scenery reactions.
 
-Gate 1 Product Owner acceptance, merge, release, and deployment remain pending. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
+Product Owner release authorization is recorded. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 

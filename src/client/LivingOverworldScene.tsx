@@ -6,6 +6,11 @@ export type LivingLight = 'morning' | 'day' | 'evening' | 'night';
 type Override<T extends string> = T | 'auto';
 export type MoonPhase = 'new' | 'waxing-crescent' | 'first-quarter' | 'waxing-gibbous' | 'full' | 'waning-gibbous' | 'last-quarter' | 'waning-crescent';
 type MoonOverride = MoonPhase | 'auto';
+export type LivingCreatureSpecies = 'sheep' | 'pig' | 'cow' | 'chicken' | 'axolotl';
+export interface LivingCreature {
+  species: LivingCreatureSpecies;
+  habitat: 'meadow-left' | 'shore-center' | 'retreat-bank' | 'lake';
+}
 
 const assetRoot = '/assets/living-overworld';
 const motionStorageKey = 'sensei-living-overworld-motion';
@@ -87,6 +92,36 @@ export function livingWeatherFor(override: Override<OverworldWeatherAppearance>,
   return override === 'auto' ? weather?.appearance ?? 'clear' : override;
 }
 
+export function livingCreaturePopulation(
+  season: LivingSeason,
+  light: LivingLight,
+  weather: OverworldWeatherAppearance
+): LivingCreature[] {
+  if (light === 'night') return [];
+
+  const seasonalLand: Record<LivingSeason, Array<Exclude<LivingCreatureSpecies, 'axolotl'>>> = {
+    spring: ['sheep', 'pig', 'chicken'],
+    summer: ['cow', 'pig', 'chicken'],
+    autumn: ['cow', 'sheep', 'chicken'],
+    winter: ['sheep', 'cow', 'chicken']
+  };
+  const weatherLimit: Record<OverworldWeatherAppearance, number> = {
+    clear: 3, 'partly-cloudy': 3, cloudy: 2, rain: 1, snow: 1, fog: 1
+  };
+  const lightLimit: Record<LivingLight, number> = { morning: 2, day: 3, evening: 1, night: 0 };
+  const habitats: LivingCreature['habitat'][] = ['meadow-left', 'shore-center', 'retreat-bank'];
+  const landCount = Math.min(weatherLimit[weather], lightLimit[light]);
+  const population: LivingCreature[] = seasonalLand[season].slice(0, landCount)
+    .map((species, index) => ({ species, habitat: habitats[index] }));
+
+  const axolotlActive = season !== 'winter'
+    && weather !== 'snow'
+    && weather !== 'fog'
+    && (light === 'morning' || light === 'day');
+  if (axolotlActive) population.push({ species: 'axolotl', habitat: 'lake' });
+  return population;
+}
+
 async function loadWeather(): Promise<OverworldWeatherResponse> {
   const response = await fetch('/api/overworld/weather');
   if (!response.ok) throw new Error('Weather unavailable');
@@ -162,6 +197,7 @@ export function LivingOverworldScene() {
   const moonPhase = moonOverride === 'auto' ? moonPhaseFor(now) : moonOverride;
   const primaryAssets = livingOverworldAssets[blend.primary];
   const adjacentAssets = blend.adjacent ? livingOverworldAssets[blend.adjacent] : null;
+  const creatures = livingCreaturePopulation(season, light, weatherAppearance);
 
   function toggleMotion() {
     const next = !motionEnabled;
@@ -244,6 +280,13 @@ export function LivingOverworldScene() {
         {sceneLayer(1, 'layer-terrain')}
         {sceneLayer(2, 'layer-water')}
         {sceneLayer(3, 'layer-retreat')}
+        <div className="living-overworld-creatures">
+          {creatures.map((creature) => <i
+            key={creature.species}
+            className={`living-overworld-creature ${creature.species} habitat-${creature.habitat}`}
+            data-species={creature.species}
+          />)}
+        </div>
         <div className="living-overworld-window-glow" />
         <div className="living-overworld-smoke"><i /><i /><i /></div>
         {sceneLayer(4, 'layer-vegetation')}

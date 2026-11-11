@@ -1,12 +1,12 @@
-# Living Overworld Gate 1 visual review
+# Living Overworld 1.0 visual review
 
 Review target: `feature/living-overworld-seasons`
 
-Review status: **Gate 1 implementation complete; pending Product Owner acceptance**
+Review status: **Gates 1 and 2 implemented; Product Owner authorized release**
 
 Evidence source: isolated browser QA with synthetic household data; no production database was accessed.
 
-This page records the Gate 1 landscape, responsive, weather, season, and lighting candidate. It is not evidence of a merge, push, household deployment, or production acceptance. Creatures are not part of Gate 1.
+This page records the Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature candidate. Deployment evidence is recorded separately after the controlled household release.
 
 ## Seasonal composition and lighting
 
@@ -60,12 +60,26 @@ The existing detailed round moon and eight deterministic phases remain intact. T
 - Season, weather, light, and moon overrides available only with `?living-preview=1`.
 - Decorative elements remain outside keyboard navigation and the accessibility reading order.
 
-## Known limitations and Gate 2 boundary
+## Gate 2 ecosystem
+
+| Desktop | Mobile · 390 px |
+| --- | --- |
+| ![Living Overworld ecosystem on desktop](assets/screenshots/living-overworld-gate2-ecosystem-desktop.png) | ![Living Overworld ecosystem on mobile](assets/screenshots/living-overworld-gate2-ecosystem-mobile.png) |
+
+- Reuses the existing original eight-frame sheep, pig, cow, chicken, and axolotl sprite sheets.
+- Shows at most three land animals plus one aquatic axolotl.
+- Selects species and population deterministically from the active season, lighting period, and weather appearance.
+- Reduces activity during clouds, rain, snow, fog, evening, winter, and night.
+- Constrains land animals to three local terrain corridors and the axolotl to the lake.
+- Uses CSS sprite stepping and local wandering with pauses; no game engine, pathfinding, or continuous JavaScript animation loop.
+- Keeps creatures behind lighting, precipitation, fog, and foreground vegetation.
+- Stops movement under the user motion setting, `prefers-reduced-motion`, and hidden-page suspension.
+
+## Known limitations
 
 - Lighting uses four coordinated periods rather than continuous celestial travel.
 - The weather cache is in-memory; a process restart without network access falls back to neutral conditions until a valid response is received.
 - Snow is atmospheric only. Accumulation, wet-terrain persistence, wind-reactive vegetation, and environmental simulation remain out of scope.
 - Existing seasonal raster layers remain the largest theme payload. Gate 1 avoids unnecessary adjacent decoding but does not convert the art library to a new format.
-- No Living Overworld creatures, habitat rules, or movement zones have been implemented.
-
-Gate 2 may begin only after Product Owner acceptance. Its bounded purpose is the first lightweight creature ecosystem, including the axolotl where the existing water habitat and suitable assets support it.
+- Creatures use bounded local corridors rather than terrain-aware pathfinding or interactivity.
+- Creatures are decorative and do not react to chores.

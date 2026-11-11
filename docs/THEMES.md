@@ -1,6 +1,6 @@
 # Themes
 
-Sensei has three production themes: NovaPay, Sensei Classic, and Overworld Adventure. Theme selection is available in the global header, requires no parent authorization, and is stored per device in `localStorage` under `sensei-device-theme`.
+Sensei has four production themes: NovaPay, Sensei Classic, Overworld Adventure, and Living Overworld. Theme selection is available in the global header, requires no parent authorization, and is stored per device in `localStorage` under `sensei-device-theme`.
 
 ## Theme contract
 
@@ -13,7 +13,7 @@ Sensei has three production themes: NovaPay, Sensei Classic, and Overworld Adven
 
 `applyTheme()` writes those values as CSS custom properties on the document root and sets `data-theme`. Shared checklist, calendar, Parent Mode, and ledger components consume the semantic variables rather than branching on theme IDs.
 
-Theme-specific CSS is limited to genuine visual differences. Overworld rules are scoped to `html[data-theme="minecraft"]`, and its scenic component is mounted only for that theme.
+Theme-specific CSS is limited to genuine visual differences. Overworld rules are scoped to `html[data-theme="minecraft"]`, Living Overworld rules are scoped to `html[data-theme="living-overworld"]`, and each scenic component is mounted only for its theme.
 
 ## Production themes
 
@@ -49,6 +49,22 @@ Overworld combines the token system with `OverworldScene.tsx` and theme-scoped C
 | Night encounters — desktop | Night encounters — mobile |
 | --- | --- |
 | ![A zombie crossing the desktop Overworld scene at night](assets/screenshots/overworld-night-encounters.png) | ![A skeleton crossing the mobile Overworld scene at night](assets/screenshots/overworld-night-encounters-mobile.png) |
+
+### Living Overworld
+
+Living Overworld is a separate layered-world treatment rather than a replacement for Overworld Adventure. It uses one aligned landscape assembled from independent mountain, terrain, water, retreat, vegetation, celestial, atmosphere, weather, and creature layers.
+
+- Four seasons and four lighting periods preserve the same geography.
+- The existing Open-Meteo response drives clear, partly cloudy, cloudy, rain, snow, and fog presentation.
+- A detailed round moon supports eight deterministic phases.
+- Sheep, pigs, cows, and chickens wander within lightweight land corridors; the axolotl remains in the lake.
+- Season, light, and weather cap the population without background simulation or pathfinding.
+- The scene is approximately 140 CSS pixels tall on mobile, with controls outside the scenic area.
+- The motion preference, reduced-motion media query, and hidden-page handling stop creature and environmental movement.
+
+| Living ecosystem — desktop | Living ecosystem — mobile |
+| --- | --- |
+| ![Living Overworld ecosystem on desktop](assets/screenshots/living-overworld-gate2-ecosystem-desktop.png) | ![Living Overworld ecosystem on mobile](assets/screenshots/living-overworld-gate2-ecosystem-mobile.png) |
 
 ## Asset organization
 

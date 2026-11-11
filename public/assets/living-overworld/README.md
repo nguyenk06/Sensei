@@ -27,4 +27,6 @@ All seasonal PNGs are 2172 × 724, 32-bit RGBA, and share the original coordinat
 
 Gate 1 consumes the existing cached Open-Meteo appearance contract for clear, partly cloudy, cloudy, rain, snow, and fog. Rain, snow, fog, clouds, water, vegetation, and smoke are CSS effects; no additional runtime dependency is used.
 
+Living Overworld 1.0 reuses the original eight-frame animal sheets under `public/assets/overworld-v04/animals/`. Land species use three fixed terrain corridors and the axolotl uses the lake corridor. Population selection is deterministic from season, lighting period, and weather; movement is CSS-only and stops with the existing motion accessibility controls.
+
 These remain production candidates: lossless PNG delivery favors fidelity over transfer size, so WebP/AVIF evaluation and small alpha-edge cleanup are sensible future optimization work.

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
-import { livingLightFor, livingOverworldAssets, livingSeasonBlendFor, livingSeasonFor, livingWeatherFor, moonPhaseFor } from './LivingOverworldScene';
+import {
+  livingCreaturePopulation, livingLightFor, livingOverworldAssets, livingSeasonBlendFor,
+  livingSeasonFor, livingWeatherFor, moonPhaseFor
+} from './LivingOverworldScene';
 
 describe('Living Overworld theme foundation', () => {
   it('registers independently from the existing Overworld theme', () => {
@@ -61,6 +64,27 @@ describe('Living Overworld theme foundation', () => {
     expect(livingWeatherFor('auto', weather)).toBe('snow');
     expect(livingWeatherFor('rain', weather)).toBe('rain');
     expect(livingWeatherFor('auto', null)).toBe('clear');
+  });
+
+  it('limits creatures by season, daylight, weather, and habitat', () => {
+    expect(livingCreaturePopulation('summer', 'day', 'clear')).toEqual([
+      { species: 'cow', habitat: 'meadow-left' },
+      { species: 'pig', habitat: 'shore-center' },
+      { species: 'chicken', habitat: 'retreat-bank' },
+      { species: 'axolotl', habitat: 'lake' }
+    ]);
+    expect(livingCreaturePopulation('spring', 'morning', 'cloudy')).toHaveLength(3);
+    expect(livingCreaturePopulation('autumn', 'day', 'rain')).toEqual([
+      { species: 'cow', habitat: 'meadow-left' },
+      { species: 'axolotl', habitat: 'lake' }
+    ]);
+    expect(livingCreaturePopulation('winter', 'day', 'snow')).toEqual([
+      { species: 'sheep', habitat: 'meadow-left' }
+    ]);
+    expect(livingCreaturePopulation('summer', 'evening', 'clear')).toEqual([
+      { species: 'cow', habitat: 'meadow-left' }
+    ]);
+    expect(livingCreaturePopulation('summer', 'night', 'clear')).toEqual([]);
   });
 
   it('maps a synodic month into eight deterministic moon phases', () => {
