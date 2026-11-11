@@ -1,6 +1,6 @@
 # Sensei
 
-Sensei is a private, locally hosted household chore and allowance tracker for one child and one household. It combines a child-friendly weekly checklist with server-authorized parent approvals, a durable allowance ledger, and three distinct visual themes.
+Sensei is a private, locally hosted household chore and allowance tracker for one child and one household. It combines a child-friendly weekly checklist with server-authorized parent approvals, a durable allowance ledger, and four distinct visual themes.
 
 > This repository showcases the working application source and visual system. It does not provide a hosted demo and contains no household database, credentials, or deployment-specific network configuration.
 
@@ -21,11 +21,11 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 
 ## Theme showcase
 
-| NovaPay | Sensei Classic | Overworld Adventure |
-| --- | --- | --- |
-| ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) |
+| NovaPay | Sensei Classic | Overworld Adventure | Living Overworld |
+| --- | --- | --- | --- |
+| ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) | ![Living Overworld theme](docs/assets/screenshots/living-overworld-gate2-ecosystem-desktop.png) |
 
-Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system; Overworld builds on it with seasonal landscapes, lighting, decorative weather, daytime voxel animals, randomized night encounters, responsive scene composition, and reduced-motion support.
+Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system. Overworld Adventure uses illustrated seasonal landscapes and randomized night encounters; Living Overworld uses a persistent layered retreat, real-weather atmosphere, and a bounded weather-aware creature ecosystem. Both scenic themes preserve responsive composition and reduced-motion support.
 
 ## Stack
 
