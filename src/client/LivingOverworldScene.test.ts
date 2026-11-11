@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
 import {
+  autumnModularOpacityFor, livingAutumnEnvironmentObjects, livingAutumnModularAssets,
   livingCreaturePopulation, livingLightFor, livingOverworldAssets, livingSeasonBlendFor,
   livingSeasonFor, livingWeatherFor, moonPhaseFor
 } from './LivingOverworldScene';
@@ -26,6 +27,22 @@ describe('Living Overworld theme foundation', () => {
     expect(livingOverworldAssets.spring[1]).toContain('/seasons/spring/');
     expect(livingOverworldAssets.autumn[4]).toContain('/seasons/autumn/');
     expect(livingOverworldAssets.winter.every((asset) => asset.includes('/seasons/winter/'))).toBe(true);
+  });
+
+  it('declares the bounded autumn modular assets and stable object identities', () => {
+    expect(Object.values(livingAutumnModularAssets).every((asset) => asset.includes('/autumn-modular/'))).toBe(true);
+    expect(livingAutumnEnvironmentObjects.map((object) => object.id)).toEqual([
+      'autumn-tree-left', 'autumn-bush-left', 'autumn-grass-center',
+      'autumn-flowers-center', 'autumn-rock-right'
+    ]);
+    expect(new Set(livingAutumnEnvironmentObjects.map((object) => object.id)).size).toBe(livingAutumnEnvironmentObjects.length);
+  });
+
+  it('crossfades the modular autumn layer only while autumn is visible', () => {
+    expect(autumnModularOpacityFor({ primary: 'summer', adjacent: null, adjacentOpacity: 0 })).toBe(0);
+    expect(autumnModularOpacityFor({ primary: 'summer', adjacent: 'autumn', adjacentOpacity: .35 })).toBe(.35);
+    expect(autumnModularOpacityFor({ primary: 'autumn', adjacent: null, adjacentOpacity: 0 })).toBe(1);
+    expect(autumnModularOpacityFor({ primary: 'autumn', adjacent: 'winter', adjacentOpacity: .4 })).toBe(.6);
   });
 
   it('selects meteorological seasons in Pacific time', () => {

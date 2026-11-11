@@ -640,6 +640,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 }
 
 .living-overworld-banner {
+  --living-autumn-filter: none;
   position: relative; isolation: isolate; display: block; height: clamp(210px, 14vw, 250px); overflow: hidden;
   background: #66bdf0; border-bottom: 7px solid #4b8c32; box-shadow: 0 5px 0 #73563a;
 }
@@ -654,7 +655,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   background: linear-gradient(180deg, #55b5f1 0%, #8fd8f5 56%, #c9edf3 100%);
   transition: background .8s ease;
 }
-.living-overworld-world { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.living-overworld-world { position: absolute; z-index: 4; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .living-overworld-layer {
   --scene-filter: none;
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 58%; filter: var(--scene-filter);
@@ -736,6 +737,27 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .light-evening .living-overworld-window-glow { opacity: .48; }
 .light-night .living-overworld-window-glow { opacity: 1; }
 .layer-vegetation { z-index: 10; transform-origin: 50% 100%; }
+.living-autumn-extensions { position: absolute; z-index: 3; inset: 0; pointer-events: none; transition: opacity 1.1s ease; }
+.living-autumn-segment {
+  position: absolute; inset-block: 0; left: 50%; width: calc(300% * var(--living-scene-ratio, 1)); aspect-ratio: 3 / 1;
+  pointer-events: none;
+}
+.living-autumn-segment img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.living-autumn-segment.left-far { transform: translateX(calc(-250% + 110px)); }
+.living-autumn-segment.left-near { transform: translateX(calc(-150% + 65px)); }
+.living-autumn-segment.right-near { transform: translateX(calc(50% - 65px)); }
+.living-autumn-segment.right-far { transform: translateX(calc(150% - 110px)); }
+.living-autumn-distant { z-index: 1; opacity: .68; filter: var(--living-autumn-filter) brightness(.88) saturate(.8); }
+.living-autumn-terrain { z-index: 2; filter: var(--living-autumn-filter); }
+.living-autumn-segment.left-far .living-autumn-distant { transform: scaleX(-1) scale(.84); transform-origin: right bottom; opacity: .42; }
+.living-autumn-segment.right-near .living-autumn-distant { transform: scaleX(-1); }
+.living-autumn-segment.right-far .living-autumn-distant { transform: scale(.88); transform-origin: left bottom; opacity: .48; }
+.living-autumn-objects { position: absolute; z-index: 9; inset: 0; pointer-events: none; transition: opacity 1.1s ease; }
+.living-autumn-object {
+  position: absolute; bottom: 3%; left: var(--object-x); height: var(--object-height); width: auto;
+  translate: -50% 0; object-fit: contain; pointer-events: none; user-select: none;
+  filter: var(--scene-filter) drop-shadow(0 4px 3px rgba(20,34,22,.2));
+}
 .living-overworld-wet-surface {
   position: absolute; inset: 0; z-index: 11; opacity: 0; pointer-events: none; transition: opacity .8s ease;
   background: linear-gradient(176deg, transparent 0 64%, rgba(167,216,231,.08) 68%, rgba(187,230,240,.22) 74%, transparent 82%);
@@ -778,10 +800,13 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   88.1%, 100% { transform: translateX(0) scaleX(1); }
 }
 .light-morning .living-overworld-layer { --scene-filter: brightness(.92) saturate(.88) sepia(.05); }
+.light-morning.living-overworld-banner { --living-autumn-filter: brightness(.92) saturate(.88) sepia(.05); }
 .light-evening .living-overworld-layer { --scene-filter: brightness(.72) saturate(.88) sepia(.14) hue-rotate(-6deg); }
+.light-evening.living-overworld-banner { --living-autumn-filter: brightness(.72) saturate(.88) sepia(.14) hue-rotate(-6deg); }
 .light-evening .layer-water { --scene-filter: brightness(.78) saturate(.9) sepia(.08); }
 .light-evening .layer-retreat { --scene-filter: brightness(.8) saturate(.86) sepia(.08); }
 .light-night .living-overworld-layer { --scene-filter: brightness(.54) saturate(.76) hue-rotate(10deg); }
+.light-night.living-overworld-banner { --living-autumn-filter: brightness(.54) saturate(.76) hue-rotate(10deg); }
 .light-night .layer-water { --scene-filter: brightness(.63) saturate(.92) hue-rotate(8deg); }
 .light-night .layer-retreat { --scene-filter: brightness(.62) saturate(.82) hue-rotate(5deg); }
 .living-overworld-daylight {
@@ -891,6 +916,8 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   .living-overworld-motion-control, .living-overworld-proof-controls summary { padding: 5px 7px; font-size: 9px; }
   .living-overworld-banner { height: 140px; }
   .living-overworld-world { left: -4%; width: 108%; height: 100%; }
+  .living-autumn-extensions { display: none; }
+  .living-autumn-object { height: calc(var(--object-height) * .78); }
   .living-overworld-layer { object-position: center 58%; }
   .living-overworld-sun { top: 9%; left: 62%; width: 40px; border-width: 4px; }
   .living-overworld-moon { top: 7%; left: 58%; width: 58px; }
@@ -921,6 +948,11 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   .living-overworld-world {
     left: 50%; right: auto; width: auto; max-width: 100%; aspect-ratio: 3 / 1; transform: translateX(-50%);
   }
+  .autumn-modular-visible .living-season-layer {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+  }
+  .living-autumn-segment { width: auto; height: 100%; }
 }
 
 @media (max-width: 480px) {

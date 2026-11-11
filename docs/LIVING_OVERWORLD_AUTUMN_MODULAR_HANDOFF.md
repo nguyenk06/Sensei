@@ -32,6 +32,16 @@ Branch: `feature/living-overworld-autumn-modular`
 - Demonstrated replacing the amber tree with the red variant without changing terrain or other scene layers.
 - Re-ran the 390, 1100, 1920, and 32:9 composition evidence with the object layer enabled.
 
+### Checkpoint D — bounded autumn runtime integration
+
+- Integrated the modular assets into the existing `LivingOverworldScene` for autumn only.
+- Preserved the authored autumn core as the central fallback and retained every other season unchanged.
+- Added desktop-only peripheral terrain and distant scenery; mobile continues to use the accepted compact core crop.
+- Added the five independent environmental objects below the authored foreground occlusion layer.
+- Matched seasonal opacity and morning/evening/night filtering across the core and extensions.
+- Feathered the authored core edges on desktop to avoid a hard rectangular exposure boundary.
+- Made decorative extension/object failures local: a failed image hides without removing the core scene.
+
 ## Evidence
 
 | Viewport | Evidence |
@@ -41,6 +51,8 @@ Branch: `feature/living-overworld-autumn-modular`
 | Desktop 1920 px | ![Autumn modular 1920](assets/screenshots/living-overworld-autumn-modular-desktop-1920.png) |
 | Ultrawide 2560 × 720 | ![Autumn modular 32:9](assets/screenshots/living-overworld-autumn-modular-ultrawide-32x9.png) |
 | Independent tree replacement | ![Autumn modular replacement proof](assets/screenshots/living-overworld-autumn-modular-object-swap.png) |
+| Runtime desktop | ![Autumn modular runtime desktop](assets/screenshots/living-overworld-autumn-modular-runtime-desktop.png) |
+| Runtime mobile | ![Autumn modular runtime mobile](assets/screenshots/living-overworld-autumn-modular-runtime-mobile.png) |
 
 ## Verification
 
@@ -52,21 +64,26 @@ Branch: `feature/living-overworld-autumn-modular`
 - Four new proof PNGs total 2.61 MB encoded and approximately 24 MB decoded.
 - Six cleaned object PNGs have transparent backgrounds and stable baselines; their source masters remain available for future non-destructive refinement.
 - The tree replacement changes only one asset source and leaves the terrain pixels unchanged.
-- No runtime code, database, chores, allowance, authentication, weather behavior, or creature behavior changed.
+- TypeScript checks passed.
+- Full automated suite passed: 8 files, 53 tests.
+- Production build passed.
+- Isolated browser smoke passed all 34 reported workflows, including chores, allowance, themes, Living Overworld layering/weather/celestial behavior, reduced motion, assets, and console checks.
+- Runtime integration changed only client scene composition and styles; database, chores, allowance, authentication, weather API behavior, and creature rules did not change.
 
 ## Known issues
 
 - PNG delivery remains unoptimized; no existing WebP encoder was available.
 - The isolated proof uses autumn/evening presentation only.
 - Existing creatures still use viewport percentages because runtime integration has not begun.
-- The generated objects are production candidates, not yet runtime-integrated or Product Owner accepted.
+- The generated objects and runtime composition remain pending Product Owner visual acceptance.
+- The side extensions are stylistically compatible but not pixel-identical to the authored core; desktop uses a bounded feathered seam.
 - The proof must not be interpreted as production integration or visual acceptance.
 
 ## Next exact step
 
-Complete Checkpoint D on this branch:
+Product Owner visual review:
 
-1. Teach the current autumn `LivingOverworldScene` to consume the accepted modular manifest while retaining its authored-core fallback.
-2. Keep spring, summer, winter, weather, motion preferences, creatures, chores, and allowance behavior unchanged.
-3. Add bounded asset-loading, fallback, responsive, reduced-motion, and existing-theme regression coverage.
-4. Capture runtime desktop and mobile evidence before any merge, push, deployment, or release decision.
+1. Compare the runtime desktop evidence with the accepted isolated 1100/1920 proofs.
+2. Confirm the feathered core-to-extension transition and object scale are acceptable.
+3. Confirm the unchanged compact mobile core remains preferred.
+4. If accepted, authorize a separate push/merge/release scope. No publish, merge, deployment, or household restart has occurred.

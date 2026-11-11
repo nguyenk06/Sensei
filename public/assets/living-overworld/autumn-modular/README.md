@@ -1,6 +1,6 @@
 # Living Overworld autumn modular foundation
 
-Checkpoint status: **C — autumn terrain and environmental-object proof established**.
+Checkpoint status: **D — autumn modular runtime integration established on the feature branch**.
 
 This directory records the canonical geometry for the autumn modular-world proof. It does not replace the current runtime scene yet.
 
@@ -52,6 +52,17 @@ Clean browser assets live in `objects/`; their unmodified generated masters rema
 
 `world.json` gives every object a stable ID, normalized position, scale, layer, and interaction anchor. The isolated proof's **Swap tree** control changes only the tree asset source, demonstrating replacement without changing terrain. The replacement state is recorded in `docs/assets/screenshots/living-overworld-autumn-modular-object-swap.png`.
 
+## Checkpoint D runtime integration
+
+The existing `LivingOverworldScene` now uses the accepted autumn extension and object inventory only while autumn is visible. Desktop renders feathered left/right terrain and distant scenery around the unchanged authored core. Mobile deliberately omits the peripheral extensions and retains the compact accepted core crop. Objects share stable IDs and normalized positions from this manifest.
+
+Missing decorative extension or object images hide independently; the preserved authored core remains usable. The same seasonal-transition opacity is applied to the modular layer, while spring, summer, and winter retain their existing assets and behavior.
+
+Runtime evidence:
+
+- `docs/assets/screenshots/living-overworld-autumn-modular-runtime-desktop.png`
+- `docs/assets/screenshots/living-overworld-autumn-modular-runtime-mobile.png`
+
 ## Current limitations
 
 - The authored core terrain still contains unique trees and landforms and cannot itself be tiled.
@@ -59,8 +70,9 @@ Clean browser assets live in `objects/`; their unmodified generated masters rema
 - The current percentage-based creature placement has not been changed.
 - No runtime code consumes this manifest yet.
 - The object set is intentionally small and autumn-only.
-- Object coordinates have been proved in the isolated composition but are not consumed by the runtime.
+- The runtime keeps a small typed autumn asset inventory aligned with this manifest; it does not introduce a generalized scene-manifest engine.
+- Desktop seam feathering intentionally softens the outer edges of the authored core because the generated extensions use a slightly different material palette.
 
 ## Next exact step
 
-Begin Checkpoint D by mapping the accepted manifest and composition into the existing `LivingOverworldScene` for autumn only. Preserve all other seasons and runtime behavior, retain the authored core as the fallback, and add bounded loading/failure and responsive tests before changing any release or deployment state.
+Request Product Owner visual review of the runtime desktop and mobile evidence. If accepted, the next bounded action is a release review—not additional scene expansion. Push, merge, deployment, and production restart remain unauthorized.
