@@ -6,7 +6,7 @@ Repository baseline: the current published and deployed `main` household release
 
 ## Living Overworld 1.0
 
-Living Overworld 1.0 is merged, published, and deployed from runtime commit `35d6542`.
+Living Overworld 1.0 is merged, published, and deployed from runtime commit `8c44168`, including the compact desktop crop, reduced-height control strip, and grounded distant-mountain adjustment.
 
 Implemented and verified:
 

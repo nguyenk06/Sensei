@@ -6,7 +6,7 @@ Review status: **Accepted, merged, published, and deployed**
 
 Evidence source: isolated browser QA with synthetic household data; no production database was accessed.
 
-This page records the accepted Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature release. The household deployment used runtime commit `35d6542`; release evidence is summarized in [Current state](CURRENT_STATE.md).
+This page records the accepted Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature release. The household deployment uses compact-scene runtime commit `8c44168`; release evidence is summarized in [Current state](CURRENT_STATE.md).
 
 ## Seasonal composition and lighting
 
