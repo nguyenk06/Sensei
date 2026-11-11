@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "checkpoint-b-autumn-terrain-proof",
+  "status": "checkpoint-c-environmental-objects-proof",
   "season": "autumn",
   "coordinateSystem": {
     "coreWidth": 2172,
@@ -94,7 +94,9 @@
     "distantAlternates": ["distant-a.png", "distant-b.png"],
     "sourceFormat": "png",
     "encodedBytes": 2737199,
-    "decodedMemoryEstimateBytes": 25160448
+    "decodedMemoryEstimateBytes": 25160448,
+    "environmentalObjectDirectory": "objects",
+    "sourceMasterDirectory": "source-masters"
   },
   "habitats": [
     {
@@ -131,6 +133,54 @@
       "bounds": [0.11, 0.69, 0.77, 0.93],
       "entries": [],
       "occlusion": "foreground"
+    }
+  ],
+  "environmentalObjects": [
+    {
+      "id": "autumn-tree-left",
+      "asset": "objects/tree.png",
+      "replacementAsset": "objects/tree-red.png",
+      "position": [0.06, 0.97],
+      "heightRatio": 0.3,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "rest": [0.5, 0.96] }
+    },
+    {
+      "id": "autumn-bush-left",
+      "asset": "objects/bush.png",
+      "position": [0.27, 0.97],
+      "heightRatio": 0.14,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "hide": [0.5, 0.9] }
+    },
+    {
+      "id": "autumn-grass-center",
+      "asset": "objects/grass.png",
+      "position": [0.42, 0.97],
+      "heightRatio": 0.12,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "graze": [0.5, 0.94] }
+    },
+    {
+      "id": "autumn-flowers-center",
+      "asset": "objects/flowers.png",
+      "position": [0.62, 0.97],
+      "heightRatio": 0.1,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "inspect": [0.5, 0.92] }
+    },
+    {
+      "id": "autumn-rock-right",
+      "asset": "objects/rock.png",
+      "position": [0.79, 0.97],
+      "heightRatio": 0.12,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "rest": [0.5, 0.9] }
     }
   ],
   "layerOrder": [

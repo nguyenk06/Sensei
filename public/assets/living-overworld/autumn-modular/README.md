@@ -1,6 +1,6 @@
 # Living Overworld autumn modular foundation
 
-Checkpoint status: **B — autumn terrain proof established**.
+Checkpoint status: **C — autumn terrain and environmental-object proof established**.
 
 This directory records the canonical geometry for the autumn modular-world proof. It does not replace the current runtime scene yet.
 
@@ -38,14 +38,29 @@ All four proof assets are 2172 × 724 transparent PNGs. Their combined encoded s
 
 Evidence is captured at 390, 1100, 1920, and 2560 × 720 (32:9) under `docs/assets/screenshots/`.
 
+## Checkpoint C environmental objects
+
+The proof now includes independently replaceable transparent objects:
+
+- Amber and red tree variants.
+- Bush.
+- Grass cluster.
+- Flower cluster.
+- Rock.
+
+Clean browser assets live in `objects/`; their unmodified generated masters remain in `source-masters/`. A deterministic alpha cleanup removed only pixels below alpha 32 and cropped transparent margins without repainting the assets.
+
+`world.json` gives every object a stable ID, normalized position, scale, layer, and interaction anchor. The isolated proof's **Swap tree** control changes only the tree asset source, demonstrating replacement without changing terrain. The replacement state is recorded in `docs/assets/screenshots/living-overworld-autumn-modular-object-swap.png`.
+
 ## Current limitations
 
 - The authored core terrain still contains unique trees and landforms and cannot itself be tiled.
 - The existing lake remains central and does not need an extension.
 - The current percentage-based creature placement has not been changed.
 - No runtime code consumes this manifest yet.
-- Environmental object assets have not been created; Checkpoint C is next.
+- The object set is intentionally small and autumn-only.
+- Object coordinates have been proved in the isolated composition but are not consumed by the runtime.
 
 ## Next exact step
 
-Create a small transparent autumn object set containing a tree, bush, grass cluster, flower cluster, and rock. Add stable object IDs and interaction anchors to `world.json`, then demonstrate replacement and foreground/background placement in the isolated proof before integrating anything into `LivingOverworldScene`.
+Begin Checkpoint D by mapping the accepted manifest and composition into the existing `LivingOverworldScene` for autumn only. Preserve all other seasons and runtime behavior, retain the authored core as the fallback, and add bounded loading/failure and responsive tests before changing any release or deployment state.

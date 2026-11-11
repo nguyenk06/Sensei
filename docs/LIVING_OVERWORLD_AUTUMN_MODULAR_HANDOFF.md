@@ -23,6 +23,15 @@ Branch: `feature/living-overworld-autumn-modular`
 - Restored visible sky and centered celestial placement.
 - Kept weather status and motion control inside the transparent header in the proof.
 
+### Checkpoint C — environmental objects
+
+- Created independent amber tree, red tree, bush, grass, flowers, and rock assets with transparent backgrounds.
+- Preserved the untouched generated masters alongside cleaned browser assets.
+- Added stable IDs, normalized positions, scales, layers, and interaction anchors to `world.json`.
+- Placed the objects beneath the authored foreground so they participate in scene depth.
+- Demonstrated replacing the amber tree with the red variant without changing terrain or other scene layers.
+- Re-ran the 390, 1100, 1920, and 32:9 composition evidence with the object layer enabled.
+
 ## Evidence
 
 | Viewport | Evidence |
@@ -31,6 +40,7 @@ Branch: `feature/living-overworld-autumn-modular`
 | Desktop 1100 px | ![Autumn modular 1100](assets/screenshots/living-overworld-autumn-modular-desktop-1100.png) |
 | Desktop 1920 px | ![Autumn modular 1920](assets/screenshots/living-overworld-autumn-modular-desktop-1920.png) |
 | Ultrawide 2560 × 720 | ![Autumn modular 32:9](assets/screenshots/living-overworld-autumn-modular-ultrawide-32x9.png) |
+| Independent tree replacement | ![Autumn modular replacement proof](assets/screenshots/living-overworld-autumn-modular-object-swap.png) |
 
 ## Verification
 
@@ -40,6 +50,8 @@ Branch: `feature/living-overworld-autumn-modular`
 - Landmark proportions are stable across desktop widths.
 - Mobile omits peripheral extensions and preserves the waterfall, lake, mountains, and retreat.
 - Four new proof PNGs total 2.61 MB encoded and approximately 24 MB decoded.
+- Six cleaned object PNGs have transparent backgrounds and stable baselines; their source masters remain available for future non-destructive refinement.
+- The tree replacement changes only one asset source and leaves the terrain pixels unchanged.
 - No runtime code, database, chores, allowance, authentication, weather behavior, or creature behavior changed.
 
 ## Known issues
@@ -47,15 +59,14 @@ Branch: `feature/living-overworld-autumn-modular`
 - PNG delivery remains unoptimized; no existing WebP encoder was available.
 - The isolated proof uses autumn/evening presentation only.
 - Existing creatures still use viewport percentages because runtime integration has not begun.
-- Environmental object assets and object replacement proof remain incomplete.
+- The generated objects are production candidates, not yet runtime-integrated or Product Owner accepted.
 - The proof must not be interpreted as production integration or visual acceptance.
 
 ## Next exact step
 
-Complete Checkpoint C:
+Complete Checkpoint D on this branch:
 
-1. Produce a small transparent autumn object set: tree, bush, grass, flowers, and rock.
-2. Assign stable IDs, world positions, scales, interaction anchors, and occlusion layers.
-3. Add the objects to the isolated proof.
-4. Demonstrate replacing one tree without changing terrain.
-5. Recheck all four viewport classes before beginning runtime integration.
+1. Teach the current autumn `LivingOverworldScene` to consume the accepted modular manifest while retaining its authored-core fallback.
+2. Keep spring, summer, winter, weather, motion preferences, creatures, chores, and allowance behavior unchanged.
+3. Add bounded asset-loading, fallback, responsive, reduced-motion, and existing-theme regression coverage.
+4. Capture runtime desktop and mobile evidence before any merge, push, deployment, or release decision.

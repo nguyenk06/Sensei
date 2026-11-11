@@ -42,6 +42,7 @@
     .water { z-index: 6; }
     .retreat { z-index: 7; }
     .foreground { z-index: 10; }
+    .object { position: absolute; z-index: 9; bottom: 5px; left: var(--x); height: var(--h); width: auto; translate: -50% 0; pointer-events: none; }
     .lighting { position: absolute; inset: 0; z-index: 12; pointer-events: none; background: linear-gradient(180deg, rgba(17,24,52,.15), rgba(79,35,24,.16)); mix-blend-mode: multiply; }
     .header { position: absolute; z-index: 20; inset: 0 0 auto; min-height: 82px; padding: 12px max(18px, calc((100vw - 1280px) / 2)); background: linear-gradient(180deg, rgba(9,29,27,.82), rgba(9,29,27,.44) 68%, transparent); text-shadow: 2px 2px rgba(12,26,20,.55); }
     .header-main, .header-status { display: flex; align-items: center; gap: 10px; }
@@ -65,6 +66,7 @@
       .control { padding: 6px; font-size: 9px; }
       .header-status { margin-top: 5px; font-size: 9px; }
       .header-status span:nth-child(2), .header-status span:nth-child(3) { display: none; }
+      .object { height: calc(var(--h) * .78); }
       main { margin: 18px 10px; padding: 20px; }
       main h1 { font-size: 29px; }
     }
@@ -89,14 +91,30 @@
     <div class="core core-terrain"><img src="../../public/assets/living-overworld/seasons/autumn/terrain.png" alt=""></div>
     <div class="core water"><img src="../../public/assets/living-overworld/water.png" alt=""></div>
     <div class="core retreat"><img src="../../public/assets/living-overworld/retreat.png" alt=""></div>
+    <img id="proof-tree" class="object" data-world-object="autumn-tree-left" style="--x:6%;--h:84px" src="../../public/assets/living-overworld/autumn-modular/objects/tree.png" alt="">
+    <img class="object" data-world-object="autumn-bush-left" style="--x:27%;--h:39px" src="../../public/assets/living-overworld/autumn-modular/objects/bush.png" alt="">
+    <img class="object" data-world-object="autumn-grass-center" style="--x:42%;--h:34px" src="../../public/assets/living-overworld/autumn-modular/objects/grass.png" alt="">
+    <img class="object" data-world-object="autumn-flowers-center" style="--x:62%;--h:28px" src="../../public/assets/living-overworld/autumn-modular/objects/flowers.png" alt="">
+    <img class="object" data-world-object="autumn-rock-right" style="--x:79%;--h:34px" src="../../public/assets/living-overworld/autumn-modular/objects/rock.png" alt="">
     <div class="core foreground"><img src="../../public/assets/living-overworld/seasons/autumn/foreground-vegetation.png" alt=""></div>
 
     <div class="lighting"></div>
     <header class="header">
       <div class="header-main"><span class="brand">Sensei</span><div class="header-actions"><span>Theme</span><span class="control">Living Overworld</span><span class="control">Parent Mode</span></div></div>
-      <div class="header-status"><strong>Autumn · Evening</strong><span>Cloudy · 13°C</span><span>Weather by Open-Meteo</span><span class="control motion">Pause motion</span></div>
+      <div class="header-status"><strong>Autumn · Evening</strong><span>Cloudy · 13°C</span><span>Weather by Open-Meteo</span><button id="swap-tree" class="control motion" type="button">Swap tree</button></div>
     </header>
   </section>
   <main><small>This week</small><h1>Autumn modular composition proof</h1><p>Isolated synthetic evidence. No household data is used.</p></main>
+  <script>
+    const tree = document.getElementById('proof-tree');
+    const button = document.getElementById('swap-tree');
+    const amber = '../../public/assets/living-overworld/autumn-modular/objects/tree.png';
+    const red = '../../public/assets/living-overworld/autumn-modular/objects/tree-red.png';
+    button.addEventListener('click', () => {
+      const useRed = tree.getAttribute('src') === amber;
+      tree.setAttribute('src', useRed ? red : amber);
+      button.textContent = useRed ? 'Restore tree' : 'Swap tree';
+    });
+  </script>
 </body>
 </html>
