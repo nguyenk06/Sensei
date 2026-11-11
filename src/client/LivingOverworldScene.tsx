@@ -264,7 +264,7 @@ export function LivingOverworldScene() {
     </details>}
   </div>;
 
-  return <>{toolbar}<section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`}
+  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`}
     aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
       <div className="living-overworld-sky" />
@@ -288,7 +288,6 @@ export function LivingOverworldScene() {
           />)}
         </div>
         <div className="living-overworld-window-glow" />
-        <div className="living-overworld-smoke"><i /><i /><i /></div>
         {sceneLayer(4, 'layer-vegetation')}
         <div className="living-overworld-wet-surface" />
       </div>
@@ -299,5 +298,5 @@ export function LivingOverworldScene() {
       <div className="living-overworld-fog"><i /><i /><i /></div>
       <div className="living-overworld-daylight" />
     </div>
-  </section></>;
+  </section>{toolbar}</>;
 }
