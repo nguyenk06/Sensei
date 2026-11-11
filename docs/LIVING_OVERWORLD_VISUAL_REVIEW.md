@@ -6,7 +6,7 @@ Review status: **Accepted, merged, published, and deployed**
 
 Evidence source: isolated browser QA with synthetic household data; no production database was accessed.
 
-This page records the accepted Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature release. The household deployment uses compact-scene runtime commit `8c44168`; release evidence is summarized in [Current state](CURRENT_STATE.md).
+This page records the accepted Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature release. The refined composition uses runtime commit `cc4f3b4`; release evidence is summarized in [Current state](CURRENT_STATE.md).
 
 ## Seasonal composition and lighting
 
@@ -17,7 +17,7 @@ This page records the accepted Living Overworld 1.0 landscape, responsive, weath
 | Autumn · Evening | ![Autumn evening desktop](assets/screenshots/living-overworld-gate1-autumn-evening-desktop.png) | ![Autumn evening mobile](assets/screenshots/living-overworld-gate1-autumn-evening-mobile.png) |
 | Winter · Night | ![Winter night desktop](assets/screenshots/living-overworld-gate1-winter-night-desktop.png) | ![Winter night mobile](assets/screenshots/living-overworld-gate1-winter-night-mobile.png) |
 
-The shared fixed camera keeps the mountain and waterfall to the left, the lake through the center, and the retreat in the right third. Mobile uses proportional scaling with a small outer crop; it does not stretch the source layers. Functional controls sit in the header and scene toolbar, outside the 140 px scenic region.
+The shared fixed camera keeps the mountain and waterfall to the left, the lake through the center, and the retreat in the right third. Desktop preserves the banner height but presents the source layers at their natural 3:1 scale so the house, sky, and water remain visible rather than using an enlarged crop. Mobile uses proportional scaling with a small outer crop; it does not stretch the source layers. The global header overlays the sky with a transparent gradient, while the scene toolbar remains outside the scenic region.
 
 Automatic season selection uses `America/Los_Angeles`. A seven-day boundary window blends only the adjacent season; unchanged layers are reused, and the adjacent image is not mounted outside the transition. Morning, day, evening, and night use the cached Seattle-area sunrise/sunset response with deterministic Pacific-time fallbacks.
 
@@ -56,6 +56,7 @@ The existing detailed round moon and eight deterministic phases remain intact. T
 - Four seasonal landscapes, four lighting periods, seven-day adjacent-season transitions, and controlled image mounting.
 - Clear, partly cloudy, cloudy, rain, snow, and fog treatments driven by actual weather appearance data.
 - 210–250 px desktop and 140 px mobile landscapes, proportional viewport crops, no horizontal overflow, and compact controls outside the scene.
+- No artificial chimney smoke; the retreat artwork has no chimney.
 - Always-available motion control, `prefers-reduced-motion`, and hidden-page animation suspension.
 - Season, weather, light, and moon overrides available only with `?living-preview=1`.
 - Decorative elements remain outside keyboard navigation and the accessibility reading order.

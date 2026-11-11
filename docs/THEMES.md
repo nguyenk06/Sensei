@@ -59,7 +59,8 @@ Living Overworld is a separate layered-world treatment rather than a replacement
 - A detailed round moon supports eight deterministic phases.
 - Sheep, pigs, cows, and chickens wander within lightweight land corridors; the axolotl remains in the lake.
 - Season, light, and weather cap the population without background simulation or pathfinding.
-- The scene is approximately 210–250 CSS pixels tall on desktop and 140 pixels on mobile, with a compact control strip outside the scenic area.
+- The scene is approximately 210–250 CSS pixels tall on desktop and 140 pixels on mobile. Desktop displays the aligned 3:1 layers at their natural zoomed-out scale, mobile keeps its proportional crop, the transparent global header overlays the sky, and a compact control strip remains outside the scenic area.
+- The lake, waterfall, retreat, and sky remain visible in the desktop composition; no chimney smoke is added to the chimney-free retreat.
 - The motion preference, reduced-motion media query, and hidden-page handling stop creature and environmental movement.
 
 | Living ecosystem — desktop | Living ecosystem — mobile |

@@ -6,7 +6,7 @@ Repository baseline: the current published and deployed `main` household release
 
 ## Living Overworld 1.0
 
-Living Overworld 1.0 is merged, published, and deployed from runtime commit `8c44168`, including the compact desktop crop, reduced-height control strip, and grounded distant-mountain adjustment.
+Living Overworld 1.0 is merged and published through composition runtime commit `cc4f3b4`. The latest presentation keeps the 210–250 px desktop banner height while showing the layered 3:1 world at its natural zoomed-out scale, restores the visible lake, uses a transparent header overlay, and removes the unsupported chimney smoke effect. Mobile retains its approved 140 px proportions.
 
 Implemented and verified:
 
@@ -18,7 +18,7 @@ Implemented and verified:
 - Seven-day adjacent-season transitions with controlled image mounting, a 140 px mobile scene, proportional mobile cropping, and controls outside the scenery.
 - A weather-, season-, and time-aware population of sheep, pig, cow, chicken, and aquatic axolotl using fixed habitat corridors and CSS-only movement.
 - A maximum of three land animals plus one axolotl in clear daytime conditions, with reduced activity during clouds, rain, snow, fog, evening, winter, and night.
-- 51 automated tests, TypeScript checks, production build, and the full isolated browser QA workflow passing at the Living Overworld 1.0 checkpoint.
+- 51 automated tests, TypeScript checks, production build, and all 35 full isolated browser QA workflows passing at the latest Living Overworld 1.0 checkpoint.
 
 Intentionally outside Living Overworld 1.0:
 
