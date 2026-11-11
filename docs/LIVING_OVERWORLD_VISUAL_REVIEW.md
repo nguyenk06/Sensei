@@ -55,7 +55,7 @@ The existing detailed round moon and eight deterministic phases remain intact. T
 - Semantic sky, mountain, terrain, water, retreat, vegetation, atmosphere, celestial, precipitation, and foreground layers.
 - Four seasonal landscapes, four lighting periods, seven-day adjacent-season transitions, and controlled image mounting.
 - Clear, partly cloudy, cloudy, rain, snow, and fog treatments driven by actual weather appearance data.
-- 140 px mobile landscape, proportional crop, no horizontal overflow, and controls outside the scene.
+- 210–250 px desktop and 140 px mobile landscapes, proportional viewport crops, no horizontal overflow, and compact controls outside the scene.
 - Always-available motion control, `prefers-reduced-motion`, and hidden-page animation suspension.
 - Season, weather, light, and moon overrides available only with `?living-preview=1`.
 - Decorative elements remain outside keyboard navigation and the accessibility reading order.

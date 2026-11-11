@@ -412,7 +412,7 @@ try {
   }));
   if (livingControlLayout.toolbarBottom > livingControlLayout.sceneTop + 1) throw new Error('Living Overworld controls overlap the scenic area');
   const livingBannerHeight = await livingBanner.evaluate((element) => element.getBoundingClientRect().height);
-  if (livingBannerHeight < 290 || livingBannerHeight > 415) throw new Error(`Living Overworld desktop height is invalid: ${livingBannerHeight}`);
+  if (livingBannerHeight < 200 || livingBannerHeight > 260) throw new Error(`Living Overworld desktop height is invalid: ${livingBannerHeight}`);
   await childOne.waitForFunction(() => Array.from(document.querySelectorAll<HTMLImageElement>('.living-overworld-layer'))
     .every((image) => image.complete && image.naturalWidth > 0));
   const livingAssetWidths = await livingBanner.locator('.living-overworld-layer')
