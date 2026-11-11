@@ -29,6 +29,8 @@ interface AutumnEnvironmentObject {
   asset: string;
   x: number;
   height: number;
+  bottom?: number;
+  desktopOnly?: boolean;
 }
 const summerAssets: SceneAssets = [`${assetRoot}/distant-mountains-v2.png`, `${assetRoot}/terrain.png`, `${assetRoot}/water.png`, `${assetRoot}/retreat.png`, `${assetRoot}/foreground-vegetation.png`];
 
@@ -51,11 +53,15 @@ export const livingAutumnStructuralAssets = {
 } as const;
 
 export const livingAutumnEnvironmentObjects: readonly AutumnEnvironmentObject[] = [
-  { id: 'autumn-tree-left', asset: `${assetRoot}/autumn-modular/objects/tree.png`, x: .06, height: .3 },
-  { id: 'autumn-bush-left', asset: `${assetRoot}/autumn-modular/objects/bush.png`, x: .27, height: .14 },
-  { id: 'autumn-grass-center', asset: `${assetRoot}/autumn-modular/objects/grass.png`, x: .42, height: .12 },
-  { id: 'autumn-flowers-center', asset: `${assetRoot}/autumn-modular/objects/flowers.png`, x: .62, height: .1 },
-  { id: 'autumn-rock-right', asset: `${assetRoot}/autumn-modular/objects/rock.png`, x: .79, height: .12 }
+  { id: 'autumn-tree-left', asset: `${assetRoot}/autumn-modular/objects/tree.png`, x: .08, height: .24, bottom: .03 },
+  { id: 'autumn-rock-approach', asset: `${assetRoot}/autumn-modular/objects/rock.png`, x: .015, height: .075, bottom: .035, desktopOnly: true },
+  { id: 'autumn-rock-ledge', asset: `${assetRoot}/autumn-modular/objects/rock.png`, x: .16, height: .052, bottom: .21, desktopOnly: true },
+  { id: 'autumn-bush-left', asset: `${assetRoot}/autumn-modular/objects/bush.png`, x: .2, height: .09, bottom: .055 },
+  { id: 'autumn-grass-shore', asset: `${assetRoot}/autumn-modular/objects/grass.png`, x: .35, height: .075, bottom: .035 },
+  { id: 'autumn-flowers-shore', asset: `${assetRoot}/autumn-modular/objects/flowers.png`, x: .53, height: .065, bottom: .035 },
+  { id: 'autumn-bush-path', asset: `${assetRoot}/autumn-modular/objects/bush.png`, x: .74, height: .075, bottom: .055 },
+  { id: 'autumn-grass-house', asset: `${assetRoot}/autumn-modular/objects/grass.png`, x: .82, height: .065, bottom: .04 },
+  { id: 'autumn-rock-right', asset: `${assetRoot}/autumn-modular/objects/rock.png`, x: .91, height: .075, bottom: .035 }
 ];
 
 export function autumnModularOpacityFor(blend: LivingSeasonBlend): number {
@@ -263,6 +269,7 @@ export function LivingOverworldScene() {
       <img className="living-autumn-mountains center" src={livingAutumnStructuralAssets.mountains} alt="" onError={hideBrokenDecorativeImage} />
       <img className="living-autumn-mountains outer outer-right" src={livingAutumnStructuralAssets.outerMountainRight} alt="" onError={hideBrokenDecorativeImage} />
       <div className="living-autumn-ground-band" />
+      <img className="living-autumn-left-connector" src={livingAutumnStructuralAssets.waterfallOutcrop} alt="" onError={hideBrokenDecorativeImage} />
       <div className="living-autumn-water-system">
         <img className="living-autumn-outcrop" src={livingAutumnStructuralAssets.waterfallOutcrop} alt="" onError={hideBrokenDecorativeImage} />
         <img className="living-autumn-water layer-water" src={livingAutumnStructuralAssets.connectedWater} alt="" onError={hideBrokenDecorativeImage} />
@@ -279,12 +286,16 @@ export function LivingOverworldScene() {
     return <div className="living-autumn-objects" style={{ opacity: autumnModularOpacity }}>
       {livingAutumnEnvironmentObjects.map((object) => <img
         key={object.id}
-        className="living-autumn-object"
+        className={`living-autumn-object${object.desktopOnly ? ' desktop-only' : ''}`}
         data-world-object={object.id}
         src={object.asset}
         alt=""
         onError={hideBrokenDecorativeImage}
-        style={{ '--object-x': `${object.x * 100}%`, '--object-height': `${object.height * 100}%` } as CSSProperties}
+        style={{
+          '--object-x': `${object.x * 100}%`,
+          '--object-height': `${object.height * 100}%`,
+          '--object-bottom': `${(object.bottom ?? .03) * 100}%`
+        } as CSSProperties}
       />)}
     </div>;
   }

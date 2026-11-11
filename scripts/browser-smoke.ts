@@ -425,7 +425,7 @@ try {
       headerBackground: getComputedStyle(document.querySelector('.topbar')!).backgroundImage
     };
   });
-  if (livingDesktopComposition.worldAspectRatio < 2.9 || livingDesktopComposition.worldAspectRatio > 3.1
+  if (livingDesktopComposition.worldAspectRatio < 4 || livingDesktopComposition.worldAspectRatio > 4.6
     || !livingDesktopComposition.headerOverlapsScene || !livingDesktopComposition.headerBackground.includes('linear-gradient')) {
     throw new Error(`Living Overworld desktop zoom or transparent header is invalid: ${JSON.stringify(livingDesktopComposition)}`);
   }
@@ -433,7 +433,7 @@ try {
     .every((image) => image.complete && image.naturalWidth > 0));
   const livingAssetWidths = await livingBanner.locator('.living-autumn-structural img')
     .evaluateAll((elements) => elements.map((element) => (element as HTMLImageElement).naturalWidth));
-  if (livingAssetWidths.length !== 9 || livingAssetWidths.some((width) => width !== 2172)) {
+  if (livingAssetWidths.length !== 10 || livingAssetWidths.some((width) => width !== 2172)) {
     throw new Error(`Living Overworld assets failed to load: ${JSON.stringify(livingAssetWidths)}`);
   }
   const livingLayerOrder = await livingBanner.locator('.living-overworld-scene').evaluate((scene) => {
@@ -469,6 +469,23 @@ try {
     await childOne.waitForTimeout(250);
     await childOne.screenshot({ path: path.join(qaDir, proof.file), fullPage: true });
     await childOne.locator('.living-overworld-proof-controls summary').click();
+  }
+  for (const [name, width, height] of [
+    ['living-overworld-autumn-dressing-desktop-1920.png', 1920, 900],
+    ['living-overworld-autumn-dressing-ultrawide-32x9.png', 2560, 720]
+  ] as const) {
+    const evidencePage = await browser.newPage({ viewport: { width, height } });
+    evidencePage.setDefaultTimeout(12_000);
+    await evidencePage.goto(`${address}?living-preview=1`, { waitUntil: 'networkidle' });
+    await evidencePage.getByLabel('Device theme').selectOption('living-overworld');
+    await evidencePage.locator('.living-overworld-proof-controls summary').click();
+    await evidencePage.getByLabel('Living Overworld season').selectOption('autumn');
+    await evidencePage.getByLabel('Living Overworld light proof').selectOption('evening');
+    await evidencePage.locator('.living-overworld-proof-controls summary').click();
+    await evidencePage.waitForFunction(() => Array.from(document.querySelectorAll<HTMLImageElement>('.living-autumn-structural img'))
+      .every((image) => image.complete && image.naturalWidth > 0));
+    await evidencePage.screenshot({ path: path.join(qaDir, name), fullPage: false });
+    await evidencePage.close();
   }
   await childOne.getByLabel('Living Overworld season').selectOption('summer');
   await childOne.getByLabel('Living Overworld light proof').selectOption('day');

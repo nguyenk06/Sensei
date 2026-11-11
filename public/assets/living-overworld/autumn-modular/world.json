@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "checkpoint-d-autumn-runtime-integrated",
+  "status": "checkpoint-c-autumn-scene-dressed",
   "season": "autumn",
   "coordinateSystem": {
     "coreWidth": 2172,
@@ -155,44 +155,82 @@
       "id": "autumn-tree-left",
       "asset": "objects/tree.png",
       "replacementAsset": "objects/tree-red.png",
-      "position": [0.06, 0.97],
-      "heightRatio": 0.3,
+      "position": [0.08, 0.97],
+      "heightRatio": 0.24,
       "anchor": "bottom-center",
       "layer": "environmental-objects",
       "interactionAnchors": { "rest": [0.5, 0.96] }
     },
     {
+      "id": "autumn-rock-approach",
+      "asset": "objects/rock.png",
+      "position": [0.015, 0.965],
+      "heightRatio": 0.075,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "visibility": "desktop",
+      "interactionAnchors": { "rest": [0.5, 0.9] }
+    },
+    {
+      "id": "autumn-rock-ledge",
+      "asset": "objects/rock.png",
+      "position": [0.16, 0.79],
+      "heightRatio": 0.052,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "visibility": "desktop",
+      "interactionAnchors": { "rest": [0.5, 0.9] }
+    },
+    {
       "id": "autumn-bush-left",
       "asset": "objects/bush.png",
-      "position": [0.27, 0.97],
-      "heightRatio": 0.14,
+      "position": [0.2, 0.945],
+      "heightRatio": 0.09,
       "anchor": "bottom-center",
       "layer": "environmental-objects",
       "interactionAnchors": { "hide": [0.5, 0.9] }
     },
     {
-      "id": "autumn-grass-center",
+      "id": "autumn-grass-shore",
       "asset": "objects/grass.png",
-      "position": [0.42, 0.97],
-      "heightRatio": 0.12,
+      "position": [0.35, 0.965],
+      "heightRatio": 0.075,
       "anchor": "bottom-center",
       "layer": "environmental-objects",
       "interactionAnchors": { "graze": [0.5, 0.94] }
     },
     {
-      "id": "autumn-flowers-center",
+      "id": "autumn-flowers-shore",
       "asset": "objects/flowers.png",
-      "position": [0.62, 0.97],
-      "heightRatio": 0.1,
+      "position": [0.53, 0.965],
+      "heightRatio": 0.065,
       "anchor": "bottom-center",
       "layer": "environmental-objects",
       "interactionAnchors": { "inspect": [0.5, 0.92] }
     },
     {
+      "id": "autumn-bush-path",
+      "asset": "objects/bush.png",
+      "position": [0.74, 0.945],
+      "heightRatio": 0.075,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "hide": [0.5, 0.9] }
+    },
+    {
+      "id": "autumn-grass-house",
+      "asset": "objects/grass.png",
+      "position": [0.82, 0.96],
+      "heightRatio": 0.065,
+      "anchor": "bottom-center",
+      "layer": "environmental-objects",
+      "interactionAnchors": { "graze": [0.5, 0.94] }
+    },
+    {
       "id": "autumn-rock-right",
       "asset": "objects/rock.png",
-      "position": [0.79, 0.97],
-      "heightRatio": 0.12,
+      "position": [0.91, 0.965],
+      "heightRatio": 0.075,
       "anchor": "bottom-center",
       "layer": "environmental-objects",
       "interactionAnchors": { "rest": [0.5, 0.9] }
