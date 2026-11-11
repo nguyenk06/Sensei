@@ -2,11 +2,11 @@
 
 Review target: `feature/living-overworld-seasons`
 
-Review status: **Gates 1 and 2 implemented; Product Owner authorized release**
+Review status: **Accepted, merged, published, and deployed**
 
 Evidence source: isolated browser QA with synthetic household data; no production database was accessed.
 
-This page records the Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature candidate. Deployment evidence is recorded separately after the controlled household release.
+This page records the accepted Living Overworld 1.0 landscape, responsive, weather, season, lighting, and creature release. The household deployment used runtime commit `35d6542`; release evidence is summarized in [Current state](CURRENT_STATE.md).
 
 ## Seasonal composition and lighting
 

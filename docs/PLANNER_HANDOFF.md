@@ -2,11 +2,13 @@
 
 Handoff date: November 10, 2026.
 
-## Pending visual-review branch
+## Current Living Overworld release
 
-`feature/living-overworld-seasons` contains the authorized Living Overworld 1.0 release candidate. Gate 1 provides four seasonal scenes, four daylight periods, a detailed phased round moon, seven-day adjacent-season transitions, a compact 140 px mobile crop, and all six appearances from the existing cached Open-Meteo service. Motion controls remain user-facing; season, light, weather, and moon overrides require `?living-preview=1`.
+Living Overworld 1.0 is merged, published, and deployed from runtime commit `35d6542`. Gate 1 provides four seasonal scenes, four daylight periods, a detailed phased round moon, seven-day adjacent-season transitions, a compact 140 px mobile crop, and all six appearances from the existing cached Open-Meteo service. Motion controls remain user-facing; season, light, weather, and moon overrides require `?living-preview=1`.
 
 Gate 2 adds a small weather-aware creature population using the existing sheep, pig, cow, chicken, and axolotl sprite sheets. Land animals remain in lightweight terrain corridors; the axolotl remains in the lake. Weather, season, and lighting determine a bounded population, while reduced motion and hidden-page state stop movement. No chore, allowance, authentication, API, schema, or database behavior changes.
+
+Release verification used 51 automated tests, client/server TypeScript checks, a production build, the complete isolated browser workflow, a SQLite-native backup with integrity and table-count comparison, and non-mutating live smoke checks. No Living Overworld follow-up is required for phase closure; the limitations documented in the visual review are deferred ideas rather than open release blockers.
 
 ## Authoritative baseline
 

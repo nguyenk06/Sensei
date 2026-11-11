@@ -2,13 +2,13 @@
 
 Checkpoint date: November 10, 2026.
 
-Repository baseline: the current published `main` household release, including Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
+Repository baseline: the current published and deployed `main` household release, including Living Overworld 1.0, Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
 
-## Living Overworld 1.0 release candidate
+## Living Overworld 1.0
 
-Branch `feature/living-overworld-seasons` contains the Product Owner-authorized Living Overworld 1.0 release candidate. Merge and household deployment remain controlled release steps.
+Living Overworld 1.0 is merged, published, and deployed from runtime commit `35d6542`.
 
-Implemented and verified on the branch:
+Implemented and verified:
 
 - Layered fixed-camera scenery with consistent spring, summer, autumn, and winter geography.
 - Automatic meteorological seasons in `America/Los_Angeles`.
@@ -26,7 +26,7 @@ Intentionally outside Living Overworld 1.0:
 - Continuous celestial travel and asset-format conversion.
 - Creature interaction, game mechanics, pathfinding, and chore-triggered scenery reactions.
 
-Product Owner release authorization is recorded. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
+The release used a verified SQLite-native online backup, a separate prior-build backup, a production rebuild, and a restart of only the existing `\Sensei - Household Server` task. Post-release checks confirmed the LAN health endpoint, seven-day checklist, 42-day calendar grid, allowance endpoint, current Open-Meteo response, Living Overworld bundle marker, moon and axolotl assets, and live SQLite integrity. No schema, household records, authentication, port, firewall, startup, or network configuration changed. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 
