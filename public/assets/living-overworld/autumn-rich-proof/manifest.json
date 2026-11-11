@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "status": "proof-ready-for-product-owner-review",
+  "version": 2,
+  "status": "refined-proof-ready-for-product-owner-review",
   "runtimeIntegrated": false,
   "season": "autumn",
   "assets": [
@@ -23,6 +23,13 @@
   ],
   "proof": {
     "html": "../../../../docs/prototypes/living-overworld-autumn-rich.html",
+    "composition": {
+      "waterfallScaleChange": "approximately-25-percent-smaller",
+      "lakeRole": "primary-open-center",
+      "leftTerrain": "dense-descending-woodland",
+      "rightTerrain": "open-house-plains",
+      "environmentalPlacement": "authored-deterministic"
+    },
     "viewports": [
       { "id": "mobile", "width": 390, "sceneHeight": 175 },
       { "id": "desktop-1100", "width": 1100, "sceneHeight": 300 },
