@@ -1,6 +1,6 @@
 # Living Overworld autumn structural recomposition
 
-Status: **Checkpoint D runtime integration and verification complete; Product Owner visual acceptance pending**.
+Status: **Autumn Scene Dressing Checkpoint D verified; Product Owner visual acceptance pending**.
 
 These 2172 × 724 transparent PNG assets replace the combined autumn panorama with independently composed structural elements:
 
@@ -33,4 +33,6 @@ No blur, edge mask, or clipped panorama conceals structural joins.
 Autumn now renders these independent structural objects instead of the old combined autumn terrain. Seasonal crossfades omit the baked autumn layers and fade this structural scene as one bounded composition. Spring, summer, and winter keep their existing assets.
 
 Existing weather, celestial, creature, environmental-object, reduced-motion, and page-visibility behavior remains outside and above the structural layer. Decorative asset failures remain isolated, while the rest of the scene and application continue rendering.
+
+The current dressing pass shifts the central mountain group left, uses distinct outer mountain variants, creates a natural centered celestial saddle, and connects the waterfall's sharp left edge with one scaled structural outcrop tile. Nine stable environmental-object placements add restrained terrain detail while preserving creature corridors and landmark visibility.
 

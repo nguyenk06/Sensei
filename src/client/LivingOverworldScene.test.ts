@@ -35,10 +35,13 @@ describe('Living Overworld theme foundation', () => {
     expect(livingAutumnStructuralAssets.connectedWater).toContain('/autumn-structural/');
     expect(livingAutumnStructuralAssets.retreat).toBe('/assets/living-overworld/retreat.png');
     expect(livingAutumnEnvironmentObjects.map((object) => object.id)).toEqual([
-      'autumn-tree-left', 'autumn-bush-left', 'autumn-grass-center',
-      'autumn-flowers-center', 'autumn-rock-right'
+      'autumn-tree-left', 'autumn-rock-approach', 'autumn-rock-ledge',
+      'autumn-bush-left', 'autumn-grass-shore', 'autumn-flowers-shore',
+      'autumn-bush-path', 'autumn-grass-house', 'autumn-rock-right'
     ]);
     expect(new Set(livingAutumnEnvironmentObjects.map((object) => object.id)).size).toBe(livingAutumnEnvironmentObjects.length);
+    expect(livingAutumnEnvironmentObjects.filter((object) => object.desktopOnly).map((object) => object.id))
+      .toEqual(['autumn-rock-approach', 'autumn-rock-ledge']);
   });
 
   it('crossfades the modular autumn layer only while autumn is visible', () => {

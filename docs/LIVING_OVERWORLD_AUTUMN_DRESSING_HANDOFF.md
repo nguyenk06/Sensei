@@ -40,7 +40,24 @@ Baseline: `c1dad32`
 
 ## Checkpoint D status
 
-Production build and the isolated browser suite pass. Final automated test evidence, manifest status, and completion commit remain to be recorded.
+Complete and verified:
+
+- TypeScript client and server checks passed.
+- Full automated suite passed: 8 files, 53 tests.
+- Production build passed.
+- Isolated browser smoke passed all 34 reported workflows.
+- Browser evidence uses synthetic data and a temporary SQLite database.
+- Verified chores, independent and bulk review, allowance, payments, corrections, Parent Mode, theme persistence, weather, celestial behavior, creatures, reduced motion, calendar, asset loading, and console behavior.
+
+## Known visual limitations
+
+- The scaled left connector is deliberately subtle; it improves the waterfall approach without introducing a new hillside asset.
+- Peripheral ultrawide meadows remain restrained to avoid repeated decorative patterns.
+- Final visual acceptance remains with the Product Owner.
+
+## Next exact step
+
+Review the four evidence images. If accepted, authorize a separate push/merge/release scope. No push, merge, deployment, publication, household-data change, or service restart occurred in this milestone.
 
 No major landmark asset was regenerated. No backend, database, household data, weather service, creature behavior, chore, allowance, authentication, deployment, or service configuration changed.
 
