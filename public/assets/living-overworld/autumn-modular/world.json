@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "status": "checkpoint-a-geometry",
+  "season": "autumn",
+  "coordinateSystem": {
+    "coreWidth": 2172,
+    "coreHeight": 724,
+    "origin": "top-left",
+    "units": "source-pixels",
+    "normalization": {
+      "x": "sourceX / 2172",
+      "y": "sourceY / 724"
+    }
+  },
+  "responsiveFrames": {
+    "mobile": {
+      "evaluationWidth": 390,
+      "sceneHeightRange": [150, 175],
+      "coreWidthViewportRange": [1.05, 1.15],
+      "extensionPolicy": "omit extensions outside the viewport"
+    },
+    "desktop": {
+      "evaluationWidths": [1100, 1920],
+      "sceneHeightRange": [260, 300],
+      "coreWidthRange": [780, 960],
+      "extensionPolicy": "fill both sides without scaling the core above its cap"
+    },
+    "ultrawide": {
+      "evaluationAspect": "32:9",
+      "sceneHeightRange": [260, 300],
+      "coreWidthRange": [900, 960],
+      "extensionPolicy": "add alternating distant and terrain segments"
+    }
+  },
+  "structuralLayers": [
+    {
+      "id": "mountains",
+      "asset": "../distant-mountains-v2.png",
+      "alphaBounds": [0, 32, 1360, 608],
+      "role": "distant-background",
+      "reuse": "preserve"
+    },
+    {
+      "id": "terrain",
+      "asset": "../seasons/autumn/terrain.png",
+      "alphaBounds": [0, 40, 2168, 720],
+      "role": "authored-core",
+      "reuse": "preserve-composite"
+    },
+    {
+      "id": "water",
+      "asset": "../water.png",
+      "alphaBounds": [152, 104, 1672, 672],
+      "role": "connected-waterfall-and-lake",
+      "reuse": "preserve"
+    },
+    {
+      "id": "retreat",
+      "asset": "../retreat.png",
+      "alphaBounds": [1512, 216, 2128, 560],
+      "role": "structural-landmark",
+      "reuse": "preserve"
+    },
+    {
+      "id": "foreground",
+      "asset": "../seasons/autumn/foreground-vegetation.png",
+      "alphaBounds": [0, 472, 2168, 704],
+      "role": "core-occlusion",
+      "reuse": "preserve-composite"
+    }
+  ],
+  "landmarkRegions": {
+    "waterfall": [152, 104, 520, 570],
+    "lake": [240, 500, 1672, 672],
+    "leftOutcropping": [0, 120, 760, 610],
+    "retreat": [1512, 216, 2128, 560],
+    "retreatPath": [1500, 500, 2070, 700]
+  },
+  "extensionSeams": {
+    "left": {
+      "coreX": [0, 120],
+      "overlapPixels": [60, 100],
+      "requiredLayers": ["distant", "terrain", "foreground"]
+    },
+    "right": {
+      "coreX": [2052, 2172],
+      "overlapPixels": [60, 100],
+      "requiredLayers": ["distant", "terrain", "foreground"]
+    }
+  },
+  "habitats": [
+    {
+      "id": "meadow-left",
+      "kind": "land",
+      "segment": "core",
+      "xRange": [0.08, 0.22],
+      "baseline": [[0.08, 0.84], [0.15, 0.82], [0.22, 0.84]],
+      "entries": ["left-extension"],
+      "occlusion": "foreground"
+    },
+    {
+      "id": "shore-center",
+      "kind": "land",
+      "segment": "core",
+      "xRange": [0.36, 0.58],
+      "baseline": [[0.36, 0.79], [0.48, 0.78], [0.58, 0.8]],
+      "entries": [],
+      "occlusion": "foreground"
+    },
+    {
+      "id": "retreat-bank",
+      "kind": "land",
+      "segment": "core",
+      "xRange": [0.64, 0.77],
+      "baseline": [[0.64, 0.8], [0.7, 0.77], [0.77, 0.75]],
+      "entries": ["right-extension"],
+      "occlusion": "foreground"
+    },
+    {
+      "id": "lake",
+      "kind": "water",
+      "segment": "core",
+      "bounds": [0.11, 0.69, 0.77, 0.93],
+      "entries": [],
+      "occlusion": "foreground"
+    }
+  ],
+  "layerOrder": [
+    "sky",
+    "celestial",
+    "distant-extensions",
+    "mountains",
+    "far-weather",
+    "terrain-extensions",
+    "terrain",
+    "water",
+    "retreat",
+    "creatures",
+    "environmental-objects",
+    "foreground",
+    "near-weather",
+    "lighting",
+    "header-controls"
+  ]
+}
