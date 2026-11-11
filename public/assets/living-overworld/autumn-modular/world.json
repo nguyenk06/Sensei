@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "checkpoint-a-geometry",
+  "status": "checkpoint-b-autumn-terrain-proof",
   "season": "autumn",
   "coordinateSystem": {
     "coreWidth": 2172,
@@ -87,6 +87,14 @@
       "overlapPixels": [60, 100],
       "requiredLayers": ["distant", "terrain", "foreground"]
     }
+  },
+  "proofAssets": {
+    "terrainLeft": "terrain-left.png",
+    "terrainRight": "terrain-right.png",
+    "distantAlternates": ["distant-a.png", "distant-b.png"],
+    "sourceFormat": "png",
+    "encodedBytes": 2737199,
+    "decodedMemoryEstimateBytes": 25160448
   },
   "habitats": [
     {
