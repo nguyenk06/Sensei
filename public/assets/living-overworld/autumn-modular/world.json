@@ -98,6 +98,21 @@
     "environmentalObjectDirectory": "objects",
     "sourceMasterDirectory": "source-masters"
   },
+  "structuralRecomposition": {
+    "status": "checkpoint-b-responsive-proof",
+    "assetRoot": "../autumn-structural",
+    "assets": {
+      "mountains": "mountains.png",
+      "waterfallOutcrop": "waterfall-outcrop.png",
+      "connectedWater": "water-connected.png",
+      "ground": "ground.png",
+      "meadowExtension": "meadow-extension.png",
+      "retreat": "../retreat.png"
+    },
+    "sceneHeights": { "mobile": 170, "desktop": 300, "ultrawide": 300 },
+    "centralStageWidths": { "mobile": 420, "desktopMin": 920, "desktopMax": 1100 },
+    "integration": "pending"
+  },
   "habitats": [
     {
       "id": "meadow-left",
