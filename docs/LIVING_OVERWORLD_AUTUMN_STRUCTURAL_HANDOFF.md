@@ -46,5 +46,35 @@ Baseline: `8c8492b`
 
 ## Remaining work
 
-Checkpoint C must replace only the autumn runtime layer inventory with these structural objects and preserve every non-autumn season. Checkpoint D must run the existing automated and isolated browser suites and capture actual application desktop/mobile evidence.
+### Checkpoint C — runtime integration
+
+- Replaced only the autumn runtime structure with the complete mountain, cliff, connected water, ground, meadow, and independent house layers.
+- Removed the old baked autumn terrain from seasonal rendering rather than hiding it beneath the new scene.
+- Preserved spring, summer, and winter assets and seasonal-crossfade behavior.
+- Preserved the existing object registry, habitat stage, creatures, weather, celestial system, motion preference, and loading fallback.
+- Increased only the autumn scenic viewport to 170px mobile and 260–300px desktop.
+
+### Checkpoint D — verification and evidence
+
+| Runtime view | Evidence |
+| --- | --- |
+| Desktop application | ![Autumn structural runtime desktop](assets/screenshots/living-overworld-autumn-structural-runtime-desktop.png) |
+| Mobile application | ![Autumn structural runtime mobile](assets/screenshots/living-overworld-autumn-structural-runtime-mobile.png) |
+
+- TypeScript checks passed.
+- Full automated suite passed: 8 files, 53 tests.
+- Production build passed.
+- Isolated browser smoke passed all 34 reported workflows, including chores, approval, allowance, payment, corrections, authentication, themes, weather, Living Overworld layering, celestial behavior, creatures, reduced motion, calendar, assets, and console checks.
+- Browser checks use synthetic data and a temporary SQLite database.
+- No household deployment, production database, service, network, or startup configuration changed.
+
+## Remaining limitations
+
+- The new structural artwork is autumn-only by authorization.
+- Outer meadow extensions intentionally remain quiet; future accepted environmental-object work can populate them without repainting terrain.
+- Final visual acceptance belongs to the Product Owner.
+
+## Next exact step
+
+Review the two runtime screenshots and the four responsive proofs. If accepted, authorize a separate push/merge/release scope. This branch has not been pushed, merged, deployed, published, or used to restart Sensei.
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
 import {
-  autumnModularOpacityFor, livingAutumnEnvironmentObjects, livingAutumnModularAssets,
+  autumnModularOpacityFor, livingAutumnEnvironmentObjects, livingAutumnStructuralAssets,
   livingCreaturePopulation, livingLightFor, livingOverworldAssets, livingSeasonBlendFor,
   livingSeasonFor, livingWeatherFor, moonPhaseFor
 } from './LivingOverworldScene';
@@ -30,7 +30,10 @@ describe('Living Overworld theme foundation', () => {
   });
 
   it('declares the bounded autumn modular assets and stable object identities', () => {
-    expect(Object.values(livingAutumnModularAssets).every((asset) => asset.includes('/autumn-modular/'))).toBe(true);
+    expect(livingAutumnStructuralAssets.mountains).toContain('/autumn-structural/');
+    expect(livingAutumnStructuralAssets.waterfallOutcrop).toContain('/autumn-structural/');
+    expect(livingAutumnStructuralAssets.connectedWater).toContain('/autumn-structural/');
+    expect(livingAutumnStructuralAssets.retreat).toBe('/assets/living-overworld/retreat.png');
     expect(livingAutumnEnvironmentObjects.map((object) => object.id)).toEqual([
       'autumn-tree-left', 'autumn-bush-left', 'autumn-grass-center',
       'autumn-flowers-center', 'autumn-rock-right'

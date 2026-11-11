@@ -737,21 +737,23 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .light-evening .living-overworld-window-glow { opacity: .48; }
 .light-night .living-overworld-window-glow { opacity: 1; }
 .layer-vegetation { z-index: 10; transform-origin: 50% 100%; }
-.living-autumn-extensions { position: absolute; z-index: 3; inset: 0; pointer-events: none; transition: opacity 1.1s ease; }
-.living-autumn-segment {
-  position: absolute; inset-block: 0; left: 50%; width: calc(300% * var(--living-scene-ratio, 1)); aspect-ratio: 3 / 1;
-  pointer-events: none;
-}
-.living-autumn-segment img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-.living-autumn-segment.left-far { transform: translateX(calc(-250% + 110px)); }
-.living-autumn-segment.left-near { transform: translateX(calc(-150% + 65px)); }
-.living-autumn-segment.right-near { transform: translateX(calc(50% - 65px)); }
-.living-autumn-segment.right-far { transform: translateX(calc(150% - 110px)); }
-.living-autumn-distant { z-index: 1; opacity: .68; filter: var(--living-autumn-filter) brightness(.88) saturate(.8); }
-.living-autumn-terrain { z-index: 2; filter: var(--living-autumn-filter); }
-.living-autumn-segment.left-far .living-autumn-distant { transform: scaleX(-1) scale(.84); transform-origin: right bottom; opacity: .42; }
-.living-autumn-segment.right-near .living-autumn-distant { transform: scaleX(-1); }
-.living-autumn-segment.right-far .living-autumn-distant { transform: scale(.88); transform-origin: left bottom; opacity: .48; }
+.living-autumn-structural { position: absolute; z-index: 3; inset: 0; pointer-events: none; transition: opacity 1.1s ease; }
+.living-autumn-structural img { position: absolute; height: auto; pointer-events: none; user-select: none; filter: var(--living-autumn-filter); }
+.living-autumn-mountains { z-index: 1; bottom: 0; width: 900px; opacity: .72; }
+.living-autumn-mountains.center { left: 50%; translate: -50%; filter: var(--living-autumn-filter) saturate(.68) brightness(.88); }
+.living-autumn-mountains.outer { display: none; width: 760px; bottom: -18px; opacity: .32; filter: var(--living-autumn-filter) saturate(.62) brightness(.86); }
+.living-autumn-mountains.outer-left { left: -170px; transform: scaleX(-1); }
+.living-autumn-mountains.outer-right { right: -210px; }
+.living-autumn-ground-band { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 36px; background: linear-gradient(#8f682d 0 20%, #76502c 21% 35%, #513820 36%); }
+.living-autumn-water-system { position: absolute; z-index: 4; left: calc(50% - 520px); bottom: 0; width: 760px; aspect-ratio: 3 / 1; }
+.living-autumn-water-system img { inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.living-autumn-outcrop { z-index: 1; }
+.living-autumn-water { z-index: 2; }
+.living-autumn-meadow { z-index: 5; bottom: -20px; width: 1100px; }
+.living-autumn-meadow.left { right: calc(50% + 500px); }
+.living-autumn-meadow.right { left: calc(50% + 500px); transform: scaleX(-1); }
+.living-autumn-ground { z-index: 6; left: 50%; bottom: -20px; translate: -50%; width: min(1100px, 100vw); }
+.living-autumn-house { z-index: 7; right: calc(50% - 560px); bottom: -20px; width: 760px; }
 .living-autumn-objects { position: absolute; z-index: 9; inset: 0; pointer-events: none; transition: opacity 1.1s ease; }
 .living-autumn-object {
   position: absolute; bottom: 3%; left: var(--object-x); height: var(--object-height); width: auto;
@@ -915,8 +917,14 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   .living-overworld-status em, .living-overworld-status a { display: none; }
   .living-overworld-motion-control, .living-overworld-proof-controls summary { padding: 5px 7px; font-size: 9px; }
   .living-overworld-banner { height: 140px; }
+  .season-autumn.living-overworld-banner { height: 170px; }
   .living-overworld-world { left: -4%; width: 108%; height: 100%; }
-  .living-autumn-extensions { display: none; }
+  .living-autumn-mountains.center { width: 420px; bottom: 0; }
+  .living-autumn-mountains.outer, .living-autumn-meadow { display: none; }
+  .living-autumn-ground-band { height: 20px; }
+  .living-autumn-water-system { left: -2px; bottom: 4px; width: 380px; }
+  .living-autumn-ground { width: 430px; bottom: -5px; }
+  .living-autumn-house { right: -8px; bottom: -2px; width: 360px; }
   .living-autumn-object { height: calc(var(--object-height) * .78); }
   .living-overworld-layer { object-position: center 58%; }
   .living-overworld-sun { top: 9%; left: 62%; width: 40px; border-width: 4px; }
@@ -945,15 +953,13 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 }
 
 @media (min-width: 701px) {
+  .season-autumn.living-overworld-banner { height: clamp(260px, 16vw, 300px); }
   .living-overworld-world {
     left: 50%; right: auto; width: auto; max-width: 100%; aspect-ratio: 3 / 1; transform: translateX(-50%);
   }
-  .autumn-modular-visible .living-season-layer {
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
-  }
-  .living-autumn-segment { width: auto; height: 100%; }
 }
+
+@media (min-width: 1500px) { .living-autumn-mountains.outer { display: block; } }
 
 @media (max-width: 480px) {
   .living-overworld-status span { display: none; }

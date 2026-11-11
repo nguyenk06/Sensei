@@ -99,7 +99,7 @@
     "sourceMasterDirectory": "source-masters"
   },
   "structuralRecomposition": {
-    "status": "checkpoint-b-responsive-proof",
+    "status": "checkpoint-d-runtime-verified",
     "assetRoot": "../autumn-structural",
     "assets": {
       "mountains": "mountains.png",
@@ -111,7 +111,7 @@
     },
     "sceneHeights": { "mobile": 170, "desktop": 300, "ultrawide": 300 },
     "centralStageWidths": { "mobile": 420, "desktopMin": 920, "desktopMax": 1100 },
-    "integration": "pending"
+    "integration": "complete-on-feature-branch"
   },
   "habitats": [
     {

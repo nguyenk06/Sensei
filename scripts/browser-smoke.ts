@@ -429,43 +429,38 @@ try {
     || !livingDesktopComposition.headerOverlapsScene || !livingDesktopComposition.headerBackground.includes('linear-gradient')) {
     throw new Error(`Living Overworld desktop zoom or transparent header is invalid: ${JSON.stringify(livingDesktopComposition)}`);
   }
-  await childOne.waitForFunction(() => Array.from(document.querySelectorAll<HTMLImageElement>('.living-overworld-layer'))
+  await childOne.waitForFunction(() => Array.from(document.querySelectorAll<HTMLImageElement>('.living-autumn-structural img'))
     .every((image) => image.complete && image.naturalWidth > 0));
-  const livingAssetWidths = await livingBanner.locator('.living-overworld-layer')
+  const livingAssetWidths = await livingBanner.locator('.living-autumn-structural img')
     .evaluateAll((elements) => elements.map((element) => (element as HTMLImageElement).naturalWidth));
-  if (livingAssetWidths.length !== 5 || livingAssetWidths.some((width) => width !== 2172)) {
+  if (livingAssetWidths.length !== 9 || livingAssetWidths.some((width) => width !== 2172)) {
     throw new Error(`Living Overworld assets failed to load: ${JSON.stringify(livingAssetWidths)}`);
   }
   const livingLayerOrder = await livingBanner.locator('.living-overworld-scene').evaluate((scene) => {
     return {
-      mountains: Number(getComputedStyle(scene.querySelector('.layer-mountains')!).zIndex),
-      terrain: Number(getComputedStyle(scene.querySelector('.layer-terrain')!).zIndex),
-      water: Number(getComputedStyle(scene.querySelector('.layer-water')!).zIndex),
-      retreat: Number(getComputedStyle(scene.querySelector('.layer-retreat')!).zIndex),
+      structural: Number(getComputedStyle(scene.querySelector('.living-autumn-structural')!).zIndex),
+      world: Number(getComputedStyle(scene.querySelector('.living-overworld-world')!).zIndex),
       creatures: Number(getComputedStyle(scene.querySelector('.living-overworld-creatures')!).zIndex),
-      vegetation: Number(getComputedStyle(scene.querySelector('.layer-vegetation')!).zIndex),
       daylight: Number(getComputedStyle(scene.querySelector('.living-overworld-daylight')!).zIndex),
       rain: Number(getComputedStyle(scene.querySelector('.rain-near')!).zIndex)
     };
   });
-  if (!(livingLayerOrder.mountains < livingLayerOrder.terrain && livingLayerOrder.terrain < livingLayerOrder.water
-    && livingLayerOrder.water < livingLayerOrder.retreat && livingLayerOrder.retreat < livingLayerOrder.creatures
-    && livingLayerOrder.creatures < livingLayerOrder.vegetation && livingLayerOrder.vegetation < livingLayerOrder.daylight
-    && livingLayerOrder.daylight < livingLayerOrder.rain)) {
+  if (!(livingLayerOrder.structural < livingLayerOrder.world && livingLayerOrder.creatures < livingLayerOrder.daylight
+    && livingLayerOrder.world < livingLayerOrder.daylight && livingLayerOrder.daylight < livingLayerOrder.rain)) {
     throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
   }
   await childOne.locator('.living-overworld-proof-controls summary').click();
   const seasonalProofs = [
     { season: 'spring', light: 'morning', file: 'living-overworld-spring-morning.png', asset: '/seasons/spring/terrain.png' },
     { season: 'summer', light: 'day', file: 'living-overworld-summer-day.png', asset: '/terrain.png' },
-    { season: 'autumn', light: 'evening', file: 'living-overworld-autumn-evening.png', asset: '/seasons/autumn/terrain.png' },
+    { season: 'autumn', light: 'evening', file: 'living-overworld-autumn-evening.png', asset: '/autumn-structural/water-connected.png' },
     { season: 'winter', light: 'night', file: 'living-overworld-winter-night.png', asset: '/seasons/winter/terrain.png' }
   ] as const;
   for (const proof of seasonalProofs) {
     await childOne.getByLabel('Living Overworld season').selectOption(proof.season);
     await childOne.getByLabel('Living Overworld light proof').selectOption(proof.light);
     const bannerClass = await livingBanner.getAttribute('class');
-    const terrainSource = await livingBanner.locator('.layer-terrain').getAttribute('src');
+    const terrainSource = await livingBanner.locator(proof.season === 'autumn' ? '.living-autumn-water' : '.layer-terrain').getAttribute('src');
     if (!bannerClass?.includes(`season-${proof.season}`) || !bannerClass.includes(`light-${proof.light}`)
       || !terrainSource?.endsWith(proof.asset)) {
       throw new Error(`Living Overworld seasonal proof failed: ${proof.season}/${proof.light}/${terrainSource}`);
@@ -581,7 +576,7 @@ try {
   if (await childTwo.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld mobile theme did not persist');
   await assertHeaderActions(childTwo, 'Living Overworld mobile');
   const livingMobileHeight = await childTwo.locator('.living-overworld-banner').evaluate((element) => element.getBoundingClientRect().height);
-  if (livingMobileHeight < 120 || livingMobileHeight > 150) throw new Error(`Living Overworld mobile height is invalid: ${livingMobileHeight}`);
+  if (livingMobileHeight < 150 || livingMobileHeight > 175) throw new Error(`Living Overworld mobile height is invalid: ${livingMobileHeight}`);
   const livingMobileControls = await childTwo.evaluate(() => ({
     toolbarTop: document.querySelector('.living-overworld-toolbar')!.getBoundingClientRect().top,
     sceneBottom: document.querySelector('.living-overworld-banner')!.getBoundingClientRect().bottom

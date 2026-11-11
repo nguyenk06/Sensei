@@ -1,6 +1,6 @@
 # Living Overworld autumn structural recomposition
 
-Status: **Checkpoint B responsive proof complete; runtime integration pending**.
+Status: **Checkpoint D runtime integration and verification complete; Product Owner visual acceptance pending**.
 
 These 2172 × 724 transparent PNG assets replace the combined autumn panorama with independently composed structural elements:
 
@@ -27,4 +27,10 @@ The isolated proof is `docs/prototypes/living-overworld-autumn-structural.html`.
 - Ultrawide: 300px scene, complete outer meadow and distinct distant groups extend the world without stretching the central landmarks.
 
 No blur, edge mask, or clipped panorama conceals structural joins.
+
+## Runtime integration
+
+Autumn now renders these independent structural objects instead of the old combined autumn terrain. Seasonal crossfades omit the baked autumn layers and fade this structural scene as one bounded composition. Spring, summer, and winter keep their existing assets.
+
+Existing weather, celestial, creature, environmental-object, reduced-motion, and page-visibility behavior remains outside and above the structural layer. Decorative asset failures remain isolated, while the rest of the scene and application continue rendering.
 

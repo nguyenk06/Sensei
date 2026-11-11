@@ -39,11 +39,15 @@ export const livingOverworldAssets: Record<LivingSeason, SceneAssets> = {
   winter: [`${assetRoot}/seasons/winter/distant-mountains.png`, `${assetRoot}/seasons/winter/terrain.png`, `${assetRoot}/seasons/winter/water.png`, `${assetRoot}/seasons/winter/retreat.png`, `${assetRoot}/seasons/winter/foreground-vegetation.png`]
 };
 
-export const livingAutumnModularAssets = {
-  terrainLeft: `${assetRoot}/autumn-modular/terrain-left.png`,
-  terrainRight: `${assetRoot}/autumn-modular/terrain-right.png`,
-  distantA: `${assetRoot}/autumn-modular/distant-a.png`,
-  distantB: `${assetRoot}/autumn-modular/distant-b.png`
+export const livingAutumnStructuralAssets = {
+  mountains: `${assetRoot}/autumn-structural/mountains.png`,
+  outerMountainLeft: `${assetRoot}/autumn-modular/distant-a.png`,
+  outerMountainRight: `${assetRoot}/autumn-modular/distant-b.png`,
+  waterfallOutcrop: `${assetRoot}/autumn-structural/waterfall-outcrop.png`,
+  connectedWater: `${assetRoot}/autumn-structural/water-connected.png`,
+  ground: `${assetRoot}/autumn-structural/ground.png`,
+  meadowExtension: `${assetRoot}/autumn-structural/meadow-extension.png`,
+  retreat: `${assetRoot}/retreat.png`
 } as const;
 
 export const livingAutumnEnvironmentObjects: readonly AutumnEnvironmentObject[] = [
@@ -243,28 +247,30 @@ export function LivingOverworldScene() {
   }
 
   function sceneLayer(index: number, className: string) {
-    const primary = primaryAssets[index];
-    const adjacent = adjacentAssets?.[index];
+    const primary = blend.primary === 'autumn' ? null : primaryAssets[index];
+    const adjacent = blend.adjacent === 'autumn' ? null : adjacentAssets?.[index];
     return <>
-      <img className={`living-overworld-layer living-season-layer ${className}`} src={primary} alt="" />
+      {primary && <img className={`living-overworld-layer living-season-layer ${className}`} src={primary} alt="" />}
       {adjacent && adjacent !== primary && <img className={`living-overworld-layer living-season-layer ${className} adjacent-season-layer`}
         src={adjacent} alt="" style={{ opacity: blend.adjacentOpacity }} />}
     </>;
   }
 
-  function autumnModularExtensions() {
+  function autumnStructuralScene() {
     if (autumnModularOpacity <= 0) return null;
-    const segments = [
-      ['left-far', livingAutumnModularAssets.distantB, livingAutumnModularAssets.terrainRight],
-      ['left-near', livingAutumnModularAssets.distantA, livingAutumnModularAssets.terrainLeft],
-      ['right-near', livingAutumnModularAssets.distantB, livingAutumnModularAssets.terrainRight],
-      ['right-far', livingAutumnModularAssets.distantA, livingAutumnModularAssets.terrainLeft]
-    ] as const;
-    return <div className="living-autumn-extensions" style={{ opacity: autumnModularOpacity }}>
-      {segments.map(([position, distant, terrain]) => <div className={`living-autumn-segment ${position}`} key={position}>
-        <img className="living-autumn-distant" src={distant} alt="" onError={hideBrokenDecorativeImage} />
-        <img className="living-autumn-terrain" src={terrain} alt="" onError={hideBrokenDecorativeImage} />
-      </div>)}
+    return <div className="living-autumn-structural" style={{ opacity: autumnModularOpacity }}>
+      <img className="living-autumn-mountains outer outer-left" src={livingAutumnStructuralAssets.outerMountainLeft} alt="" onError={hideBrokenDecorativeImage} />
+      <img className="living-autumn-mountains center" src={livingAutumnStructuralAssets.mountains} alt="" onError={hideBrokenDecorativeImage} />
+      <img className="living-autumn-mountains outer outer-right" src={livingAutumnStructuralAssets.outerMountainRight} alt="" onError={hideBrokenDecorativeImage} />
+      <div className="living-autumn-ground-band" />
+      <div className="living-autumn-water-system">
+        <img className="living-autumn-outcrop" src={livingAutumnStructuralAssets.waterfallOutcrop} alt="" onError={hideBrokenDecorativeImage} />
+        <img className="living-autumn-water layer-water" src={livingAutumnStructuralAssets.connectedWater} alt="" onError={hideBrokenDecorativeImage} />
+      </div>
+      <img className="living-autumn-meadow left" src={livingAutumnStructuralAssets.meadowExtension} alt="" onError={hideBrokenDecorativeImage} />
+      <img className="living-autumn-meadow right" src={livingAutumnStructuralAssets.meadowExtension} alt="" onError={hideBrokenDecorativeImage} />
+      <img className="living-autumn-ground" src={livingAutumnStructuralAssets.ground} alt="" onError={hideBrokenDecorativeImage} />
+      <img className="living-autumn-house" src={livingAutumnStructuralAssets.retreat} alt="" onError={hideBrokenDecorativeImage} />
     </div>;
   }
 
@@ -339,7 +345,7 @@ export function LivingOverworldScene() {
       <div className="living-overworld-cloud cloud-a"><i /><i /><i /></div>
       <div className="living-overworld-cloud cloud-b"><i /><i /><i /></div>
       <div className="living-overworld-cloud cloud-c"><i /><i /><i /></div>
-      {autumnModularExtensions()}
+      {autumnStructuralScene()}
       <div className="living-overworld-world">
         {sceneLayer(0, 'layer-mountains')}
         {sceneLayer(1, 'layer-terrain')}
