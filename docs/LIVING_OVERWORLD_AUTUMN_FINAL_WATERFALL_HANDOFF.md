@@ -23,6 +23,7 @@ The accepted proof uses two copies of the existing outcrop, facing inward toward
 - The right outcrop retains the source orientation and is shifted right by 25%.
 - Their upper ledges converge at the center instead of placing both major peaks on the outside.
 - The waterfall source begins directly between those converging ledges, eliminating the floating-water appearance.
+- Three additional existing tree objects cover the exposed left rock face, making the two outcrops read as one wooded geological formation while leaving the waterfall corridor clear.
 - Preserves the waterfall asset's vertical position, scale, and upper elevation.
 - Uses a cascade-only presentation of the existing water asset, shifted 42% within the shared frame to the common apex.
 - Keeps the water in front of cliff faces while the authored ledges remain visible.

@@ -34,6 +34,7 @@
       "lakeExtension": "two-overlapping-lake-only-crops-preserve-approved-water-footprint",
       "lakeRole": "primary-open-center",
       "leftTerrain": "dense-descending-woodland",
+      "outcropCoverage": "left-rock-face-buried-with-authored-autumn-trees",
       "rightTerrain": "open-house-plains",
       "environmentalPlacement": "authored-deterministic",
       "mountains": "paired-primary-asset-with-right-side-horizontal-mirror"
