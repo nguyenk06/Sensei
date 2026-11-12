@@ -1,71 +1,63 @@
-# Living Overworld — Final Waterfall Correction
+# Living Overworld — Final Three-Asset Waterfall Assembly
 
 Status: isolated corrected prototype ready for Product Owner visual review. Runtime integration remains unauthorized.
 
 ## Locked composition
 
-The mountain groups, central valley, sun position, house, path, right-side plains, left woodland placements, banner dimensions, and responsive layout were not edited.
+The mountain groups, central valley, sun position, house, path, right-side plains, left woodland placements, banner dimensions, weather, creatures, and responsive layout were not edited.
 
-Pixel comparison confines rendered changes to the waterfall/lake assembly region:
+Only the proof's waterfall/outcrop assembly and its immediate shoreline layering changed.
 
-- Desktop changed bounds: `x 340–1016`, `y 84–285` in the 1920×900 proof.
-- Mobile changed bounds: `x 1–338`, `y 65–162` in the 390×844 proof.
+## Assembly result
 
-The sun and background implementation are unchanged; the desktop change bounds reach its left edge only because the new right outcrop peak occupies nearby foreground pixels. The house and right plains remain outside the changed region.
+The supplied proof of concept was treated as a layout reference made from existing transparent assets, not as new artwork.
 
-## Inward-facing apex result
+The corrected landmark uses exactly:
 
-The mirror-only experiment was rejected because it left the unmodified cascades suspended over the woodland while moving the supporting rock to the center.
+- Two complete instances of `waterfall-outcrop.png`.
+- One complete instance of `water-connected.png`.
+- No lake-extension instances.
 
-The accepted proof uses two copies of the existing outcrop, facing inward toward the waterfall source:
+All three assets share one coordinate frame and retain their original proportions:
 
-- The left outcrop is horizontally mirrored and shifted left by 25% of the shared frame.
-- The right outcrop retains the source orientation and is shifted right by 25%.
-- Their upper ledges converge at the center instead of placing both major peaks on the outside.
-- The waterfall source begins directly between those converging ledges, eliminating the floating-water appearance.
-- Three additional existing tree objects cover the exposed left rock face, making the two outcrops read as one wooded geological formation while leaving the waterfall corridor clear.
-- Preserves the waterfall asset's vertical position, scale, and upper elevation.
-- Uses a cascade-only presentation of the existing water asset, shifted 42% within the shared frame to the common apex.
-- Keeps the water in front of cliff faces while the authored ledges remain visible.
-- Uses two lake-only crops from the same existing water asset: a short bridge from the final foam and the original central lake overlap.
-- Adds no artwork and does not change any source image.
+- The left outcrop is mirrored and shifted left by 18% of the shared frame.
+- The right outcrop keeps its source orientation and is shifted right by 18%.
+- The complete waterfall is shifted right by 42% and down by 5%.
+- The paired inner ledges support the waterfall source and form the broad stepped silhouette shown by the Product Owner's composite.
+- The waterfall remains one intact image; its stages were not split, clipped, masked, or independently repositioned.
+- The existing foreground ground and shoreline naturally conceal the extended water tail while leaving the final splash connected to the lake.
 
-## Before and after evidence
+No source artwork was edited or generated.
 
-Desktop:
+## Evidence
 
-- [Before — 1920px](assets/screenshots/living-overworld-autumn-waterfall-before-desktop-1920.png)
-- [After — 1920px](assets/screenshots/living-overworld-autumn-waterfall-after-desktop-1920.png)
-
-Mobile:
-
-- [Before — 390px](assets/screenshots/living-overworld-autumn-waterfall-before-mobile-390.png)
-- [After — 390px](assets/screenshots/living-overworld-autumn-waterfall-after-mobile-390.png)
-
-Detail:
-
-- [Final waterfall close-up](assets/screenshots/living-overworld-autumn-rich-waterfall-closeup.png)
+- [Isolated three-asset assembly](assets/screenshots/living-overworld-waterfall-isolated-assembly.png)
+- [Desktop scene — 1920px](assets/screenshots/living-overworld-autumn-rich-desktop-1920.png)
+- [Mobile scene — 390px](assets/screenshots/living-overworld-autumn-rich-mobile.png)
+- [Shoreline and waterfall close-up](assets/screenshots/living-overworld-autumn-rich-waterfall-closeup.png)
+- [Desktop check — 1100px](assets/screenshots/living-overworld-autumn-rich-desktop-1100.png)
+- [Ultrawide check — 32:9](assets/screenshots/living-overworld-autumn-rich-ultrawide-32x9.png)
 
 ## Focused verification
 
-The proof capture validates at 390px, 1100px, 1920px, and 32:9:
+The isolated proof verifies that exactly two outcrop images and one complete waterfall image load without clipping.
 
-- The left outcrop is mirrored and the right outcrop remains unmirrored.
+The landscape proof passes at 390px, 1100px, 1920px, and 2560×720:
+
+- Exactly two outcrop instances and one waterfall instance are present.
+- The left outcrop is mirrored; the right remains unmirrored.
 - Both outcrops retain identical dimensions, vertical anchors, and scale.
-- Their horizontal separation is exactly 50% of one outcrop frame, placing their peaks inward.
-- The cascade layer retains the same dimensions and vertical anchor as the rock layer.
-- The expected 42% shared-apex cascade alignment is applied.
-- The upper waterfall elevation is unchanged.
-- All assets load.
-- Visible environmental-object bases remain within the scenic frame.
-- No tree bases occupy the open-lake zone.
-- Celestial centering, scene height, and horizontal-overflow checks still pass.
-- No browser console or page errors occur.
+- The authored −18%, +18%, +42%, and +5% placements are preserved.
+- No redundant lake-extension layer remains.
+- All assets load and no browser or console errors occur.
+- Environmental-object bases remain within the scenic frame.
+- No tree bases occupy the protected open-lake zone.
+- Celestial centering, controlled scene height, and horizontal-overflow checks pass.
 
 ## Limitation
 
-The correction uses clipped presentations of one existing composite water asset because new artwork was prohibited. The result is visually connected and deterministic, but future runtime integration must preserve the exact clipping and layering rules.
+The complete water asset extends farther right than the visible central lake. In the scene proof this excess is hidden by the existing foreground shoreline rather than by clipping or a duplicate water plane. The exact concealment must be preserved if this composition is later authorized for runtime integration.
 
 ## Continuation point
 
-Await Product Owner visual acceptance. Do not modify other scenery. If approved, a separately authorized runtime-integration task can transfer only this waterfall/outcrop presentation into the Living Overworld component and run the full application regression suite.
+Await Product Owner visual acceptance. If approved, a separately authorized integration task can transfer only this three-asset geometry and shoreline ordering into the Living Overworld runtime, followed by full application regression tests.

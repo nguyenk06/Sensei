@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "status": "final-inward-facing-apex-waterfall-proof-ready-for-product-owner-review",
+  "version": 5,
+  "status": "final-three-asset-waterfall-assembly-ready-for-product-owner-review",
   "runtimeIntegrated": false,
   "season": "autumn",
   "assets": [
@@ -27,11 +27,14 @@
     "html": "../../../../docs/prototypes/living-overworld-autumn-rich.html",
     "composition": {
       "waterfallScaleChange": "approximately-25-percent-smaller",
-      "waterfallGeometry": "mirrored-left-outcrop-plus-inward-facing-right-outcrop-with-shared-apex",
+      "waterfallGeometry": "exactly-two-complete-outcrops-plus-one-complete-waterfall-in-a-shared-frame",
       "waterfallHeight": "preserved-from-approved-proof",
-      "outcropSeparation": "50-percent-of-shared-frame",
-      "cascadeShift": "42-percent-to-shared-apex",
-      "lakeExtension": "two-overlapping-lake-only-crops-preserve-approved-water-footprint",
+      "leftOutcropTransform": "translate-x-negative-18-percent-and-mirror",
+      "rightOutcropTransform": "translate-x-positive-18-percent",
+      "waterfallTransform": "translate-x-42-percent-and-y-5-percent",
+      "waterfallPresentation": "complete-unclipped-unmasked-source-asset",
+      "lakeExtension": "none",
+      "shorelineConcealment": "existing-foreground-ground-conceals-extended-water-tail",
       "lakeRole": "primary-open-center",
       "leftTerrain": "dense-descending-woodland",
       "outcropCoverage": "left-rock-face-buried-with-authored-autumn-trees",

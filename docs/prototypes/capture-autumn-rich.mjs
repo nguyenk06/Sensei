@@ -23,9 +23,11 @@ for (const [name, width, height] of views) {
   const expectedSceneHeight = width <= 700 ? 175 : 300;
   const state = await page.evaluate(() => {
     const scene = document.querySelector('.scene').getBoundingClientRect();
+    const waterfallSystem = document.querySelector('.waterfall-system');
     const leftOutcropElement = document.querySelector('.waterfall-system .outcrop.left');
     const rightOutcropElement = document.querySelector('.waterfall-system .outcrop.right');
     const waterElement = document.querySelector('.waterfall-system .water');
+    const systemBounds = waterfallSystem.getBoundingClientRect();
     const leftOutcropBounds = leftOutcropElement.getBoundingClientRect();
     const rightOutcropBounds = rightOutcropElement.getBoundingClientRect();
     const waterBounds = waterElement.getBoundingClientRect();
@@ -51,12 +53,19 @@ for (const [name, width, height] of views) {
       Math.abs(leftOutcropBounds.top - rightOutcropBounds.top) < 0.1 &&
       Math.abs(leftOutcropBounds.width - rightOutcropBounds.width) < 0.1 &&
       Math.abs(leftOutcropBounds.height - rightOutcropBounds.height) < 0.1;
-    const outcropSeparationRatio = (rightOutcropBounds.left - leftOutcropBounds.left) / leftOutcropBounds.width;
-    const cascadeShiftRatio = (waterBounds.left - (leftOutcropBounds.left + leftOutcropBounds.width * 0.25)) / leftOutcropBounds.width;
+    const outcropCount = document.querySelectorAll('.waterfall-system .outcrop').length;
+    const waterCount = document.querySelectorAll('.waterfall-system .water').length;
+    const lakeExtensionCount = document.querySelectorAll('.lake-extension').length;
+    const leftShiftRatio = (leftOutcropBounds.left - systemBounds.left) / systemBounds.width;
+    const rightShiftRatio = (rightOutcropBounds.left - systemBounds.left) / systemBounds.width;
+    const cascadeShiftRatio = (waterBounds.left - systemBounds.left) / systemBounds.width;
+    const cascadeVerticalShiftRatio = (waterBounds.top - systemBounds.top) / systemBounds.height;
     const waterfallGeometryCorrected = leftOutcropMirrored && rightOutcropUnmirrored && outcropFramesMatch &&
-      Math.abs(outcropSeparationRatio - 0.50) < 0.01 &&
+      outcropCount === 2 && waterCount === 1 && lakeExtensionCount === 0 &&
+      Math.abs(leftShiftRatio + 0.18) < 0.01 &&
+      Math.abs(rightShiftRatio - 0.18) < 0.01 &&
       Math.abs(cascadeShiftRatio - 0.42) < 0.01 &&
-      Math.abs(leftOutcropBounds.top - waterBounds.top) < 0.1 &&
+      Math.abs(cascadeVerticalShiftRatio - 0.05) < 0.01 &&
       Math.abs(leftOutcropBounds.width - waterBounds.width) < 0.1 &&
       Math.abs(leftOutcropBounds.height - waterBounds.height) < 0.1;
     const sun = document.querySelector('.sun').getBoundingClientRect();
@@ -73,8 +82,13 @@ for (const [name, width, height] of views) {
       leftOutcropMirrored,
       rightOutcropUnmirrored,
       outcropFramesMatch,
-      outcropSeparationRatio,
+      outcropCount,
+      waterCount,
+      lakeExtensionCount,
+      leftShiftRatio,
+      rightShiftRatio,
       cascadeShiftRatio,
+      cascadeVerticalShiftRatio,
       waterfallGeometryCorrected,
       sunCenterRatio
     };
@@ -89,7 +103,7 @@ for (const [name, width, height] of views) {
       clip: { x: 330, y: 72, width: 700, height: 215 }
     });
   }
-  console.log(`${name}: ${state.viewportWidth}px wide, ${state.sceneHeight}px scene, inward-facing outcrops with shared apex waterfall, grounded objects, open lake, no overflow`);
+  console.log(`${name}: ${state.viewportWidth}px wide, ${state.sceneHeight}px scene, exactly two outcrops and one complete waterfall, grounded objects, open lake, no overflow`);
   await page.close();
 }
 
