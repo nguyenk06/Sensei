@@ -19,11 +19,13 @@
     .forest { z-index: 3; left: 43%; bottom: -4px; width: 1260px; translate: -50%; opacity: .5; filter: saturate(.72) brightness(.75); }
     .ground-band { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; height: 38px; background: linear-gradient(#896329 0 18%, #6f4d2a 19% 34%, #4c351f 35%); }
     .hillside { z-index: 4; left: calc(50% - 1260px); bottom: -12px; width: 920px; }
-    .lake-extension { z-index: 5; left: calc(50% - 310px); bottom: -2px; width: 650px; clip-path: inset(0 0 0 42%); }
-    .waterfall-system { position: absolute; z-index: 6; left: calc(50% - 610px); bottom: -2px; width: 650px; aspect-ratio: 2172 / 724; pointer-events: none; }
+    .lake-extension { z-index: 5; bottom: -2px; width: 650px; clip-path: inset(0 0 0 42%); }
+    .lake-extension.bridge { left: calc(50% - 680px); }
+    .lake-extension.main { left: calc(50% - 310px); }
+    .waterfall-system { position: absolute; z-index: 6; left: calc(50% - 1010px); bottom: -2px; width: 650px; aspect-ratio: 2172 / 724; pointer-events: none; }
     .waterfall-system img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-    .waterfall-system .outcrop { z-index: 1; }
-    .waterfall-system .water { z-index: 2; }
+    .waterfall-system .outcrop { z-index: 1; transform: scaleX(-1); }
+    .waterfall-system .water { z-index: 2; transform: translateX(61%); clip-path: inset(0 65% 0 0); }
     .meadow { z-index: 6; bottom: -20px; width: 1100px; }
     .meadow.left { right: calc(50% + 500px); }
     .meadow.right { left: calc(50% + 500px); transform: scaleX(-1); }
@@ -36,8 +38,9 @@
     @media (max-width: 1300px) { .scene-object.wide-only { display: none; } }
     @media (min-width: 701px) and (max-width: 1300px) {
       .hillside { left: -300px; }
-      .waterfall-system { left: 0; }
-      .lake-extension { left: 300px; }
+      .waterfall-system { left: -200px; }
+      .lake-extension.bridge { left: -20px; }
+      .lake-extension.main { left: 300px; }
     }
     .header { position: absolute; z-index: 20; inset: 0 0 auto; min-height: 86px; padding: 12px max(18px, calc((100vw - 1280px) / 2)); background: linear-gradient(180deg, rgba(9,29,27,.82), rgba(9,29,27,.38) 70%, transparent); text-shadow: 2px 2px rgba(12,26,20,.55); }
     .header-main, .header-status { display: flex; align-items: center; gap: 10px; }
@@ -59,8 +62,10 @@
       .forest { left: 42%; width: 500px; bottom: -1px; opacity: .34; }
       .ground-band { height: 20px; }
       .hillside { left: -220px; bottom: -3px; width: 470px; }
-      .lake-extension { left: 120px; bottom: 2px; width: 330px; }
-      .waterfall-system { left: 0; bottom: 2px; width: 330px; }
+      .lake-extension { bottom: 2px; width: 330px; }
+      .lake-extension.bridge { left: -20px; }
+      .lake-extension.main { left: 120px; }
+      .waterfall-system { left: -200px; bottom: 2px; width: 330px; }
       .meadow { display: none; }
       .ground { width: 435px; bottom: -5px; }
       .house { right: -8px; bottom: -2px; width: 365px; }
@@ -89,7 +94,8 @@
     <img class="layer forest" src="../../public/assets/living-overworld/autumn-rich-proof/distant-forest.png" alt="">
     <div class="ground-band"></div>
     <img class="layer hillside" src="../../public/assets/living-overworld/autumn-modular/terrain-left.png" alt="">
-    <img class="layer lake-extension" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
+    <img class="layer lake-extension bridge" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
+    <img class="layer lake-extension main" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
     <div class="waterfall-system" data-geometry="aligned-water-and-outcrop">
       <img class="outcrop" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
       <img class="water" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
