@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sensei-living-overworld-layout-v1",
+  "title": "Sensei Living Overworld Layout",
+  "type": "object",
+  "required": ["schemaVersion", "layoutName", "referenceCanvas", "instances", "nextInstanceNumber"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "layoutName": { "type": "string", "minLength": 1 },
+    "referenceCanvas": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "const": 1920 },
+        "height": { "const": 300 }
+      }
+    },
+    "manifestVersion": { "const": 1 },
+    "nextInstanceNumber": { "type": "integer", "minimum": 1 },
+    "instances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "assetId", "label", "x", "y", "anchor", "scale", "rotation", "flipX", "flipY", "visible", "locked", "placeholder", "notes"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "assetId": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "anchor": { "type": "string" },
+          "scale": { "type": "number", "exclusiveMinimum": 0 },
+          "rotation": { "type": "number" },
+          "flipX": { "type": "boolean" },
+          "flipY": { "type": "boolean" },
+          "visible": { "type": "boolean" },
+          "locked": { "type": "boolean" },
+          "placeholder": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}
