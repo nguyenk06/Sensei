@@ -25,8 +25,9 @@
     .waterfall-system { position: absolute; z-index: 6; left: calc(50% - 610px); bottom: -2px; width: 650px; aspect-ratio: 2172 / 724; pointer-events: none; }
     .waterfall-system img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
     .waterfall-system .outcrop { z-index: 1; }
-    .waterfall-system .outcrop.mirror { transform: scaleX(-1); }
-    .waterfall-system .water { z-index: 2; transform: translateX(30%); clip-path: inset(0 65% 0 0); }
+    .waterfall-system .outcrop.left { transform: translateX(-25%) scaleX(-1); }
+    .waterfall-system .outcrop.right { transform: translateX(25%); }
+    .waterfall-system .water { z-index: 2; transform: translateX(42%); clip-path: inset(0 65% 0 0); }
     .meadow { z-index: 6; bottom: -20px; width: 1100px; }
     .meadow.left { right: calc(50% + 500px); }
     .meadow.right { left: calc(50% + 500px); transform: scaleX(-1); }
@@ -97,9 +98,9 @@
     <img class="layer hillside" src="../../public/assets/living-overworld/autumn-modular/terrain-left.png" alt="">
     <img class="layer lake-extension bridge" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
     <img class="layer lake-extension main" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
-    <div class="waterfall-system" data-geometry="anchored-original-with-mirrored-clone">
-      <img class="outcrop original" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
-      <img class="outcrop mirror" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
+    <div class="waterfall-system" data-geometry="inward-facing-outcrops-with-shared-apex">
+      <img class="outcrop left" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
+      <img class="outcrop right" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
       <img class="water" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
     </div>
     <img class="layer meadow left" src="../../public/assets/living-overworld/autumn-structural/meadow-extension.png" alt="">

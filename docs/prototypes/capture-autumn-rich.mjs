@@ -23,11 +23,11 @@ for (const [name, width, height] of views) {
   const expectedSceneHeight = width <= 700 ? 175 : 300;
   const state = await page.evaluate(() => {
     const scene = document.querySelector('.scene').getBoundingClientRect();
-    const originalOutcropElement = document.querySelector('.waterfall-system .outcrop.original');
-    const mirroredOutcropElement = document.querySelector('.waterfall-system .outcrop.mirror');
+    const leftOutcropElement = document.querySelector('.waterfall-system .outcrop.left');
+    const rightOutcropElement = document.querySelector('.waterfall-system .outcrop.right');
     const waterElement = document.querySelector('.waterfall-system .water');
-    const originalOutcropBounds = originalOutcropElement.getBoundingClientRect();
-    const mirroredOutcropBounds = mirroredOutcropElement.getBoundingClientRect();
+    const leftOutcropBounds = leftOutcropElement.getBoundingClientRect();
+    const rightOutcropBounds = rightOutcropElement.getBoundingClientRect();
     const waterBounds = waterElement.getBoundingClientRect();
     const visibleObjects = [...document.querySelectorAll('.scene-object')]
       .filter((element) => getComputedStyle(element).display !== 'none');
@@ -45,19 +45,20 @@ for (const [name, width, height] of views) {
       const baseXRatio = Number.parseFloat(element.style.getPropertyValue('--x')) / 100;
       return baseXRatio > 0.34 && baseXRatio < 0.68;
     }).map((element) => element.getAttribute('src'));
-    const originalOutcropAnchored = getComputedStyle(originalOutcropElement).transform === 'none';
-    const outcropCloneMirrored = getComputedStyle(mirroredOutcropElement).transform.startsWith('matrix(-1');
+    const leftOutcropMirrored = getComputedStyle(leftOutcropElement).transform.startsWith('matrix(-1');
+    const rightOutcropUnmirrored = !getComputedStyle(rightOutcropElement).transform.startsWith('matrix(-1');
     const outcropFramesMatch =
-      Math.abs(originalOutcropBounds.left - mirroredOutcropBounds.left) < 0.1 &&
-      Math.abs(originalOutcropBounds.top - mirroredOutcropBounds.top) < 0.1 &&
-      Math.abs(originalOutcropBounds.width - mirroredOutcropBounds.width) < 0.1 &&
-      Math.abs(originalOutcropBounds.height - mirroredOutcropBounds.height) < 0.1;
-    const cascadeShiftRatio = (waterBounds.left - originalOutcropBounds.left) / originalOutcropBounds.width;
-    const waterfallGeometryCorrected = originalOutcropAnchored && outcropCloneMirrored && outcropFramesMatch &&
-      Math.abs(cascadeShiftRatio - 0.30) < 0.01 &&
-      Math.abs(originalOutcropBounds.top - waterBounds.top) < 0.1 &&
-      Math.abs(originalOutcropBounds.width - waterBounds.width) < 0.1 &&
-      Math.abs(originalOutcropBounds.height - waterBounds.height) < 0.1;
+      Math.abs(leftOutcropBounds.top - rightOutcropBounds.top) < 0.1 &&
+      Math.abs(leftOutcropBounds.width - rightOutcropBounds.width) < 0.1 &&
+      Math.abs(leftOutcropBounds.height - rightOutcropBounds.height) < 0.1;
+    const outcropSeparationRatio = (rightOutcropBounds.left - leftOutcropBounds.left) / leftOutcropBounds.width;
+    const cascadeShiftRatio = (waterBounds.left - (leftOutcropBounds.left + leftOutcropBounds.width * 0.25)) / leftOutcropBounds.width;
+    const waterfallGeometryCorrected = leftOutcropMirrored && rightOutcropUnmirrored && outcropFramesMatch &&
+      Math.abs(outcropSeparationRatio - 0.50) < 0.01 &&
+      Math.abs(cascadeShiftRatio - 0.42) < 0.01 &&
+      Math.abs(leftOutcropBounds.top - waterBounds.top) < 0.1 &&
+      Math.abs(leftOutcropBounds.width - waterBounds.width) < 0.1 &&
+      Math.abs(leftOutcropBounds.height - waterBounds.height) < 0.1;
     const sun = document.querySelector('.sun').getBoundingClientRect();
     const sunCenterRatio = (((sun.left + sun.right) / 2) - scene.left) / scene.width;
     return {
@@ -69,9 +70,10 @@ for (const [name, width, height] of views) {
         .map((asset) => asset.getAttribute('src')),
       unsupportedObjects,
       lakeTrees,
-      originalOutcropAnchored,
-      outcropCloneMirrored,
+      leftOutcropMirrored,
+      rightOutcropUnmirrored,
       outcropFramesMatch,
+      outcropSeparationRatio,
       cascadeShiftRatio,
       waterfallGeometryCorrected,
       sunCenterRatio
@@ -87,7 +89,7 @@ for (const [name, width, height] of views) {
       clip: { x: 330, y: 72, width: 700, height: 215 }
     });
   }
-  console.log(`${name}: ${state.viewportWidth}px wide, ${state.sceneHeight}px scene, original outcrop plus mirrored clone with centered cascades, grounded objects, open lake, no overflow`);
+  console.log(`${name}: ${state.viewportWidth}px wide, ${state.sceneHeight}px scene, inward-facing outcrops with shared apex waterfall, grounded objects, open lake, no overflow`);
   await page.close();
 }
 

@@ -8,22 +8,23 @@ The mountain groups, central valley, sun position, house, path, right-side plain
 
 Pixel comparison confines rendered changes to the waterfall/lake assembly region:
 
-- Desktop changed bounds: `x 357–976`, `y 84–285` in the 1920×900 proof.
-- Mobile changed bounds: `x 25–317`, `y 65–162` in the 390×844 proof.
+- Desktop changed bounds: `x 340–1016`, `y 84–285` in the 1920×900 proof.
+- Mobile changed bounds: `x 1–338`, `y 65–162` in the 390×844 proof.
 
 The sun and background implementation are unchanged; the desktop change bounds reach its left edge only because the new right outcrop peak occupies nearby foreground pixels. The house and right plains remain outside the changed region.
 
-## Dual-outcrop result
+## Inward-facing apex result
 
 The mirror-only experiment was rejected because it left the unmodified cascades suspended over the woodland while moving the supporting rock to the center.
 
-The accepted proof uses the original outcrop as the fixed anchor and adds a mirrored clone in the same frame:
+The accepted proof uses two copies of the existing outcrop, facing inward toward the waterfall source:
 
-- The original outcrop retains its approved position, scale, and orientation.
-- The cloned outcrop is horizontally mirrored to form the opposing peak.
-- The two peaks enclose the waterfall rather than moving the whole assembly to one side.
+- The left outcrop is horizontally mirrored and shifted left by 25% of the shared frame.
+- The right outcrop retains the source orientation and is shifted right by 25%.
+- Their upper ledges converge at the center instead of placing both major peaks on the outside.
+- The waterfall source begins directly between those converging ledges, eliminating the floating-water appearance.
 - Preserves the waterfall asset's vertical position, scale, and upper elevation.
-- Uses a cascade-only presentation of the existing water asset, shifted 30% within the shared frame so the three falls descend between the peaks.
+- Uses a cascade-only presentation of the existing water asset, shifted 42% within the shared frame to the common apex.
 - Keeps the water in front of cliff faces while the authored ledges remain visible.
 - Uses two lake-only crops from the same existing water asset: a short bridge from the final foam and the original central lake overlap.
 - Adds no artwork and does not change any source image.
@@ -48,11 +49,11 @@ Detail:
 
 The proof capture validates at 390px, 1100px, 1920px, and 32:9:
 
-- The original outcrop remains untransformed and anchored.
-- Its clone occupies the same frame and is horizontally mirrored.
-- Both outcrop frames match exactly.
+- The left outcrop is mirrored and the right outcrop remains unmirrored.
+- Both outcrops retain identical dimensions, vertical anchors, and scale.
+- Their horizontal separation is exactly 50% of one outcrop frame, placing their peaks inward.
 - The cascade layer retains the same dimensions and vertical anchor as the rock layer.
-- The expected 30% center-cascade alignment is applied.
+- The expected 42% shared-apex cascade alignment is applied.
 - The upper waterfall elevation is unchanged.
 - All assets load.
 - Visible environmental-object bases remain within the scenic frame.

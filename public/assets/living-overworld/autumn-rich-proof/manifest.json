@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "status": "final-dual-outcrop-waterfall-proof-ready-for-product-owner-review",
+  "status": "final-inward-facing-apex-waterfall-proof-ready-for-product-owner-review",
   "runtimeIntegrated": false,
   "season": "autumn",
   "assets": [
@@ -27,9 +27,10 @@
     "html": "../../../../docs/prototypes/living-overworld-autumn-rich.html",
     "composition": {
       "waterfallScaleChange": "approximately-25-percent-smaller",
-      "waterfallGeometry": "original-outcrop-anchor-plus-mirrored-clone-with-cascade-between-peaks",
+      "waterfallGeometry": "mirrored-left-outcrop-plus-inward-facing-right-outcrop-with-shared-apex",
       "waterfallHeight": "preserved-from-approved-proof",
-      "cascadeShift": "30-percent-within-shared-outcrop-frame",
+      "outcropSeparation": "50-percent-of-shared-frame",
+      "cascadeShift": "42-percent-to-shared-apex",
       "lakeExtension": "two-overlapping-lake-only-crops-preserve-approved-water-footprint",
       "lakeRole": "primary-open-center",
       "leftTerrain": "dense-descending-woodland",
