@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "status": "refined-proof-ready-for-product-owner-review",
+  "version": 3,
+  "status": "geometry-corrected-proof-ready-for-product-owner-review",
   "runtimeIntegrated": false,
   "season": "autumn",
   "assets": [
@@ -10,7 +10,8 @@
       "dimensions": [2172, 724],
       "encodedBytes": 1332685,
       "alpha": true,
-      "role": "structural-waterfall-approach"
+      "role": "retained-experiment",
+      "activeInProof": false
     },
     {
       "id": "autumn-rich-distant-forest",
@@ -18,18 +19,45 @@
       "dimensions": [2172, 724],
       "encodedBytes": 765642,
       "alpha": true,
-      "role": "atmospheric-background-depth"
+      "role": "atmospheric-background-depth",
+      "activeInProof": true
     }
   ],
   "proof": {
     "html": "../../../../docs/prototypes/living-overworld-autumn-rich.html",
     "composition": {
       "waterfallScaleChange": "approximately-25-percent-smaller",
+      "waterfallGeometry": "water-and-outcrop-share-identical-frame",
+      "lakeExtension": "lake-only-crop-overlapping-the-connected-water-layer",
       "lakeRole": "primary-open-center",
       "leftTerrain": "dense-descending-woodland",
       "rightTerrain": "open-house-plains",
-      "environmentalPlacement": "authored-deterministic"
+      "environmentalPlacement": "authored-deterministic",
+      "mountains": "paired-primary-asset-with-right-side-horizontal-mirror"
     },
+    "placementZones": [
+      {
+        "id": "left-slope",
+        "classification": "land",
+        "xRange": [0, 0.34],
+        "depth": ["midground", "foreground"],
+        "habitat": "woodland-corridor"
+      },
+      {
+        "id": "open-lake",
+        "classification": "water",
+        "xRange": [0.34, 0.68],
+        "depth": "midground",
+        "terrestrialTreeBasesAllowed": false
+      },
+      {
+        "id": "house-plains",
+        "classification": "land",
+        "xRange": [0.68, 1],
+        "depth": ["midground", "foreground"],
+        "habitat": "open-ground-corridor"
+      }
+    ],
     "viewports": [
       { "id": "mobile", "width": 390, "sceneHeight": 175 },
       { "id": "desktop-1100", "width": 1100, "sceneHeight": 300 },
