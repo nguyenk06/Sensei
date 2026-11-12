@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "status": "product-owner-approved-geometry-runtime-integration-pending",
+  "asset": "living-overworld-hill.png",
+  "sha256": "73AE44184AC5AF2A320A0EE5E22F509F12480F075E4026DEF39CFBC50797E572",
+  "dimensions": {
+    "width": 3844,
+    "height": 724
+  },
+  "coordinateSystem": {
+    "origin": "top-left",
+    "positiveX": "right",
+    "positiveY": "down",
+    "units": "asset-pixels",
+    "normalization": {
+      "x": "pixelX / 3844",
+      "y": "pixelY / 724"
+    }
+  },
+  "anchors": {
+    "H-WATERFALL-SOURCE": {
+      "pixel": [2142, 116],
+      "normalized": [0.557232049947971, 0.160220994475138],
+      "role": "stable future attachment target for the upper source of water-connected.png"
+    }
+  },
+  "traceability": {
+    "H-JOIN": {
+      "pixel": [1922, 150],
+      "normalized": [0.5, 0.207182320441989],
+      "role": "approved visually estimated join used to construct the hill"
+    }
+  },
+  "composition": {
+    "sourceAsset": "waterfall-outcrop.png",
+    "sourceDimensions": [2172, 724],
+    "sourceSha256": "A1AD26BF85C69DFA8D3EEAE10B7A31B14A9824B83BAD218C16BE7EC13A4C036F",
+    "instances": [
+      {
+        "id": "O1",
+        "position": [0, 0],
+        "transform": "horizontal mirror across the 2172px source width"
+      },
+      {
+        "id": "O2",
+        "position": [1672, 0],
+        "transform": "original orientation"
+      }
+    ],
+    "compositing": "lossless PNG source-over at integer coordinates",
+    "transparentPadding": "none added or removed beyond the union canvas"
+  },
+  "approvedProofMapping": {
+    "referenceScene": [1920, 300],
+    "assetToSceneScale": 0.29926335174954,
+    "assetTopLeftInScene": [-33.4, 85.3333333333333],
+    "sceneX": "-33.4 + assetX * 0.29926335174954",
+    "sceneY": "85.3333333333333 + assetY * 0.29926335174954",
+    "integerQuantizationDifference": "O2 is 0.0304 CSS px left of the proof's rounded 467px bound; visually and subpixel equivalent"
+  }
+}

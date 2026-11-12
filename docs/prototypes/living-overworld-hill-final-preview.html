@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Living Overworld finalized hill asset review</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #11171c; color: #eef4f6; font-family: "Segoe UI", Arial, sans-serif; }
+    body { width: 1320px; padding: 34px 60px 60px; }
+    h1 { margin: 0 0 5px; font-size: 28px; }
+    h2 { margin: 26px 0 9px; font-size: 18px; }
+    p { margin: 0; color: #aab9c1; font-size: 14px; }
+    .stage { position: relative; width: 1200px; height: 260px; overflow: hidden; background-color: #222a30; background-image: linear-gradient(45deg,#293239 25%,transparent 25%),linear-gradient(-45deg,#293239 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#293239 75%),linear-gradient(-45deg,transparent 75%,#293239 75%); background-size:24px 24px; background-position:0 0,0 12px,12px -12px,-12px 0; outline: 1px solid #586771; }
+    .hill { position: absolute; left: 0; top: 17px; width: 1200px; height: auto; }
+    .annotated .asset-boundary { position: absolute; top: 17px; height: 226.01px; border: 2px solid; }
+    .annotated .o1-boundary { left: 0; width: 678.04px; border-color: #ff6f91; }
+    .annotated .o2-boundary { left: 522px; width: 678.04px; border-color: #ff9f43; }
+    .tag { position: absolute; top: 4px; padding: 2px 5px; color: #10161b; font-size: 12px; font-weight: 700; }
+    .o1-boundary .tag { left: 4px; background: #ff6f91; }
+    .o2-boundary .tag { right: 4px; background: #ff9f43; }
+    .marker { position: absolute; left: 668.68px; top: 53.21px; width: 16px; height: 16px; translate: -50% -50%; rotate: 45deg; border: 2px solid #10161b; background: #58d8ff; box-shadow: 0 0 0 2px rgba(255,255,255,.75); }
+    .marker-label { position: absolute; left: 681px; top: 33px; padding: 4px 7px; background: rgba(8,14,18,.9); color: #fff; font-size: 12px; font-weight: 700; }
+    .join { position: absolute; left: 600px; top: 63.83px; width: 12px; height: 12px; translate: -50% -50%; rotate: 45deg; background: #ffcf5a; border: 2px solid #10161b; }
+    .join-label { position: absolute; left: 608px; top: 70px; color: #ffdf78; font-size: 11px; }
+    .comparison { display: grid; gap: 12px; }
+    .compare-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; }
+    .compare-row strong { font-size: 15px; }
+    .compare-stage { position: relative; width: 1080px; height: 210px; overflow: hidden; background: #222a30; outline: 1px solid #586771; }
+    .proof-world { position: absolute; left: 0; top: 0; width: 1920px; height: 300px; transform: scale(.56); transform-origin: left top; }
+    .proof-asset { position: absolute; left: 350px; top: 85.333px; width: 650px; height: 216.667px; object-fit: contain; }
+    .proof-o1 { transform: translateX(calc(-18% - 266.4px)) scaleX(-1); }
+    .proof-o2 { transform: translateX(18%); }
+    .final-comparison { position: absolute; left: -18.704px; top: 47.787px; width: 644.206px; height: auto; }
+    .facts { display: flex; gap: 30px; margin-top: 18px; color: #b7c4ca; font-size: 13px; }
+    .facts b { color: #eef4f6; }
+  </style>
+</head>
+<body>
+  <h1>Final unified hill asset</h1>
+  <p>Approved geometry preserved · source-resolution lossless composite · waterfall not included</p>
+
+  <h2>Neutral-background preview</h2>
+  <div class="stage" id="neutral-preview"><img class="hill" src="../../public/assets/living-overworld/autumn-structural/living-overworld-hill.png" alt=""></div>
+
+  <h2>Anchor inspection</h2>
+  <div class="stage annotated" id="annotated-preview">
+    <img class="hill" src="../../public/assets/living-overworld/autumn-structural/living-overworld-hill.png" alt="">
+    <div class="asset-boundary o1-boundary"><span class="tag">O1 · mirrored · source x=0</span></div>
+    <div class="asset-boundary o2-boundary"><span class="tag">O2 · source x=1672</span></div>
+    <i class="marker"></i><span class="marker-label">H-WATERFALL-SOURCE · pixel (2142, 116) · normalized (0.55723, 0.16022)</span>
+    <i class="join"></i><span class="join-label">H-JOIN · (1922, 150)</span>
+  </div>
+
+  <h2>Approved proof / finalized asset</h2>
+  <div class="comparison" id="approved-comparison">
+    <div class="compare-row"><strong>Approved proof</strong><div class="compare-stage">
+      <div class="proof-world"><img class="proof-asset proof-o1" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt=""><img class="proof-asset proof-o2" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt=""></div>
+    </div></div>
+    <div class="compare-row"><strong>Final asset</strong><div class="compare-stage">
+      <img class="final-comparison" src="../../public/assets/living-overworld/autumn-structural/living-overworld-hill.png" alt="">
+    </div></div>
+  </div>
+  <div class="facts"><span>Dimensions <b>3844 × 724</b></span><span>Join <b>exact at source pixel (1922,150)</b></span><span>Padding <b>none added</b></span></div>
+</body>
+</html>
