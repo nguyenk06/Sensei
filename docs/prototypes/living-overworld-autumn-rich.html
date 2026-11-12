@@ -22,10 +22,11 @@
     .lake-extension { z-index: 5; bottom: -2px; width: 650px; clip-path: inset(0 0 0 42%); }
     .lake-extension.bridge { left: calc(50% - 680px); }
     .lake-extension.main { left: calc(50% - 310px); }
-    .waterfall-system { position: absolute; z-index: 6; left: calc(50% - 1010px); bottom: -2px; width: 650px; aspect-ratio: 2172 / 724; pointer-events: none; }
+    .waterfall-system { position: absolute; z-index: 6; left: calc(50% - 610px); bottom: -2px; width: 650px; aspect-ratio: 2172 / 724; pointer-events: none; }
     .waterfall-system img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-    .waterfall-system .outcrop { z-index: 1; transform: scaleX(-1); }
-    .waterfall-system .water { z-index: 2; transform: translateX(61%); clip-path: inset(0 65% 0 0); }
+    .waterfall-system .outcrop { z-index: 1; }
+    .waterfall-system .outcrop.mirror { transform: scaleX(-1); }
+    .waterfall-system .water { z-index: 2; transform: translateX(30%); clip-path: inset(0 65% 0 0); }
     .meadow { z-index: 6; bottom: -20px; width: 1100px; }
     .meadow.left { right: calc(50% + 500px); }
     .meadow.right { left: calc(50% + 500px); transform: scaleX(-1); }
@@ -38,7 +39,7 @@
     @media (max-width: 1300px) { .scene-object.wide-only { display: none; } }
     @media (min-width: 701px) and (max-width: 1300px) {
       .hillside { left: -300px; }
-      .waterfall-system { left: -200px; }
+      .waterfall-system { left: 0; }
       .lake-extension.bridge { left: -20px; }
       .lake-extension.main { left: 300px; }
     }
@@ -65,7 +66,7 @@
       .lake-extension { bottom: 2px; width: 330px; }
       .lake-extension.bridge { left: -20px; }
       .lake-extension.main { left: 120px; }
-      .waterfall-system { left: -200px; bottom: 2px; width: 330px; }
+      .waterfall-system { left: 0; bottom: 2px; width: 330px; }
       .meadow { display: none; }
       .ground { width: 435px; bottom: -5px; }
       .house { right: -8px; bottom: -2px; width: 365px; }
@@ -96,8 +97,9 @@
     <img class="layer hillside" src="../../public/assets/living-overworld/autumn-modular/terrain-left.png" alt="">
     <img class="layer lake-extension bridge" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
     <img class="layer lake-extension main" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
-    <div class="waterfall-system" data-geometry="aligned-water-and-outcrop">
-      <img class="outcrop" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
+    <div class="waterfall-system" data-geometry="anchored-original-with-mirrored-clone">
+      <img class="outcrop original" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
+      <img class="outcrop mirror" src="../../public/assets/living-overworld/autumn-structural/waterfall-outcrop.png" alt="">
       <img class="water" src="../../public/assets/living-overworld/autumn-structural/water-connected.png" alt="">
     </div>
     <img class="layer meadow left" src="../../public/assets/living-overworld/autumn-structural/meadow-extension.png" alt="">

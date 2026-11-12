@@ -23,9 +23,11 @@ for (const [name, width, height] of views) {
   const expectedSceneHeight = width <= 700 ? 175 : 300;
   const state = await page.evaluate(() => {
     const scene = document.querySelector('.scene').getBoundingClientRect();
-    const outcropElement = document.querySelector('.waterfall-system .outcrop');
+    const originalOutcropElement = document.querySelector('.waterfall-system .outcrop.original');
+    const mirroredOutcropElement = document.querySelector('.waterfall-system .outcrop.mirror');
     const waterElement = document.querySelector('.waterfall-system .water');
-    const outcropBounds = outcropElement.getBoundingClientRect();
+    const originalOutcropBounds = originalOutcropElement.getBoundingClientRect();
+    const mirroredOutcropBounds = mirroredOutcropElement.getBoundingClientRect();
     const waterBounds = waterElement.getBoundingClientRect();
     const visibleObjects = [...document.querySelectorAll('.scene-object')]
       .filter((element) => getComputedStyle(element).display !== 'none');
@@ -43,13 +45,19 @@ for (const [name, width, height] of views) {
       const baseXRatio = Number.parseFloat(element.style.getPropertyValue('--x')) / 100;
       return baseXRatio > 0.34 && baseXRatio < 0.68;
     }).map((element) => element.getAttribute('src'));
-    const outcropMirrored = getComputedStyle(outcropElement).transform.startsWith('matrix(-1');
-    const cascadeShiftRatio = (waterBounds.left - outcropBounds.left) / outcropBounds.width;
-    const waterfallGeometryCorrected = outcropMirrored &&
-      Math.abs(cascadeShiftRatio - 0.61) < 0.01 &&
-      Math.abs(outcropBounds.top - waterBounds.top) < 0.1 &&
-      Math.abs(outcropBounds.width - waterBounds.width) < 0.1 &&
-      Math.abs(outcropBounds.height - waterBounds.height) < 0.1;
+    const originalOutcropAnchored = getComputedStyle(originalOutcropElement).transform === 'none';
+    const outcropCloneMirrored = getComputedStyle(mirroredOutcropElement).transform.startsWith('matrix(-1');
+    const outcropFramesMatch =
+      Math.abs(originalOutcropBounds.left - mirroredOutcropBounds.left) < 0.1 &&
+      Math.abs(originalOutcropBounds.top - mirroredOutcropBounds.top) < 0.1 &&
+      Math.abs(originalOutcropBounds.width - mirroredOutcropBounds.width) < 0.1 &&
+      Math.abs(originalOutcropBounds.height - mirroredOutcropBounds.height) < 0.1;
+    const cascadeShiftRatio = (waterBounds.left - originalOutcropBounds.left) / originalOutcropBounds.width;
+    const waterfallGeometryCorrected = originalOutcropAnchored && outcropCloneMirrored && outcropFramesMatch &&
+      Math.abs(cascadeShiftRatio - 0.30) < 0.01 &&
+      Math.abs(originalOutcropBounds.top - waterBounds.top) < 0.1 &&
+      Math.abs(originalOutcropBounds.width - waterBounds.width) < 0.1 &&
+      Math.abs(originalOutcropBounds.height - waterBounds.height) < 0.1;
     const sun = document.querySelector('.sun').getBoundingClientRect();
     const sunCenterRatio = (((sun.left + sun.right) / 2) - scene.left) / scene.width;
     return {
@@ -61,7 +69,9 @@ for (const [name, width, height] of views) {
         .map((asset) => asset.getAttribute('src')),
       unsupportedObjects,
       lakeTrees,
-      outcropMirrored,
+      originalOutcropAnchored,
+      outcropCloneMirrored,
+      outcropFramesMatch,
       cascadeShiftRatio,
       waterfallGeometryCorrected,
       sunCenterRatio
@@ -74,10 +84,10 @@ for (const [name, width, height] of views) {
   if (name === 'desktop-1920') {
     await page.screenshot({
       path: path.join(output, 'living-overworld-autumn-rich-waterfall-closeup.png'),
-      clip: { x: 330, y: 72, width: 470, height: 215 }
+      clip: { x: 330, y: 72, width: 700, height: 215 }
     });
   }
-  console.log(`${name}: ${state.viewportWidth}px wide, ${state.sceneHeight}px scene, mirrored outcrop with aligned cascades, grounded objects, open lake, no overflow`);
+  console.log(`${name}: ${state.viewportWidth}px wide, ${state.sceneHeight}px scene, original outcrop plus mirrored clone with centered cascades, grounded objects, open lake, no overflow`);
   await page.close();
 }
 
