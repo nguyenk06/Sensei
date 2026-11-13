@@ -19,14 +19,24 @@ for /f %%V in ('node.exe -p "process.versions.node.split('.')[0]"') do set "SENS
 if "%SENSEI_NODE_MAJOR%"=="24" goto :node_ready
 
 :try_codex_node
-set "SENSEI_CODEX_NODE=%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin"
+set "SENSEI_CODEX_ROOT=%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\node"
+set "SENSEI_CODEX_NODE=%SENSEI_CODEX_ROOT%\bin"
 if not exist "%SENSEI_CODEX_NODE%\node.exe" goto :node_error
 set "PATH=%SENSEI_CODEX_NODE%;%PATH%"
+set "SENSEI_NODE_EXE=%SENSEI_CODEX_NODE%\node.exe"
 for /f %%V in ('node.exe -p "process.versions.node.split('.')[0]"') do set "SENSEI_NODE_MAJOR=%%V"
 if not "%SENSEI_NODE_MAJOR%"=="24" goto :node_error
 
 :node_ready
+if not defined SENSEI_NODE_EXE set "SENSEI_NODE_EXE=node.exe"
 for /f %%V in ('node.exe --version') do echo Using Node.js %%V
+
+if not defined SENSEI_CODEX_ROOT set "SENSEI_CODEX_ROOT=%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\node"
+set "SENSEI_CODEX_PNPM=%SENSEI_CODEX_ROOT%\node_modules\pnpm\bin\pnpm.mjs"
+if exist "%SENSEI_CODEX_PNPM%" (
+  set "SENSEI_PACKAGE_RUNNER=codex-pnpm"
+  goto :launch
+)
 
 where pnpm.cmd >nul 2>nul
 if not errorlevel 1 goto :ready
@@ -46,7 +56,7 @@ set "SENSEI_PACKAGE_RUNNER=pnpm"
 
 :launch
 if /i "%~1"=="--check" (
-  echo Launcher prerequisites are available.
+  echo Launcher prerequisites are available using %SENSEI_PACKAGE_RUNNER%.
   exit /b 0
 )
 
@@ -57,7 +67,14 @@ echo Keep this window open while using the editor.
 echo Press Ctrl+C here when you are finished.
 echo.
 
+if "%SENSEI_PACKAGE_RUNNER%"=="codex-pnpm" goto :launch_codex_pnpm
 call %SENSEI_PACKAGE_RUNNER% editor
+goto :launch_result
+
+:launch_codex_pnpm
+"%SENSEI_NODE_EXE%" "%SENSEI_CODEX_PNPM%" editor
+
+:launch_result
 if errorlevel 1 goto :failed
 exit /b 0
 
