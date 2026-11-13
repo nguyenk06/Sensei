@@ -4,7 +4,9 @@ This is an isolated, local-only planning utility. It is not linked from Sensei a
 
 ## Launch
 
-From the repository root:
+On Windows, double-click `start-living-overworld-editor.bat` in the repository root. Keep its terminal window open while using the editor; press `Ctrl+C` there when finished.
+
+Alternatively, run from the repository root:
 
 ```powershell
 pnpm editor
