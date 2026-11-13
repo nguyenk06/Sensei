@@ -18,6 +18,7 @@ button, .file-button {
   min-height: 34px; padding: 6px 10px; border: 1px solid #52636e; border-radius: 4px;
   background: #26333b; color: #eef4f6; cursor: pointer;
 }
+.file-button { display: inline-flex; align-items: center; text-decoration: none; }
 button:hover, .file-button:hover { background: #32424c; }
 button:disabled { opacity: .42; cursor: not-allowed; }
 button.primary { background: #5c923d; border-color: #99d170; }
@@ -131,6 +132,20 @@ h3 { margin-top: 16px; font-size: 13px; color: #bcc8ce; }
 .anchor-readout table { width: 100%; border-collapse: collapse; font-size: 10px; }
 .anchor-readout td { padding: 4px; border-bottom: 1px solid #34434b; }
 footer { padding: 9px 18px; border-top: 1px solid var(--line); color: var(--muted); background: #12191d; font-size: 11px; }
+.import-dialog {
+  width: min(850px, calc(100vw - 40px)); max-height: calc(100vh - 40px); padding: 0;
+  border: 1px solid #60727c; border-radius: 7px; background: #172027; color: #eef4f6;
+}
+.import-dialog::backdrop { background: rgba(4, 9, 12, .78); }
+.import-dialog-shell { display: grid; gap: 14px; padding: 18px; }
+.import-dialog-heading, .import-actions, .import-source-row { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+.import-dialog-heading p { margin-top: 5px; color: var(--muted); font-size: 12px; }
+.import-source-row > label:last-child { width: 310px; }
+.import-dialog textarea { resize: vertical; font: 12px/1.45 Consolas, monospace; }
+.import-report { min-height: 90px; padding: 11px; border: 1px solid #40515b; background: #10171b; font: 12px/1.45 Consolas, monospace; white-space: pre-wrap; }
+.import-report[data-kind="error"] { border-color: #9f5659; color: #ffd1d3; }
+.import-report[data-kind="warning"] { border-color: #b08b3e; color: #ffe3a1; }
+.import-report[data-kind="success"] { border-color: #5e9640; color: #c9f1b1; }
 @media (max-width: 1300px) {
   body { min-width: 980px; }
   .editor-shell { grid-template-columns: 230px minmax(520px, 1fr) 260px; }

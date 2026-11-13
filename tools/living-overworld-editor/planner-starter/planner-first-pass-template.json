@@ -1,0 +1,24 @@
+{
+  "format": "sensei-living-overworld-planner-import",
+  "schemaVersion": 1,
+  "layoutName": "Living Overworld planner first pass",
+  "referenceCanvas": { "width": 1920, "height": 300 },
+  "plannerNotes": "Describe the composition intent and any placements needing Product Owner review.",
+  "instances": [
+    {
+      "assetId": "autumn.unified-hill",
+      "displayLabel": "Unified hill proposal",
+      "x": 960,
+      "y": 280,
+      "placementAnchor": "bottom-center",
+      "scale": 0.25,
+      "rotation": 0,
+      "flipX": false,
+      "flipY": false,
+      "visible": true,
+      "locked": false,
+      "placeholder": false,
+      "notes": "Example only; replace these values with the planned placement."
+    }
+  ]
+}

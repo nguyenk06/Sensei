@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "scene.sky",
+      "label": "Autumn sky",
+      "kind": "surface",
+      "width": 1920,
+      "height": 300,
+      "surface": "linear-gradient(#596e89 0%, #c47c67 48%, #f0b96f 100%)",
+      "anchors": { "center": [960, 150] }
+    },
+    {
+      "id": "scene.ground-band",
+      "label": "Ground band",
+      "kind": "surface",
+      "width": 1920,
+      "height": 36,
+      "surface": "linear-gradient(#8f682d 0 20%, #76502c 21% 35%, #513820 36%)",
+      "anchors": { "center": [960, 18], "bottom-center": [960, 36] }
+    },
+    {
+      "id": "autumn.mountains",
+      "label": "Central mountains",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-structural/mountains.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] }
+    },
+    {
+      "id": "autumn.distant-a",
+      "label": "Distant mountains A",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/distant-a.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] }
+    },
+    {
+      "id": "autumn.distant-b",
+      "label": "Distant mountains B",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/distant-b.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] }
+    },
+    {
+      "id": "autumn.outcrop",
+      "label": "Waterfall outcrop",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-structural/waterfall-outcrop.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] }
+    },
+    {
+      "id": "autumn.water-connected",
+      "label": "Waterfall and lake",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-structural/water-connected.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": {
+        "center": [1086, 362],
+        "bottom-center": [1086, 724],
+        "W-UPPER-SOURCE": [165, 132],
+        "W-FINAL-SPLASH": [650, 565]
+      }
+    },
+    {
+      "id": "autumn.ground-path",
+      "label": "Ground and path",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-structural/ground.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] },
+      "notes": "The current source artwork contains both shoreline ground and path; they cannot be independently edited."
+    },
+    {
+      "id": "autumn.meadow",
+      "label": "Meadow extension",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-structural/meadow-extension.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] }
+    },
+    {
+      "id": "autumn.retreat",
+      "label": "Retreat house",
+      "kind": "image",
+      "src": "/assets/living-overworld/retreat.png",
+      "width": 2172,
+      "height": 724,
+      "anchors": { "center": [1086, 362], "bottom-center": [1086, 724] }
+    },
+    {
+      "id": "autumn.unified-hill",
+      "label": "Unified hill",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-structural/living-overworld-hill.png",
+      "metadata": "/assets/living-overworld/autumn-structural/living-overworld-hill.json",
+      "width": 3844,
+      "height": 724,
+      "anchors": {
+        "center": [1922, 362],
+        "bottom-center": [1922, 724],
+        "H-WATERFALL-SOURCE": [2142, 116],
+        "H-JOIN": [1922, 150]
+      }
+    },
+    {
+      "id": "autumn.tree",
+      "label": "Autumn tree",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/objects/tree.png",
+      "width": 709,
+      "height": 668,
+      "anchors": { "center": [354.5, 334], "bottom-center": [354.5, 668] }
+    },
+    {
+      "id": "autumn.tree-red",
+      "label": "Red autumn tree",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/objects/tree-red.png",
+      "width": 1274,
+      "height": 1150,
+      "anchors": { "center": [637, 575], "bottom-center": [637, 1150] }
+    },
+    {
+      "id": "autumn.rock",
+      "label": "Rock",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/objects/rock.png",
+      "width": 636,
+      "height": 359,
+      "anchors": { "center": [318, 179.5], "bottom-center": [318, 359] }
+    },
+    {
+      "id": "autumn.bush",
+      "label": "Bush",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/objects/bush.png",
+      "width": 1196,
+      "height": 445,
+      "anchors": { "center": [598, 222.5], "bottom-center": [598, 445] }
+    },
+    {
+      "id": "autumn.grass",
+      "label": "Grass",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/objects/grass.png",
+      "width": 854,
+      "height": 465,
+      "anchors": { "center": [427, 232.5], "bottom-center": [427, 465] }
+    },
+    {
+      "id": "autumn.flowers",
+      "label": "Flowers",
+      "kind": "image",
+      "src": "/assets/living-overworld/autumn-modular/objects/flowers.png",
+      "width": 723,
+      "height": 377,
+      "anchors": { "center": [361.5, 188.5], "bottom-center": [361.5, 377] }
+    }
+  ]
+}

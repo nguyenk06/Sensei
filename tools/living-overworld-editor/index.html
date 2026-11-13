@@ -16,6 +16,8 @@
       <button id="undo-button" type="button">Undo</button>
       <button id="redo-button" type="button">Redo</button>
       <button id="reset-layout" type="button">Reload baseline</button>
+      <a class="file-button" href="./planner-starter/living-overworld-planner-starter-v1.zip" download>Starter package</a>
+      <button id="open-planner-import" type="button">Planner import</button>
       <button id="save-draft" type="button">Save draft</button>
       <label class="file-button">Load draft<input id="load-draft" type="file" accept="application/json,.json"></label>
       <button id="export-layout" class="primary" type="button">Export layout</button>
@@ -155,6 +157,38 @@
       </section>
     </aside>
   </main>
+
+  <dialog id="planner-import-dialog" class="import-dialog" aria-labelledby="planner-import-title">
+    <form method="dialog" class="import-dialog-shell">
+      <div class="import-dialog-heading">
+        <div>
+          <h2 id="planner-import-title">Planner first-pass import</h2>
+          <p>Preview and validate a planner placement file before it changes the working draft.</p>
+        </div>
+        <button id="close-planner-import" type="submit" value="cancel" aria-label="Close planner import">Close</button>
+      </div>
+
+      <div class="import-source-row">
+        <label class="file-button">Choose planner JSON<input id="planner-import-file" type="file" accept="application/json,.json"></label>
+        <label>Import behavior
+          <select id="planner-import-strategy">
+            <option value="replace-editable">Replace unlocked planning instances</option>
+            <option value="merge">Merge into current draft</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Planner JSON
+        <textarea id="planner-import-json" rows="17" spellcheck="false" placeholder="Paste the planner-first-pass JSON here, or choose a file."></textarea>
+      </label>
+
+      <div class="import-actions">
+        <button id="preview-planner-import" type="button">Validate and preview</button>
+        <button id="apply-planner-import" class="primary" type="button" disabled>Apply reviewed import</button>
+      </div>
+      <div id="planner-import-report" class="import-report" aria-live="polite">No import has been previewed.</div>
+    </form>
+  </dialog>
 
   <footer>
     Draft autosave uses this browser's local storage. JSON downloads contain paths and transforms, never image binaries.

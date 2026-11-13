@@ -17,6 +17,7 @@ let history = [];
 let future = [];
 let drag = null;
 let autosaveTimer = null;
+let pendingPlannerImport = null;
 
 function clone(value) { return structuredClone(value); }
 function selected() { return state.instances.find((item) => item.id === selectedId) || null; }
@@ -76,7 +77,7 @@ function validateLayout(input) {
       if (!assetFor(instance)?.anchors?.[instance.anchor]) warnings.push(`${instance.id} uses unknown anchor ${instance.anchor}; center will be used.`);
     }
   }
-  const known = new Set(["schemaVersion", "manifestVersion", "layoutName", "referenceCanvas", "nextInstanceNumber", "settings", "instances", "assets", "exportedAt"]);
+  const known = new Set(["schemaVersion", "manifestVersion", "layoutName", "referenceCanvas", "nextInstanceNumber", "settings", "instances", "assets", "exportedAt", "plannerImport"]);
   const extra = Object.keys(input).filter((key) => !known.has(key));
   if (extra.length) warnings.push(`Preserved unknown top-level fields: ${extra.join(", ")}.`);
   return { errors, warnings };
@@ -102,6 +103,85 @@ function normalizeLayout(input) {
     ...instance,
   }));
   return next;
+}
+
+function previewPlannerImport(input, strategy = "replace-editable") {
+  const errors = [];
+  const warnings = [];
+  if (!input || typeof input !== "object") return { valid: false, errors: ["Import must be a JSON object."], warnings, added: 0, updated: 0 };
+  if (input.format !== "sensei-living-overworld-planner-import") errors.push("format must be sensei-living-overworld-planner-import.");
+  if (input.schemaVersion !== 1) errors.push(`Unsupported planner import schema: ${input.schemaVersion}.`);
+  if (input.referenceCanvas?.width !== 1920 || input.referenceCanvas?.height !== 300) errors.push("referenceCanvas must be 1920 × 300.");
+  if (!Array.isArray(input.instances)) errors.push("instances must be an array.");
+  if (!["replace-editable", "merge"].includes(strategy)) errors.push(`Unsupported import strategy: ${strategy}.`);
+  const ids = new Set();
+  let added = 0;
+  let updated = 0;
+  for (const [index, item] of (Array.isArray(input.instances) ? input.instances : []).entries()) {
+    const name = item.id || `item ${index + 1}`;
+    if (!item.assetId || !assets.has(item.assetId)) errors.push(`${name}: unknown assetId ${item.assetId || "(missing)"}.`);
+    if (item.x === undefined || item.y === undefined) errors.push(`${name}: x and y are required.`);
+    if (item.id) {
+      if (ids.has(item.id)) errors.push(`${item.id}: duplicate ID in import.`);
+      ids.add(item.id);
+      const existing = state.instances.find((instance) => instance.id === item.id);
+      if (existing?.locked) errors.push(`${item.id}: cannot replace a locked baseline instance.`);
+      if (existing) updated += 1; else added += 1;
+    } else added += 1;
+    for (const key of ["x", "y", "scale", "rotation"]) {
+      if (item[key] !== undefined && !Number.isFinite(Number(item[key]))) errors.push(`${name}.${key} must be numeric.`);
+    }
+    if (item.scale !== undefined && Number(item.scale) <= 0) errors.push(`${name}.scale must be greater than zero.`);
+    const asset = assets.get(item.assetId);
+    const requestedAnchor = item.placementAnchor || item.anchor;
+    if (asset && requestedAnchor && !asset.anchors?.[requestedAnchor]) errors.push(`${name}: asset ${item.assetId} has no anchor named ${requestedAnchor}.`);
+    const supported = new Set(["id", "assetId", "displayLabel", "label", "x", "y", "placementAnchor", "anchor", "scale", "rotation", "flipX", "flipY", "visible", "locked", "placeholder", "notes"]);
+    const extra = Object.keys(item).filter((key) => !supported.has(key));
+    if (extra.length) warnings.push(`${name}: unsupported fields will be retained in plannerSource only: ${extra.join(", ")}.`);
+  }
+  if (strategy === "replace-editable") warnings.push(`${state.instances.filter((item) => !item.locked).length} current unlocked planning instance(s) will be replaced; locked baseline scenery remains.`);
+  else warnings.push("Imported instances will be placed frontmost; matching unlocked IDs will be updated.");
+  return { valid: errors.length === 0, errors, warnings, added, updated, total: input.instances?.length || 0, strategy };
+}
+
+function plannerInstance(item, resolvedId) {
+  const asset = assets.get(item.assetId);
+  const anchor = item.placementAnchor || item.anchor || (asset.anchors?.["bottom-center"] ? "bottom-center" : "center");
+  return {
+    id: resolvedId,
+    assetId: item.assetId,
+    label: item.displayLabel || item.label || asset.label,
+    x: Number(item.x ?? 960), y: Number(item.y ?? 150), anchor,
+    scale: Number(item.scale ?? Math.min(1, 220 / asset.width)), rotation: Number(item.rotation ?? 0),
+    flipX: Boolean(item.flipX), flipY: Boolean(item.flipY), visible: item.visible !== false,
+    locked: Boolean(item.locked), placeholder: Boolean(item.placeholder), notes: String(item.notes || ""),
+    mobileRule: { type: "planning-fallback" }, plannerSource: clone(item),
+  };
+}
+
+function applyPlannerImport(input, strategy = "replace-editable") {
+  const report = previewPlannerImport(input, strategy);
+  if (!report.valid) throw new Error(report.errors.join("\n"));
+  commit(() => {
+    const reservedIds = new Set(input.instances.flatMap((item) => item.id ? [item.id] : []));
+    const imported = input.instances.map((item) => {
+      let resolvedId = item.id;
+      if (!resolvedId) {
+        do { resolvedId = nextId(); } while (reservedIds.has(resolvedId));
+        reservedIds.add(resolvedId);
+      }
+      return plannerInstance(item, resolvedId);
+    });
+    const importedIds = new Set(imported.map((item) => item.id));
+    const preserved = strategy === "replace-editable"
+      ? state.instances.filter((item) => item.locked)
+      : state.instances.filter((item) => !importedIds.has(item.id));
+    state.instances = [...imported, ...preserved];
+    state.layoutName = input.layoutName || state.layoutName;
+    state.plannerImport = { format: input.format, schemaVersion: input.schemaVersion, plannerNotes: input.plannerNotes || "", importedAt: new Date().toISOString(), strategy };
+    selectedId = imported[0]?.id || null;
+  }, `Planner import applied: ${report.added} added, ${report.updated} updated`);
+  return report;
 }
 
 function loadLayout(input, source = "JSON") {
@@ -364,6 +444,47 @@ $("load-draft").addEventListener("change", async (event) => {
   try { loadLayout(JSON.parse(await file.text()), file.name); } catch (error) { message(`Import rejected: ${error.message}`, "error"); }
   event.target.value = "";
 });
+function showPlannerReport(report) {
+  const lines = report.valid
+    ? [`VALID PLANNER IMPORT`, `${report.total} placement(s): ${report.added} new, ${report.updated} matching unlocked ID(s).`, `Mode: ${report.strategy}.`]
+    : ["IMPORT BLOCKED", ...report.errors];
+  if (report.warnings?.length) lines.push("", "Warnings:", ...report.warnings.map((warning) => `- ${warning}`));
+  $("planner-import-report").textContent = lines.join("\n");
+  $("planner-import-report").dataset.kind = report.valid ? (report.warnings.length ? "warning" : "success") : "error";
+  $("apply-planner-import").disabled = !report.valid;
+}
+$("open-planner-import").addEventListener("click", () => {
+  pendingPlannerImport = null;
+  $("planner-import-report").textContent = "Paste or choose a planner-first-pass JSON file, then validate it.";
+  $("planner-import-report").dataset.kind = "";
+  $("apply-planner-import").disabled = true;
+  $("planner-import-dialog").showModal();
+});
+$("planner-import-file").addEventListener("change", async (event) => {
+  const file = event.target.files[0]; if (!file) return;
+  $("planner-import-json").value = await file.text();
+  pendingPlannerImport = null; $("apply-planner-import").disabled = true;
+  $("planner-import-report").textContent = `${file.name} loaded. Validate it before applying.`;
+});
+$("preview-planner-import").addEventListener("click", () => {
+  try {
+    const document = JSON.parse($("planner-import-json").value);
+    const strategy = $("planner-import-strategy").value;
+    const report = previewPlannerImport(document, strategy);
+    pendingPlannerImport = report.valid ? { document, strategy } : null;
+    showPlannerReport(report);
+  } catch (error) {
+    pendingPlannerImport = null; showPlannerReport({ valid: false, errors: [`Malformed JSON: ${error.message}`], warnings: [] });
+  }
+});
+$("apply-planner-import").addEventListener("click", () => {
+  if (!pendingPlannerImport) return;
+  try {
+    const report = applyPlannerImport(pendingPlannerImport.document, pendingPlannerImport.strategy);
+    $("planner-import-dialog").close(); pendingPlannerImport = null;
+    message(`Planner first pass imported after review: ${report.total} placement(s).`);
+  } catch (error) { showPlannerReport({ valid: false, errors: [error.message], warnings: [] }); }
+});
 function safeName(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "living-overworld"; }
 
 $("layout-name").addEventListener("change", (event) => commit(() => { state.layoutName = event.target.value.trim() || "Untitled Living Overworld layout"; }, "Layout renamed"));
@@ -452,6 +573,8 @@ window.editorApi = {
   setPlaceholder: (id, flag, notes = "") => { selectedId = id; return updateSelected({ placeholder: flag, notes }); },
   serialize: () => JSON.stringify(downloadableLayout(false), null, 2),
   exportLayout: () => clone(downloadableLayout(true)), load: (layout) => loadLayout(layout, "API layout"),
+  previewPlannerImport: (document, strategy = "replace-editable") => previewPlannerImport(document, strategy),
+  applyPlannerImport: (document, strategy = "replace-editable") => applyPlannerImport(document, strategy),
   mobileTransform: (id, width) => { const instance = state.instances.find((item) => item.id === id); return instance ? mobileTransform(instance, width) : null; },
   worldAnchor: (id, name) => { const instance = state.instances.find((item) => item.id === id); return instance ? worldAnchor(instance, name) : null; },
 };

@@ -39,6 +39,22 @@ New planning instances do not yet have runtime CSS overrides. They use a documen
 
 The JSON contract is documented in `layout-schema.json`; `default-layout.json` is a complete example.
 
+## Planner starter package and import mode
+
+Click **Starter package** to download `planner-starter/living-overworld-planner-starter-v1.zip`. It contains:
+
+- A planner-specific brief and coordinate guide.
+- The current locked baseline layout.
+- The complete stable asset catalog and named anchors.
+- A first-pass template and import schema.
+
+The planner returns a `sensei-living-overworld-planner-import` JSON file. Open **Planner import**, choose or paste that file, then select one of two bounded behaviors:
+
+- **Replace unlocked planning instances** keeps all locked baseline scenery and replaces only previous planning additions.
+- **Merge into current draft** updates matching unlocked IDs and places new planner objects frontmost.
+
+Validation happens before mutation. Malformed JSON, unsupported schema versions, missing assets, duplicate IDs, bad transforms, invalid anchors, and attempts to overwrite locked baseline elements are blocked. A summary and warnings must be reviewed before **Apply reviewed import** is enabled. The applied import retains the planner's original per-instance data for traceability and remains undoable.
+
 ## Known V1 boundaries
 
 - No snapping, multi-selection, animation, weather editing, or seasonal variant management.

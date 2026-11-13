@@ -1,0 +1,14 @@
+{
+  "package": "sensei-living-overworld-planner-starter",
+  "version": 1,
+  "referenceCanvas": { "width": 1920, "height": 300 },
+  "editorImportFormat": "sensei-living-overworld-planner-import",
+  "contents": [
+    "START_HERE.md",
+    "COORDINATE_GUIDE.md",
+    "planner-first-pass-template.json",
+    "planner-import-schema.json",
+    "asset-catalog.json",
+    "baseline-layout.json"
+  ]
+}
