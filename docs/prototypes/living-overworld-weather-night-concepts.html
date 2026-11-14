@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Living Overworld atmosphere concepts</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #08110f; color: #eef6ec; font: 14px/1.45 system-ui,sans-serif; }
+    main { width: min(1480px,100%); margin: auto; padding: 36px 28px 64px; }
+    h1,h2,p { margin-top: 0; } h1 { margin-bottom: 5px; font-size: 31px; } h2 { margin-bottom: 5px; font-size: 20px; }
+    .lede { color: #afc8b8; }
+    .panel { margin-top: 24px; padding: 20px; border: 1px solid #385648; background: #0e1b17; }
+    .grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    .weather-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+    .sky-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .card { padding: 9px; border: 1px solid #456555; background: #07100d; }
+    .label { display: flex; justify-content: space-between; gap: 10px; margin: 0 2px 7px; font-weight: 800; }
+    .label small { color: #a7beaf; font-weight: 500; }
+    .scene { position: relative; overflow: hidden; aspect-ratio: 3/1; border: 1px solid #789a83; isolation: isolate; background: #78c4e9; }
+    .sky,.starfield,.clouds,.art,.weather,.events { position: absolute; inset: 0; }
+    .sky { z-index: 0; background: linear-gradient(#4b9fd2,#8bd2ef 76%,#d6edf1); }
+    .evening .sky { background: linear-gradient(#25375d,#9b5873 57%,#ec966b); }
+    .night .sky { background: linear-gradient(#02091e,#102a50 68%,#34516d); }
+    .starfield { z-index: 1; inset: -28%; transform-origin: 50% 72%; animation: star-turn 1200s linear infinite; opacity: 0; }
+    .evening .starfield { opacity: .38; } .night .starfield { opacity: .92; }
+    .star { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #d8ebff; box-shadow: 0 0 3px 1px #73bfff88; }
+    .star.warm { background: #fff5d3; box-shadow: 0 0 2px #fff0a477; }
+    .star.bright { width: 3px; height: 3px; background: #eef8ff; box-shadow: 0 0 6px 2px #74c3ff99; }
+    .clouds { z-index: 2; }
+    .cloud { position: absolute; width: 31%; opacity: .56; filter: drop-shadow(0 7px 7px #142e3b44); }
+    .cloud:nth-child(1) { left: -5%; top: 8%; }
+    .cloud:nth-child(2) { left: 63%; top: 22%; width: 25%; transform: scale(.78); }
+    .cloud:nth-child(3) { left: 21%; top: 2%; width: 34%; transform: scale(.92); }
+    .cloud:nth-child(4) { left: 75%; top: 0; width: 31%; transform: scale(.85); }
+    .cloud:nth-child(5) { left: 43%; top: 28%; width: 23%; transform: scale(.68); }
+    .cloud:nth-child(6) { left: 3%; top: 34%; width: 24%; transform: scale(.65); }
+    .partial .cloud:nth-child(n+3) { display: none; }
+    .cloudy .cloud,.rain-subtle .cloud,.rain-visible .cloud,.snow .cloud { opacity: .76; filter: saturate(.58) brightness(.72) drop-shadow(0 8px 8px #142e3b55); }
+    .cloudy .sky,.rain-subtle .sky,.rain-visible .sky,.snow .sky { filter: saturate(.58) brightness(.76); }
+    .art { z-index: 3; width: 100%; height: 100%; object-fit: cover; object-position: center 70%; }
+    .night .art { filter: brightness(.48) saturate(.76) hue-rotate(8deg); }
+    .evening .art { filter: brightness(.74) saturate(.9) sepia(.1) hue-rotate(-5deg); }
+    .weather { z-index: 5; pointer-events: none; overflow: hidden; }
+    .drop { position: absolute; top: -12%; background: linear-gradient(#e9f8ff,#9fd6f0); animation: drop-fall linear infinite; }
+    .rain-subtle .drop { width: 2px; height: 5px; border-radius: 60% 60% 70% 70%; opacity: .55; }
+    .rain-visible .drop { width: 4px; height: 10px; border-radius: 55% 55% 68% 68%; opacity: .78; box-shadow: 0 0 2px #dff5ff88; }
+    .flake { position: absolute; top: -10%; border-radius: 50%; background: #f4fbff; box-shadow: 0 0 4px #d8edff99; filter: blur(.25px); animation: snow-fall linear infinite; }
+    .fog-cloud { position: absolute; width: 58%; height: 36%; border-radius: 50%; filter: blur(17px); background: radial-gradient(ellipse at center,#edf4efbd 0 34%,#d8e5df7d 60%,transparent 76%); animation: fog-drift 32s ease-in-out infinite alternate; }
+    .fog-cloud:nth-child(1) { left: -18%; top: 55%; opacity: .72; }
+    .fog-cloud:nth-child(2) { left: 24%; top: 63%; width: 70%; opacity: .56; animation-delay: -12s; }
+    .fog-cloud:nth-child(3) { left: 68%; top: 51%; opacity: .66; animation-delay: -21s; }
+    .events { z-index: 4; pointer-events: none; }
+    .comet,.meteor { position: absolute; height: 2px; transform: rotate(22deg); transform-origin: right center; opacity: 0; }
+    .comet { top: 18%; left: 44%; width: 110px; background: linear-gradient(90deg,transparent,#85c9ff77,#e9f8ff); box-shadow: 4px 0 7px #72c8ff; animation: comet-pass 37s ease-in-out infinite; }
+    .meteor { top: 29%; left: 68%; width: 52px; background: linear-gradient(90deg,transparent,#9ad4ff99,#fff); box-shadow: 3px 0 4px #8ed0ff; animation: meteor-pass 23s ease-out infinite 9s; }
+    .event-proof .comet,.event-proof .meteor { opacity: .9; animation: none; }
+    .event-proof .comet { left: 34%; } .event-proof .meteor { left: 73%; }
+    .notes { margin-top: 16px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; color: #b7cabd; }
+    .notes div { padding: 12px; border-left: 3px solid #6da56d; background: #0b1713; }
+    .notes strong { display: block; color: #eef6ec; margin-bottom: 3px; }
+    @keyframes star-turn { to { transform: rotate(360deg); } }
+    @keyframes drop-fall { from { translate: 0 -10px; } to { translate: 8px 250px; } }
+    @keyframes snow-fall { from { transform: translate3d(0,-10px,0); } to { transform: translate3d(var(--drift),250px,0); } }
+    @keyframes fog-drift { from { translate: -5% 0; } to { translate: 5% 0; } }
+    @keyframes comet-pass { 0%,91%,100% { opacity: 0; translate: -140px -70px; } 93% { opacity: .9; } 97% { opacity: .45; translate: 230px 100px; } }
+    @keyframes meteor-pass { 0%,94%,100% { opacity: 0; translate: -70px -35px; } 95% { opacity: .9; } 98% { opacity: .25; translate: 135px 65px; } }
+    @media(max-width:1050px) { .weather-grid { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:900px) { .grid,.weather-grid,.sky-grid { grid-template-columns: 1fr; } .scene { aspect-ratio: 2/1; } .notes { grid-template-columns: 1fr; } }
+    @media(prefers-reduced-motion:reduce) { * { animation: none!important; } }
+  </style>
+</head>
+<body><main>
+  <h1>Living Overworld — atmosphere concepts</h1>
+  <p class="lede">Isolated review proof only · current autumn composition retained · no runtime integration · proposed status format: 12°C · 54°F</p>
+
+  <section class="panel" id="cloud-density"><h2>Cloud amount, not only darkness</h2><p class="lede">Partly cloudy uses two separated banks. Cloudy uses six banks at varied sizes and elevations.</p><div class="grid">
+    <article class="card partial"><div class="label">Partly cloudy <small>2 banks · open sky remains</small></div><div class="scene"><div class="sky"></div><div class="clouds"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"></div></article>
+    <article class="card cloudy"><div class="label">Cloudy <small>6 banks · layered coverage</small></div><div class="scene"><div class="sky"></div><div class="clouds"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"></div></article>
+  </div></section>
+
+  <section class="panel" id="weather-treatments"><h2>Rain, snow, and ground-fog directions</h2><p class="lede">Two droplet scales are compared directly. Snow uses independent soft flakes rather than a synchronized background loop.</p><div class="grid weather-grid">
+    <article class="card rain-subtle"><div class="label">Subtle rain <small>small, light droplets</small></div><div class="scene"><div class="sky"></div><div class="clouds"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"><div class="weather"></div></div></article>
+    <article class="card rain-visible"><div class="label">Visible rain <small>larger teardrops</small></div><div class="scene"><div class="sky"></div><div class="clouds"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"><div class="weather"></div></div></article>
+    <article class="card snow"><div class="label">Soft snow <small>independent vertical float</small></div><div class="scene"><div class="sky"></div><div class="clouds"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"><div class="weather"></div></div></article>
+    <article class="card fog"><div class="label">Ground fog <small>large soft moving banks</small></div><div class="scene"><div class="sky"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"><div class="weather"><i class="fog-cloud"></i><i class="fog-cloud"></i><i class="fog-cloud"></i></div></div></article>
+  </div></section>
+
+  <section class="panel" id="night-sky"><h2>Evening, night, and rare sky events</h2><p class="lede">Blue-white stars vary in size and glow. The oversized field rotates extremely slowly behind the landscape.</p><div class="grid sky-grid">
+    <article class="card evening" data-stars="24"><div class="label">Evening <small>sparse early stars</small></div><div class="scene"><div class="sky"></div><div class="starfield"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"></div></article>
+    <article class="card night" data-stars="62"><div class="label">Night <small>mixed density + blue glow</small></div><div class="scene"><div class="sky"></div><div class="starfield"></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"></div></article>
+    <article class="card night event-proof" data-stars="78"><div class="label">Rare-event reference <small>downward comet + meteor</small></div><div class="scene"><div class="sky"></div><div class="starfield"></div><div class="events"><i class="comet"></i><i class="meteor"></i></div><img class="art" src="../../public/assets/living-overworld/seasons/autumn/desktop.png"></div></article>
+  </div><div class="notes"><div><strong>Rotation</strong>One full visual rotation every twenty minutes in this proof; production can be considerably slower.</div><div><strong>Comets</strong>Longer, pale-blue trail traveling diagonally downward in a rare finite pass.</div><div><strong>Meteors</strong>Shorter, faster downward streaks with independent sparse timing.</div></div></section>
+</main>
+<script>
+  const cloudAsset = '../assets/living-overworld-fall-proof/cloud-bank.png';
+  document.querySelectorAll('.clouds').forEach((layer) => {
+    const count = layer.closest('.partial') ? 2 : 6;
+    for (let i = 0; i < count; i += 1) {
+      const image = document.createElement('img'); image.className = 'cloud'; image.src = cloudAsset; image.alt = ''; layer.append(image);
+    }
+  });
+  let seed = 24731;
+  const random = () => (seed = (seed * 48271) % 2147483647) / 2147483647;
+  document.querySelectorAll('[data-stars]').forEach((card) => {
+    const field = card.querySelector('.starfield'); const count = Number(card.dataset.stars);
+    for (let i = 0; i < count; i += 1) {
+      const star = document.createElement('i'); star.className = 'star' + (i % 11 === 0 ? ' bright' : i % 5 === 0 ? ' warm' : '');
+      star.style.left = `${10 + random() * 80}%`; star.style.top = `${12 + random() * 52}%`; field.append(star);
+    }
+  });
+  document.querySelectorAll('.rain-subtle .weather,.rain-visible .weather').forEach((layer) => {
+    const count = layer.closest('.rain-subtle') ? 54 : 34;
+    for (let i = 0; i < count; i += 1) {
+      const drop = document.createElement('i'); drop.className = 'drop'; drop.style.left = `${random() * 100}%`;
+      drop.style.animationDuration = `${.72 + random() * .58}s`; drop.style.animationDelay = `${-random() * 2}s`; layer.append(drop);
+    }
+  });
+  document.querySelectorAll('.snow .weather').forEach((layer) => {
+    for (let i = 0; i < 46; i += 1) {
+      const flake = document.createElement('i'); flake.className = 'flake'; const size = 2 + random() * 3.5;
+      flake.style.left = `${random() * 100}%`; flake.style.width = flake.style.height = `${size}px`;
+      flake.style.opacity = `${.45 + random() * .5}`; flake.style.animationDuration = `${5.5 + random() * 7}s`;
+      flake.style.animationDelay = `${-random() * 14}s`; flake.style.setProperty('--drift', `${-8 + random() * 16}px`); layer.append(flake);
+    }
+  });
+</script></body></html>
