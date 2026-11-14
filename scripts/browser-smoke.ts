@@ -405,6 +405,7 @@ try {
   await assertHeaderActions(childOne, 'Living Overworld desktop');
   const livingBanner = childOne.locator('.living-overworld-banner');
   await livingBanner.waitFor();
+  await childOne.waitForFunction(() => document.querySelector('.living-overworld-banner')?.classList.contains('weather-snow'));
   if (!(await livingBanner.getAttribute('class'))?.includes('weather-snow')) throw new Error('Living Overworld did not consume real weather in auto mode');
   if (!(await childOne.locator('.living-overworld-status').textContent())?.includes('Weather by Open-Meteo')) throw new Error('Living Overworld omitted weather attribution');
   const livingControlLayout = await childOne.evaluate(() => ({
@@ -447,6 +448,12 @@ try {
     throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
   }
   await childOne.locator('.living-overworld-proof-controls summary').click();
+  const celestialSlider = childOne.getByLabel('Living Overworld sun and moon height');
+  await celestialSlider.fill('18');
+  const overriddenCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => element.style.top);
+  if (overriddenCelestialTop !== '18%') throw new Error(`Living Overworld celestial height override failed: ${overriddenCelestialTop}`);
+  await childOne.getByRole('button', { name: 'Use automatic sun and moon height' }).click();
+  if (await celestialSlider.getAttribute('aria-valuetext') === '18 percent') throw new Error('Living Overworld celestial height did not return to automatic mode');
   const seasonalProofs = [
     { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-1100.png', asset: '/seasons/autumn/desktop.png' },
     { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-1100.png', asset: '/seasons/winter/desktop.png' }

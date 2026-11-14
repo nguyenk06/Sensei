@@ -148,6 +148,7 @@ export function LivingOverworldScene() {
   const [lightOverride, setLightOverride] = useState<Override<LivingLight>>('auto');
   const [weatherOverride, setWeatherOverride] = useState<Override<OverworldWeatherAppearance>>('auto');
   const [moonOverride, setMoonOverride] = useState<MoonOverride>('auto');
+  const [celestialHeightOverride, setCelestialHeightOverride] = useState<number | null>(null);
   const [weather, setWeather] = useState<OverworldWeatherResponse | null>(null);
   const [now, setNow] = useState(() => new Date());
   const [motionEnabled, setMotionEnabled] = useState(storedMotionPreference);
@@ -179,9 +180,10 @@ export function LivingOverworldScene() {
   const weatherAppearance = livingWeatherFor(weatherOverride, weather);
   const moonPhase = moonOverride === 'auto' ? moonPhaseFor(now) : moonOverride;
   const celestialTrack = livingCelestialTrackFor(now, weather?.sunrise ?? null, weather?.sunset ?? null);
-  const celestialTop = lightOverride === 'auto' ? celestialTrack.topPercent
+  const automaticCelestialTop = lightOverride === 'auto' ? celestialTrack.topPercent
     : lightOverride === 'day' || lightOverride === 'night' ? celestialApexPercent
       : illustratedHorizonPercent;
+  const celestialTop = celestialHeightOverride ?? automaticCelestialTop;
   const primaryIllustration = livingSeasonIllustrations[blend.primary];
   const adjacentIllustration = blend.adjacent ? livingSeasonIllustrations[blend.adjacent] : null;
 
@@ -204,6 +206,15 @@ export function LivingOverworldScene() {
       <label>Light<select aria-label="Living Overworld light proof" value={lightOverride} onChange={(event) => setLightOverride(event.target.value as Override<LivingLight>)}><option value="auto">Auto</option>{lightPeriods.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Weather<select aria-label="Living Overworld weather proof" value={weatherOverride} onChange={(event) => setWeatherOverride(event.target.value as Override<OverworldWeatherAppearance>)}><option value="auto">Auto</option>{weatherAppearances.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Moon<select aria-label="Living Overworld moon phase" value={moonOverride} onChange={(event) => setMoonOverride(event.target.value as MoonOverride)}><option value="auto">Auto</option>{moonPhases.map((phase) => <option key={phase} value={phase}>{title(phase)}</option>)}</select></label>
+      <div className="living-overworld-celestial-control" role="group" aria-label="Sun and moon height control">
+        <span>Sun / moon <output>{celestialHeightOverride === null ? `Auto · ${Math.round(automaticCelestialTop)}%` : `${celestialHeightOverride}%`}</output></span>
+        <input aria-label="Living Overworld sun and moon height" type="range" min="-20" max="80" step="1"
+          value={celestialHeightOverride ?? Math.round(automaticCelestialTop)}
+          aria-valuetext={celestialHeightOverride === null ? `Automatic, ${Math.round(automaticCelestialTop)} percent` : `${celestialHeightOverride} percent`}
+          onChange={(event) => setCelestialHeightOverride(Number(event.target.value))} />
+        <button type="button" aria-label="Use automatic sun and moon height" aria-pressed={celestialHeightOverride === null}
+          onClick={() => setCelestialHeightOverride(null)}>Auto</button>
+      </div>
     </div></details>
   </div>;
 

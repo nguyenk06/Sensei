@@ -62,7 +62,7 @@ Living Overworld uses cohesive seasonal illustrations. Each season is one comple
 - The scene is 330–380 CSS pixels tall on desktop and landscape tablets, and 170 pixels on portrait mobile, with controls outside the scenic area.
 - The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
 - In automatic mode, the sun and moon remain horizontally centered and travel only vertically. Their rise/apex/set progress follows the cached sunrise and sunset times; the apex passes above the banner, and a short central-horizon buffer advances the morning/evening lighting when the illustration occludes the body.
-- Scene controls remain available beside the motion control for temporary season, lighting, weather, and moon-phase overrides; `Auto` restores live behavior.
+- Scene controls remain available beside the motion control for temporary season, lighting, weather, moon-phase, and sun/moon-height overrides; `Auto` restores live behavior.
 - Creatures and modular terrain placement are intentionally absent from this replacement foundation.
 - Rain and fog remain functional existing overlays, but their next visual refinement is explicitly deferred.
 
