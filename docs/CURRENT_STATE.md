@@ -2,7 +2,7 @@
 
 Checkpoint date: November 14, 2026.
 
-Repository baseline: the current published and deployed `main` household release, including Living Overworld 1.0, Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
+Repository baseline: the current deployed local `main` household release, including Living Overworld 1.0, Parent Review Enhancements, LAN HTTP payment compatibility, Money History totals, and the Living Overworld atmosphere refinement.
 
 Living Overworld seasonal-art milestone: the Product Owner accepted cohesive autumn and winter artwork with separate mobile and desktop masters. The retired modular renderer, coordinate editor, experimental scene layouts, and their capture tooling have been removed from the active project. Spring and summer temporarily use the accepted autumn scene until their own artwork milestone. See [Living Overworld restart review](LIVING_OVERWORLD_RESTART_REVIEW.md).
 
@@ -114,3 +114,5 @@ The Living Overworld seasonal-art milestone is published and deployed from appli
 The Overworld Night Encounters checkpoint is published and deployed to the existing household installation. Release used a verified SQLite-native backup, rebuilt the existing production assets, restarted only the established Sensei scheduled task, retained the private-LAN binding, and passed non-mutating health, database-integrity, browser, weekly-board, History, Parent Mode entry, and live night-scene checks. It changed no schema, dependency, business logic, network, startup, authentication, or household data.
 
 The full-calendar expected-chores correction is implemented, verified, published, and deployed. A live check confirmed the newly configured chore appears on its future November dates while the persisted week and occurrence counts remain unchanged. Deployment used a verified SQLite-native backup, required no schema migration, and restarted only the existing Sensei scheduled task.
+
+The Living Overworld atmosphere refinement is deployed from local release commit `4dc36f1`. Verification passed 51 automated tests, client/server TypeScript checks, the production build, the isolated visual harness, and all 35 browser workflows. Deployment used a verified SQLite-native online backup, restarted only `\Sensei - Household Server`, and preserved the existing LAN address and startup configuration. Non-mutating smoke checks confirmed the current client bundle, health endpoint, seven-day checklist, 42-day calendar grid, allowance balance and monthly/lifetime fields, current weather response, unchanged key-table counts, and SQLite integrity. The local branch remains ahead of GitHub; publication was not part of this release request.
