@@ -407,7 +407,9 @@ try {
   await livingBanner.waitFor();
   await childOne.waitForFunction(() => document.querySelector('.living-overworld-banner')?.classList.contains('weather-snow'));
   if (!(await livingBanner.getAttribute('class'))?.includes('weather-snow')) throw new Error('Living Overworld did not consume real weather in auto mode');
-  if (!(await childOne.locator('.living-overworld-status').textContent())?.includes('Weather by Open-Meteo')) throw new Error('Living Overworld omitted weather attribution');
+  const livingStatus = await childOne.locator('.living-overworld-status').textContent();
+  if (!livingStatus?.includes('Weather by Open-Meteo')) throw new Error('Living Overworld omitted weather attribution');
+  if (!livingStatus.includes('-1°C · 30°F')) throw new Error(`Living Overworld omitted dual-unit temperature: ${livingStatus}`);
   const livingControlLayout = await childOne.evaluate(() => ({
     toolbarTop: document.querySelector('.living-overworld-toolbar')!.getBoundingClientRect().top,
     sceneBottom: document.querySelector('.living-overworld-banner')!.getBoundingClientRect().bottom
@@ -507,24 +509,35 @@ try {
     await childOne.locator('.living-overworld-proof-controls summary').click();
   }
   await childOne.getByLabel('Living Overworld weather proof').selectOption('clear');
+  await childOne.getByLabel('Living Overworld weather proof').selectOption('partly-cloudy');
+  await childOne.waitForTimeout(900);
+  const partlyClouds = await childOne.locator('.living-overworld-cloud').evaluateAll((clouds) => clouds.filter((cloud) => Number.parseFloat(getComputedStyle(cloud).opacity) > 0).length);
+  await childOne.getByLabel('Living Overworld weather proof').selectOption('cloudy');
+  await childOne.waitForTimeout(900);
+  const cloudyClouds = await childOne.locator('.living-overworld-cloud').evaluateAll((clouds) => clouds.filter((cloud) => Number.parseFloat(getComputedStyle(cloud).opacity) > 0).length);
+  if (partlyClouds !== 2 || cloudyClouds !== 6) throw new Error(`Living Overworld cloud density is invalid: partly=${partlyClouds}, cloudy=${cloudyClouds}`);
   await childOne.getByLabel('Living Overworld weather proof').selectOption('snow');
   const snowProof = await childOne.locator('.living-overworld-snow.snow-near').evaluate((element) => ({
-    display: getComputedStyle(element).display, animation: getComputedStyle(element).animationName
+    display: getComputedStyle(element).display,
+    particleCount: element.querySelectorAll('i').length,
+    animation: getComputedStyle(element.querySelector('i')!).animationName
   }));
-  if (snowProof.display === 'none' || !snowProof.animation.includes('living-snow-fall')) throw new Error(`Living Overworld snow proof is inactive: ${JSON.stringify(snowProof)}`);
+  if (snowProof.display === 'none' || snowProof.particleCount < 20 || !snowProof.animation.includes('living-snow-flake')) throw new Error(`Living Overworld snow proof is inactive: ${JSON.stringify(snowProof)}`);
   await childOne.getByLabel('Living Overworld weather proof').selectOption('fog');
   await childOne.getByLabel('Living Overworld light proof').selectOption('night');
   await childOne.locator('.living-overworld-proof-controls summary').click();
   await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-fog-night-desktop.png'), fullPage: true });
   await childOne.locator('.living-overworld-proof-controls summary').click();
-  if (await childOne.locator('.living-overworld-fog').evaluate((element) => getComputedStyle(element).display) === 'none') throw new Error('Living Overworld fog proof is inactive');
+  const fogProof = await childOne.locator('.living-overworld-fog').evaluate((element) => ({ display: getComputedStyle(element).display, wisps: element.querySelectorAll('i').length }));
+  if (fogProof.display === 'none' || fogProof.wisps !== 5) throw new Error(`Living Overworld fog proof is inactive: ${JSON.stringify(fogProof)}`);
   await childOne.getByLabel('Living Overworld light proof').selectOption('day');
   await childOne.getByLabel('Living Overworld weather proof').selectOption('rain');
   const rainAnimation = await childOne.locator('.living-overworld-rain.rain-near').evaluate((element) => ({
     display: getComputedStyle(element).display,
-    animation: getComputedStyle(element).animationName
+    particleCount: element.querySelectorAll('i').length,
+    animation: getComputedStyle(element.querySelector('i')!).animationName
   }));
-  if (rainAnimation.display === 'none' || !rainAnimation.animation.includes('living-rain-fall')) {
+  if (rainAnimation.display === 'none' || rainAnimation.particleCount < 30 || !rainAnimation.animation.includes('living-rain-drop')) {
     throw new Error(`Living Overworld rain proof is inactive: ${JSON.stringify(rainAnimation)}`);
   }
   await childOne.getByRole('button', { name: 'Pause motion' }).click();

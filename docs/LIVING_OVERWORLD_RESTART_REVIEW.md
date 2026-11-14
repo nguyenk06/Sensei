@@ -1,6 +1,6 @@
 # Living Overworld restart — Product Owner review
 
-Status: **Product Owner accepted release milestone.** Autumn and winter are integrated; weather refinement remains deferred.
+Status: **Product Owner accepted release milestone.** Autumn and winter are integrated, and the follow-up atmosphere refinement is implemented and verified.
 
 ## What changed
 
@@ -34,9 +34,9 @@ The autumn and winter images are accepted responsive artwork. Each season has a 
 - The generated images are lossless PNGs and need production-format optimization after visual acceptance.
 - Desktop uses dedicated zoomed-out crop masters so the shallow 1920px and ultrawide banners retain sky, foreground, and complete focal structures without stretching.
 - Creatures and all object-level terrain behavior are absent by design.
-- No new stars, shooting stars, comets, accumulation, or environmental simulation was implemented.
+- No accumulation or persistent environmental simulation was implemented. Evening/night stars and rare downward comets and meteors are lightweight presentation layers only.
 - Artwork acceptance and any final-art production remain Product Owner decisions.
 
 ## Next milestone
 
-Rain and fog treatment remain intentionally unaccepted. The next bounded milestone should refine weather visuals and mobile particle scale without reopening the seasonal composition or retired modular architecture.
+The follow-up atmosphere milestone replaces repeating weather sheets with fine independent rain drops, slow independent snow, and irregular ground fog wisps. Cloudy weather now increases cloud-bank count, temperatures show Celsius and Fahrenheit, autumn alpha edges no longer produce a colored halo against dark skies, and mobile uses shorter particle paths and reduced density. The seasonal composition and retired modular architecture remain unchanged.

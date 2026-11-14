@@ -6,11 +6,13 @@ Handoff date: November 14, 2026.
 
 The Product Owner accepted the mobile-first autumn and winter compositions. Living Overworld now uses one cohesive illustration per season and responsive mobile/desktop masters rather than the retired coordinate-based modular renderer. The cleanup audit removed the renderer, editor, experimental layouts, obsolete modular assets, and the final four capture scripts that referenced them.
 
-The active stack is intentionally narrow: atmospheric sky; sun, phased moon, and clouds; the seasonal illustration; then independent lighting and weather layers. Celestial objects can pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creatures and foreground scenery remain deferred.
+The active stack is intentionally narrow: atmospheric sky; sun, phased moon, clouds and rare night-sky events; the seasonal illustration; then independent lighting and weather layers. Celestial objects and sky events pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creatures and foreground scenery remain deferred.
 
-Release-candidate verification passed 50 automated tests, client/server TypeScript checks, the production build, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms responsive artwork selection, readable night presentation, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
+The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presentation, fine vertical rain, slow independent snow, irregular drifting fog wisps, Celsius/Fahrenheit display, slowly rotating evening/night stars, and rare downward comets and meteors. Autumn alpha edges were tightened to remove the halo visible against dark weather skies.
 
-The next bounded Living Overworld milestone is weather presentation, especially rain and fog. Do not restart landscape architecture or infer approval for creature or foreground work.
+Release-candidate verification passed 51 automated tests, client/server TypeScript checks, the production build, the isolated visual harness, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms responsive artwork selection, weather particles, readable night presentation, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
+
+No additional Living Overworld milestone is inferred. Spring/summer artwork, creatures, foreground scenery, accumulation, and environmental simulation remain deferred until explicitly authorized.
 
 ## Authoritative baseline
 
@@ -83,7 +85,7 @@ The current household application release is `b8b4816`, containing the accepted 
 
 ## Remaining planner items
 
-1. The next approved planning target is Living Overworld weather presentation, particularly rain and fog; it is not part of this seasonal-art milestone.
+1. Living Overworld atmosphere refinement is complete; do not infer approval for additional seasons, creatures, foreground scenery, or environmental simulation.
 2. Spring and summer artwork, foreground scenery, and creatures require separate Product Owner approval.
 3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
 4. Preserve the existing production backup and rollback practice for future releases.

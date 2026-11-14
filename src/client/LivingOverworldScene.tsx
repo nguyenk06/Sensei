@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import type { OverworldWeatherAppearance, OverworldWeatherResponse } from '../shared/types';
 
 export type LivingSeason = 'spring' | 'summer' | 'autumn' | 'winter';
@@ -19,6 +19,7 @@ const synodicMonthDays = 29.530588853;
 interface LivingSeasonBlend { primary: LivingSeason; adjacent: LivingSeason | null; adjacentOpacity: number }
 export interface LivingSeasonArtwork { mobile: string; desktop: string }
 export interface LivingCelestialTrack { body: 'sun' | 'moon'; progress: number; topPercent: number }
+type AtmosphereStyle = CSSProperties & Record<`--${string}`, string>;
 
 const celestialHorizonPercent = 72;
 const celestialApexPercent = -10;
@@ -143,6 +144,38 @@ function title(value: string): string {
   return value.replace(/(^|-)(\w)/g, (_match, dash: string, letter: string) => `${dash ? ' ' : ''}${letter.toUpperCase()}`);
 }
 
+function atmosphereStyle(index: number, count: number, kind: 'star' | 'rain-far' | 'rain-near' | 'snow-far' | 'snow-near'): AtmosphereStyle {
+  const offset = (index * 47 + (index % 7) * 19) % 101;
+  if (kind === 'star') return {
+    left: `${4 + ((index * 37) % 92)}%`, top: `${3 + ((index * 53) % 73)}%`,
+    '--size': `${index % 13 === 0 ? 3 : index % 5 === 0 ? 2 : 1}px`,
+    '--glow': `${index % 13 === 0 ? 7 : index % 5 === 0 ? 4 : 2}px`,
+    '--alpha': `${.42 + (index % 6) * .09}`
+  };
+  if (kind.startsWith('rain')) {
+    const near = kind === 'rain-near';
+    return {
+      left: `${(index * 83 + offset) % 103}%`, top: '-12%',
+      '--length': `${near ? 11 + (index % 5) * 3 : 6 + (index % 4) * 2}px`,
+      '--duration': `${near ? 1.12 + (index % 7) * .08 : 1.48 + (index % 9) * .1}s`,
+      '--delay': `${-(index / count) * 2.4}s`, '--drift': `${(index % 5) - 2}px`,
+      '--alpha': `${near ? .43 + (index % 4) * .08 : .22 + (index % 4) * .06}`
+    };
+  }
+  const near = kind === 'snow-near';
+  return {
+    left: `${(index * 71 + offset) % 102}%`, top: '-14%',
+    '--size': `${near ? 3 + (index % 4) * 1.2 : 1.5 + (index % 3) * .8}px`,
+    '--duration': `${near ? 25 + (index % 8) * 2 : 34 + (index % 9) * 2.2}s`,
+    '--delay': `${-(index / count) * 31}s`, '--drift': `${-14 + (index % 7) * 5}px`,
+    '--alpha': `${near ? .62 + (index % 4) * .08 : .38 + (index % 4) * .07}`
+  };
+}
+
+function AtmosphereParticles({ kind, count }: { kind: 'star' | 'rain-far' | 'rain-near' | 'snow-far' | 'snow-near'; count: number }) {
+  return <>{Array.from({ length: count }, (_unused, index) => <i key={index} style={atmosphereStyle(index, count, kind)} />)}</>;
+}
+
 export function LivingOverworldScene() {
   const [seasonOverride, setSeasonOverride] = useState<Override<LivingSeason>>('auto');
   const [lightOverride, setLightOverride] = useState<Override<LivingLight>>('auto');
@@ -196,7 +229,8 @@ export function LivingOverworldScene() {
   const toolbar = <div className="living-overworld-toolbar">
     <div className="living-overworld-status" aria-live="polite">
       <strong>{title(season)} · {title(light)}</strong>
-      <span>{title(weatherAppearance)}{weather?.temperatureC !== null && weather?.temperatureC !== undefined ? ` · ${Math.round(weather.temperatureC)}°C` : ''}</span>
+      <span>{title(weatherAppearance)}{weather?.temperatureC !== null && weather?.temperatureC !== undefined
+        ? ` · ${Math.round(weather.temperatureC)}°C · ${Math.round(weather.temperatureC * 9 / 5 + 32)}°F` : ''}</span>
       {weather?.stale && <em>{weather.source === 'cache' ? 'Last known weather' : 'Neutral weather fallback'}</em>}
       <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
     </div>
@@ -220,13 +254,18 @@ export function LivingOverworldScene() {
 
   return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
-      <div className="living-overworld-sky" /><div className="living-overworld-sun" style={{ top: `${celestialTop}%` }} />
+      <div className="living-overworld-sky" /><div className="living-overworld-stars"><AtmosphereParticles kind="star" count={64} /></div>
+      <div className="living-overworld-sky-events"><i className="living-overworld-comet" /><i className="living-overworld-meteor" /></div>
+      <div className="living-overworld-sun" style={{ top: `${celestialTop}%` }} />
       <div className={`living-overworld-moon phase-${moonPhase}`} style={{ top: `${celestialTop}%` }}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
-      <div className="living-overworld-cloud cloud-a"><i /><i /><i /></div><div className="living-overworld-cloud cloud-b"><i /><i /><i /></div><div className="living-overworld-cloud cloud-c"><i /><i /><i /></div>
+      {['a', 'b', 'c', 'd', 'e', 'f'].map((cloud) => <div key={cloud} className={`living-overworld-cloud cloud-${cloud}`}><i /><i /><i /></div>)}
       <SeasonArtwork artwork={primaryIllustration} />
       {adjacentIllustration && adjacentIllustration !== primaryIllustration && <SeasonArtwork artwork={adjacentIllustration} adjacentOpacity={blend.adjacentOpacity} />}
-      <div className="living-overworld-rain rain-far" /><div className="living-overworld-rain rain-near" /><div className="living-overworld-snow snow-far" /><div className="living-overworld-snow snow-near" />
-      <div className="living-overworld-fog"><i /><i /><i /></div><div className="living-overworld-daylight" />
+      <div className="living-overworld-rain rain-far"><AtmosphereParticles kind="rain-far" count={86} /></div>
+      <div className="living-overworld-rain rain-near"><AtmosphereParticles kind="rain-near" count={52} /></div>
+      <div className="living-overworld-snow snow-far"><AtmosphereParticles kind="snow-far" count={46} /></div>
+      <div className="living-overworld-snow snow-near"><AtmosphereParticles kind="snow-near" count={32} /></div>
+      <div className="living-overworld-fog"><i /><i /><i /><i /><i /></div><div className="living-overworld-daylight" />
     </div>
   </section>{toolbar}</>;
 }

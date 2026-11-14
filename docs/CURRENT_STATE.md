@@ -19,17 +19,20 @@ Implemented and verified:
 - Morning, day, evening, and night lighting using the existing Seattle-area sunrise/sunset response plus deterministic fallback periods.
 - A detailed round moon with eight deterministic phases, plus a reduced-size sun; celestial bodies and clouds render behind the seasonal scenery so mountains and structures can occlude them naturally.
 - Actual cached Open-Meteo appearance data driving clear, partly cloudy, cloudy, rain, snow, and fog treatments, with stale and neutral-fallback status.
+- Partly cloudy and cloudy states differ by visible cloud-bank density rather than darkness alone. Rain uses independently timed, nearly vertical fine drops; snow uses independently timed soft flakes with slow drift; fog uses overlapping ground-level wisps that can temporarily veil terrain and the retreat.
+- Temperatures are presented in Celsius and Fahrenheit. Evening and night add a slowly rotating varied star field, while rare downward comets and meteors remain behind the seasonal illustration.
+- Autumn mobile and desktop alpha edges were tightened to remove the colored halo visible against darker weather skies.
 - Seven-day adjacent-season transitions with controlled image mounting and responsive artwork selection.
 - Spring and summer intentionally fall back to autumn artwork until separate seasonal artwork is approved.
 - Creatures and foreground scenery are absent from this simplified renderer and deferred to a later bounded milestone.
-- 50 automated tests, TypeScript checks, production build, and all 35 isolated browser QA workflows pass at this milestone.
+- 51 automated tests, TypeScript checks, production build, the isolated visual harness, and all 35 isolated browser QA workflows pass at this milestone.
 
 Intentionally outside this milestone:
 
 - Persistent snow accumulation, environmental simulation, and generalized wind response.
 - Continuous celestial travel and asset-format conversion.
 - Creature and foreground layers, creature interaction, game mechanics, pathfinding, and chore-triggered scenery reactions.
-- Final rain and fog art direction. The existing functional weather layer remains available, but visual refinement is the next planned milestone.
+- Additional Product Owner-directed weather tuning beyond the current accepted rain, snow, fog, and cloud treatments.
 
 This seasonal-art milestone changes only client presentation and repository documentation. It introduces no schema, API, authentication, accounting, dependency, port, firewall, or startup change. Release evidence and the cleanup inventory are recorded in the [restart review](LIVING_OVERWORLD_RESTART_REVIEW.md).
 
@@ -87,7 +90,7 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Verification baseline
 
-- 50 automated tests pass across eight test files.
+- 51 automated tests pass across eight test files.
 - TypeScript client and server checks pass.
 - Production build passes.
 - All 35 isolated browser workflows pass on desktop and 390 px mobile width.
