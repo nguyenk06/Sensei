@@ -79,7 +79,7 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 
 ## Production status
 
-The current `main` checkpoint is the household release, including Overworld Night Encounters. It was released through the existing scheduled-task mechanism after a SQLite-native backup and passed non-mutating health, database integrity/count, LAN binding, browser, weekly-board, History, Parent Mode entry, and live night-scene checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
+The current household application release is `b8b4816`, containing the accepted Living Overworld autumn/winter seasonal-art milestone. It was released through the existing scheduled-task mechanism after a verified SQLite-native online backup and passed non-mutating health, database integrity/count, LAN binding, browser, weekly-board, allowance, History, Parent Mode entry, all-theme, responsive-art, asset, and console checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
 
 ## Remaining planner items
 

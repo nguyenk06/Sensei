@@ -106,6 +106,8 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Repository status at this checkpoint
 
+The Living Overworld seasonal-art milestone is published and deployed from application release commit `b8b4816`. Deployment used a verified SQLite-native online backup, an exact production rebuild, and a restart of only the established `\Sensei - Household Server` task. Post-release verification confirmed the private-LAN health endpoint, seven-day household checklist, allowance history and balances, Parent Mode entry, collapsed History, all four themes, responsive autumn mobile/desktop assets, availability of both winter assets, a clean browser console, and unchanged SQLite integrity and table counts. No schema, API, accounting, authentication, dependency, port, firewall, startup, or household-record change occurred.
+
 The Overworld Night Encounters checkpoint is published and deployed to the existing household installation. Release used a verified SQLite-native backup, rebuilt the existing production assets, restarted only the established Sensei scheduled task, retained the private-LAN binding, and passed non-mutating health, database-integrity, browser, weekly-board, History, Parent Mode entry, and live night-scene checks. It changed no schema, dependency, business logic, network, startup, authentication, or household data.
 
 The full-calendar expected-chores correction is implemented, verified, published, and deployed. A live check confirmed the newly configured chore appears on its future November dates while the persisted week and occurrence counts remain unchanged. Deployment used a verified SQLite-native backup, required no schema migration, and restarted only the existing Sensei scheduled task.
