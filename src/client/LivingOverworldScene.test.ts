@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
 import {
-  livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
+  livingCelestialTrackFor, livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
   livingWeatherFor, moonPhaseFor
 } from './LivingOverworldScene';
 
@@ -55,6 +55,20 @@ describe('Living Overworld theme foundation', () => {
     expect(livingLightFor(new Date('2026-07-15T19:00:00Z'), null, null)).toBe('day');
     expect(livingLightFor(new Date('2026-07-16T02:00:00Z'), null, null)).toBe('evening');
     expect(livingLightFor(new Date('2026-07-16T07:00:00Z'), null, null)).toBe('night');
+  });
+
+  it('moves the celestial body vertically from the horizon through an off-screen apex', () => {
+    const sunrise = '2026-07-15T06:00';
+    const sunset = '2026-07-15T20:00';
+    const rising = livingCelestialTrackFor(new Date('2026-07-15T13:00:00Z'), sunrise, sunset);
+    const apex = livingCelestialTrackFor(new Date('2026-07-15T20:00:00Z'), sunrise, sunset);
+    const night = livingCelestialTrackFor(new Date('2026-07-16T08:00:00Z'), sunrise, sunset);
+    expect(rising).toMatchObject({ body: 'sun', progress: 0, topPercent: 72 });
+    expect(apex.body).toBe('sun');
+    expect(apex.topPercent).toBeCloseTo(-10, 5);
+    expect(night.body).toBe('moon');
+    expect(night.progress).toBeCloseTo(.5, 5);
+    expect(night.topPercent).toBeCloseTo(-10, 5);
   });
 
   it('uses real weather in auto mode and preserves preview overrides', () => {

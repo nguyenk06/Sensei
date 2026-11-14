@@ -18,6 +18,12 @@ const synodicMonthDays = 29.530588853;
 
 interface LivingSeasonBlend { primary: LivingSeason; adjacent: LivingSeason | null; adjacentOpacity: number }
 export interface LivingSeasonArtwork { mobile: string; desktop: string }
+export interface LivingCelestialTrack { body: 'sun' | 'moon'; progress: number; topPercent: number }
+
+const celestialHorizonPercent = 72;
+const celestialApexPercent = -10;
+const illustratedHorizonPercent = 55;
+const twilightBlendMinutes = 20;
 
 const autumnArtwork: LivingSeasonArtwork = {
   mobile: `${assetRoot}/seasons/autumn/mobile.png`,
@@ -84,15 +90,33 @@ export function livingLightFor(date: Date, sunrise: string | null, sunset: strin
   const rise = clockMinutes(sunrise);
   const set = clockMinutes(sunset);
   if (rise !== null && set !== null) {
-    if (current >= rise - 60 && current < rise + 120) return 'morning';
-    if (current >= rise + 120 && current < set - 120) return 'day';
-    if (current >= set - 120 && current < set + 60) return 'evening';
+    const daylightMinutes = set - rise;
+    const horizonRatio = (celestialHorizonPercent - illustratedHorizonPercent) / (celestialHorizonPercent - celestialApexPercent);
+    const horizonProgress = Math.asin(horizonRatio) / Math.PI;
+    const morningEnd = rise + horizonProgress * daylightMinutes + twilightBlendMinutes;
+    const eveningStart = set - horizonProgress * daylightMinutes - twilightBlendMinutes;
+    if (current >= rise - 60 && current < morningEnd) return 'morning';
+    if (current >= morningEnd && current < eveningStart) return 'day';
+    if (current >= eveningStart && current < set + 60) return 'evening';
     return 'night';
   }
   if (parts.hour >= 5 && parts.hour < 9) return 'morning';
   if (parts.hour >= 9 && parts.hour < 17) return 'day';
   if (parts.hour >= 17 && parts.hour < 21) return 'evening';
   return 'night';
+}
+
+export function livingCelestialTrackFor(date: Date, sunrise: string | null, sunset: string | null): LivingCelestialTrack {
+  const parts = pacificParts(date);
+  const current = parts.hour * 60 + parts.minute;
+  const rise = clockMinutes(sunrise) ?? 6 * 60;
+  const set = clockMinutes(sunset) ?? 20 * 60;
+  const isDaylight = current >= rise && current < set;
+  const duration = isDaylight ? set - rise : (24 * 60 - set) + rise;
+  const elapsed = isDaylight ? current - rise : current >= set ? current - set : (24 * 60 - set) + current;
+  const progress = Math.max(0, Math.min(1, elapsed / duration));
+  const topPercent = celestialHorizonPercent - (celestialHorizonPercent - celestialApexPercent) * Math.sin(Math.PI * progress);
+  return { body: isDaylight ? 'sun' : 'moon', progress, topPercent };
 }
 
 export function livingWeatherFor(override: Override<OverworldWeatherAppearance>, weather: OverworldWeatherResponse | null): OverworldWeatherAppearance {
@@ -154,6 +178,10 @@ export function LivingOverworldScene() {
   const light = lightOverride === 'auto' ? livingLightFor(now, weather?.sunrise ?? null, weather?.sunset ?? null) : lightOverride;
   const weatherAppearance = livingWeatherFor(weatherOverride, weather);
   const moonPhase = moonOverride === 'auto' ? moonPhaseFor(now) : moonOverride;
+  const celestialTrack = livingCelestialTrackFor(now, weather?.sunrise ?? null, weather?.sunset ?? null);
+  const celestialTop = lightOverride === 'auto' ? celestialTrack.topPercent
+    : lightOverride === 'day' || lightOverride === 'night' ? celestialApexPercent
+      : illustratedHorizonPercent;
   const primaryIllustration = livingSeasonIllustrations[blend.primary];
   const adjacentIllustration = blend.adjacent ? livingSeasonIllustrations[blend.adjacent] : null;
 
@@ -181,8 +209,8 @@ export function LivingOverworldScene() {
 
   return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
-      <div className="living-overworld-sky" /><div className="living-overworld-sun" />
-      <div className={`living-overworld-moon phase-${moonPhase}`}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
+      <div className="living-overworld-sky" /><div className="living-overworld-sun" style={{ top: `${celestialTop}%` }} />
+      <div className={`living-overworld-moon phase-${moonPhase}`} style={{ top: `${celestialTop}%` }}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
       <div className="living-overworld-cloud cloud-a"><i /><i /><i /></div><div className="living-overworld-cloud cloud-b"><i /><i /><i /></div><div className="living-overworld-cloud cloud-c"><i /><i /><i /></div>
       <SeasonArtwork artwork={primaryIllustration} />
       {adjacentIllustration && adjacentIllustration !== primaryIllustration && <SeasonArtwork artwork={adjacentIllustration} adjacentOpacity={blend.adjacentOpacity} />}

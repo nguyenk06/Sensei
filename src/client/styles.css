@@ -639,22 +639,21 @@ html[data-theme="living-overworld"] .weeksheet-heading {
   border-top: 9px solid #5f9e42; box-shadow: inset 0 4px #9cd46c;
 }
 
-.living-overworld-banner { position:relative; isolation:isolate; display:block; height:clamp(250px,16vw,300px); overflow:hidden; background:#66bdf0; border-bottom:7px solid #4b8c32; box-shadow:0 5px 0 #73563a; }
+.living-overworld-banner { position:relative; isolation:isolate; display:block; height:clamp(330px,21vw,380px); overflow:hidden; background:#66bdf0; border-bottom:7px solid #4b8c32; box-shadow:0 5px 0 #73563a; }
 .living-overworld-scene { position:absolute; inset:0; overflow:hidden; background:#68bef1; contain:paint; }
-.living-overworld-background { position:absolute; z-index:3; inset:0; width:100%; height:100%; pointer-events:none; user-select:none; transition:filter 1.1s ease,opacity 1.1s ease; }
+.living-overworld-background { position:absolute; z-index:3; inset:0; width:100%; height:100%; pointer-events:none; user-select:none; transition:filter 8s ease,opacity 1.1s ease; }
 .living-overworld-background img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 58%; }
 .adjacent-season-background { will-change:opacity; }
-.living-overworld-sky { position:absolute; z-index:0; inset:0; pointer-events:none; background:linear-gradient(180deg,#4c9ed1,#8bd2ef 74%,#d6edf1); transition:background .8s ease; }
+.living-overworld-sky { position:absolute; z-index:0; inset:0; pointer-events:none; background:linear-gradient(180deg,#4c9ed1,#8bd2ef 74%,#d6edf1); transition:background 8s ease; }
 .light-morning .living-overworld-sky { background:linear-gradient(180deg,#5f84ab,#efb488 62%,#ffe0a5); }
 .light-evening .living-overworld-sky { background:linear-gradient(180deg,#29395e,#9d5971 55%,#f29a68); }
 .light-night .living-overworld-sky { background:radial-gradient(circle at 8% 17%,#fff 0 1px,transparent 2px),radial-gradient(circle at 24% 34%,#bedaff 0 1px,transparent 2px),radial-gradient(circle at 44% 12%,#fff 0 1px,transparent 2px),radial-gradient(circle at 69% 27%,#cae1ff 0 1px,transparent 2px),linear-gradient(180deg,#030b21,#122c52 65%,#36516d); background-size:148px 104px,190px 136px,226px 154px,174px 128px,100% 100%; }
 .light-morning .living-overworld-background { filter:brightness(.94) saturate(.9) sepia(.04); }
 .light-evening .living-overworld-background { filter:brightness(.78) saturate(.9) sepia(.1) hue-rotate(-5deg); }
 .light-night .living-overworld-background { filter:brightness(.48) saturate(.76) hue-rotate(8deg); }
-.living-overworld-sun { position:absolute; z-index:1; top:28%; left:50%; width:clamp(34px,2.4vw,48px); aspect-ratio:1; translate:-50% -50%; border-radius:50%; background:#fff09b; border:5px solid #ffd65b; box-shadow:0 0 0 6px rgba(255,232,116,.18),0 0 34px 13px rgba(255,239,153,.48),inset 5px 5px rgba(255,255,255,.25); }
-.light-morning .living-overworld-sun { top:38%; left:46%; }
-.light-evening .living-overworld-sun { top:35%; left:54%; background:#ffd18a; border-color:#f49a4f; }
-.living-overworld-moon { display:none; position:absolute; z-index:1; top:30%; left:50%; width:clamp(64px,5.2vw,82px); aspect-ratio:1; translate:-50% -50%; overflow:hidden; border-radius:50%; filter:drop-shadow(0 0 9px rgba(218,232,255,.52)) drop-shadow(0 0 25px rgba(162,199,244,.38)); }
+.living-overworld-sun { position:absolute; z-index:1; top:28%; left:50%; width:clamp(34px,2.4vw,48px); aspect-ratio:1; translate:-50% -50%; border-radius:50%; background:#fff09b; border:5px solid #ffd65b; box-shadow:0 0 0 6px rgba(255,232,116,.18),0 0 34px 13px rgba(255,239,153,.48),inset 5px 5px rgba(255,255,255,.25); transition:top 60s linear,background 8s ease,border-color 8s ease; }
+.light-evening .living-overworld-sun { background:#ffd18a; border-color:#f49a4f; }
+.living-overworld-moon { display:none; position:absolute; z-index:1; top:30%; left:50%; width:clamp(64px,5.2vw,82px); aspect-ratio:1; translate:-50% -50%; overflow:hidden; border-radius:50%; filter:drop-shadow(0 0 9px rgba(218,232,255,.52)) drop-shadow(0 0 25px rgba(162,199,244,.38)); transition:top 60s linear; }
 .living-overworld-moon img { display:block; width:100%; height:100%; object-fit:contain; }
 .living-overworld-moon::after { content:""; position:absolute; z-index:2; top:0; bottom:0; background:rgba(4,16,42,.91); }
 .phase-new::after { inset:0; border-radius:50%; } .phase-waxing-crescent::after { left:-9%; width:82%; border-radius:50%; } .phase-first-quarter::after { left:0; width:50%; border-radius:50% 0 0 50%; } .phase-waxing-gibbous::after { left:-18%; width:43%; border-radius:50%; } .phase-full::after { display:none; } .phase-waning-gibbous::after { right:-18%; width:43%; border-radius:50%; } .phase-last-quarter::after { right:0; width:50%; border-radius:0 50% 50% 0; } .phase-waning-crescent::after { right:-9%; width:82%; border-radius:50%; }
@@ -664,7 +663,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .living-overworld-cloud i:nth-child(1) { left:0; bottom:0; width:118px; } .living-overworld-cloud i:nth-child(2) { left:24px; bottom:17px; width:58px; } .living-overworld-cloud i:nth-child(3) { left:74px; bottom:8px; width:72px; }
 .cloud-a { left:34%; top:17%; width:150px; } .cloud-b { left:82%; top:30%; width:150px; transform:scale(.72); } .cloud-c { left:6%; top:31%; width:150px; transform:scale(.62); }
 .weather-partly-cloudy .living-overworld-cloud { opacity:.55; } .weather-cloudy .living-overworld-cloud { opacity:.82; filter:brightness(.78) saturate(.55); } .weather-rain .living-overworld-cloud,.weather-snow .living-overworld-cloud { opacity:.76; filter:brightness(.68) saturate(.52); } .weather-fog .living-overworld-cloud { opacity:.42; }
-.living-overworld-daylight { position:absolute; z-index:7; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(72,135,83,.04)); }
+.living-overworld-daylight { position:absolute; z-index:7; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(72,135,83,.04)); transition:background 8s ease; }
 .light-night .living-overworld-daylight { background:linear-gradient(180deg,rgba(5,16,42,.08),rgba(5,25,48,.24)); mix-blend-mode:multiply; }
 .living-overworld-rain,.living-overworld-snow { display:none; position:absolute; z-index:8; inset:-18% -7%; pointer-events:none; }
 .weather-rain .living-overworld-rain { display:block; }
