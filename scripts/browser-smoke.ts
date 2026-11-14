@@ -561,7 +561,8 @@ try {
   if (await childOne.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld theme did not persist after refresh');
   await childOne.evaluate(() => history.replaceState(null, '', '/'));
   await childOne.reload({ waitUntil: 'networkidle' });
-  if (await childOne.locator('.living-overworld-proof-controls').count() !== 0) throw new Error('Living Overworld preview controls are visible without the preview flag');
+  if (await childOne.locator('.living-overworld-proof-controls').count() !== 1) throw new Error('Living Overworld scene controls are unavailable');
+  if ((await childOne.locator('.living-overworld-proof-controls summary').innerText()).trim() !== 'Scene controls') throw new Error('Living Overworld scene controls are mislabeled');
   if (await childOne.getByRole('button', { name: /motion/ }).count() !== 1) throw new Error('Living Overworld motion control is not user-facing');
 
   await childTwo.evaluate(() => history.replaceState(null, '', '?living-preview=1'));

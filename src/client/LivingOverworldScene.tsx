@@ -105,10 +105,6 @@ async function loadWeather(): Promise<OverworldWeatherResponse> {
   return response.json() as Promise<OverworldWeatherResponse>;
 }
 
-function previewEnabled(): boolean {
-  try { return new URLSearchParams(window.location.search).get('living-preview') === '1'; } catch { return false; }
-}
-
 function storedMotionPreference(): boolean {
   try { return localStorage.getItem(motionStorageKey) !== 'off'; } catch { return true; }
 }
@@ -133,7 +129,6 @@ export function LivingOverworldScene() {
   const [motionEnabled, setMotionEnabled] = useState(storedMotionPreference);
   const [reducedMotion, setReducedMotion] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [pageVisible, setPageVisible] = useState(!document.hidden);
-  const [showPreview] = useState(previewEnabled);
 
   useEffect(() => {
     const query = matchMedia('(prefers-reduced-motion: reduce)');
@@ -176,12 +171,12 @@ export function LivingOverworldScene() {
       <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
     </div>
     <button className="living-overworld-motion-control" type="button" aria-pressed={!motionEnabled} onClick={toggleMotion}>{motionEnabled ? 'Pause motion' : 'Resume motion'}</button>
-    {showPreview && <details className="living-overworld-proof-controls"><summary>Scene proof</summary><div>
+    <details className="living-overworld-proof-controls"><summary>Scene controls</summary><div>
       <label>Season<select aria-label="Living Overworld season" value={seasonOverride} onChange={(event) => setSeasonOverride(event.target.value as Override<LivingSeason>)}><option value="auto">Auto</option>{seasons.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Light<select aria-label="Living Overworld light proof" value={lightOverride} onChange={(event) => setLightOverride(event.target.value as Override<LivingLight>)}><option value="auto">Auto</option>{lightPeriods.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Weather<select aria-label="Living Overworld weather proof" value={weatherOverride} onChange={(event) => setWeatherOverride(event.target.value as Override<OverworldWeatherAppearance>)}><option value="auto">Auto</option>{weatherAppearances.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Moon<select aria-label="Living Overworld moon phase" value={moonOverride} onChange={(event) => setMoonOverride(event.target.value as MoonOverride)}><option value="auto">Auto</option>{moonPhases.map((phase) => <option key={phase} value={phase}>{title(phase)}</option>)}</select></label>
-    </div></details>}
+    </div></details>
   </div>;
 
   return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>

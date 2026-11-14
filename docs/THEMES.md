@@ -61,6 +61,7 @@ Living Overworld uses cohesive seasonal illustrations. Each season is one comple
 - Autumn and winter are accepted seasonal masters. Spring and summer temporarily fall back to autumn until separate artwork is approved.
 - The scene is 250–300 CSS pixels tall on desktop and 170 pixels on mobile, with controls outside the scenic area.
 - The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
+- Scene controls remain available beside the motion control for temporary season, lighting, weather, and moon-phase overrides; `Auto` restores live behavior.
 - Creatures and modular terrain placement are intentionally absent from this replacement foundation.
 - Rain and fog remain functional existing overlays, but their next visual refinement is explicitly deferred.
 
