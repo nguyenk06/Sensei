@@ -6,11 +6,6 @@ export type LivingLight = 'morning' | 'day' | 'evening' | 'night';
 type Override<T extends string> = T | 'auto';
 export type MoonPhase = 'new' | 'waxing-crescent' | 'first-quarter' | 'waxing-gibbous' | 'full' | 'waning-gibbous' | 'last-quarter' | 'waning-crescent';
 type MoonOverride = MoonPhase | 'auto';
-export type LivingCreatureSpecies = 'sheep' | 'pig' | 'cow' | 'chicken' | 'axolotl';
-export interface LivingCreature {
-  species: LivingCreatureSpecies;
-  habitat: 'meadow-left' | 'shore-center' | 'retreat-bank' | 'lake';
-}
 
 const assetRoot = '/assets/living-overworld';
 const motionStorageKey = 'sensei-living-overworld-motion';
@@ -21,16 +16,32 @@ const moonPhases: MoonPhase[] = ['new', 'waxing-crescent', 'first-quarter', 'wax
 const newMoonEpoch = Date.parse('2000-01-06T18:14:00Z');
 const synodicMonthDays = 29.530588853;
 
-type SceneAssets = readonly [mountains: string, terrain: string, water: string, retreat: string, vegetation: string];
 interface LivingSeasonBlend { primary: LivingSeason; adjacent: LivingSeason | null; adjacentOpacity: number }
-const summerAssets: SceneAssets = [`${assetRoot}/distant-mountains-v2.png`, `${assetRoot}/terrain.png`, `${assetRoot}/water.png`, `${assetRoot}/retreat.png`, `${assetRoot}/foreground-vegetation.png`];
+export interface LivingSeasonArtwork { mobile: string; desktop: string }
 
-export const livingOverworldAssets: Record<LivingSeason, SceneAssets> = {
-  spring: [summerAssets[0], `${assetRoot}/seasons/spring/terrain.png`, summerAssets[2], summerAssets[3], `${assetRoot}/seasons/spring/foreground-vegetation.png`],
-  summer: summerAssets,
-  autumn: [summerAssets[0], `${assetRoot}/seasons/autumn/terrain.png`, summerAssets[2], summerAssets[3], `${assetRoot}/seasons/autumn/foreground-vegetation.png`],
-  winter: [`${assetRoot}/seasons/winter/distant-mountains.png`, `${assetRoot}/seasons/winter/terrain.png`, `${assetRoot}/seasons/winter/water.png`, `${assetRoot}/seasons/winter/retreat.png`, `${assetRoot}/seasons/winter/foreground-vegetation.png`]
+const autumnArtwork: LivingSeasonArtwork = {
+  mobile: `${assetRoot}/seasons/autumn/mobile.png`,
+  desktop: `${assetRoot}/seasons/autumn/desktop.png`
 };
+const winterArtwork: LivingSeasonArtwork = {
+  mobile: `${assetRoot}/seasons/winter/mobile.png`,
+  desktop: `${assetRoot}/seasons/winter/desktop.png`
+};
+
+/** Spring and summer intentionally retain the approved autumn fallback until their own artwork milestone. */
+export const livingSeasonIllustrations: Record<LivingSeason, LivingSeasonArtwork> = {
+  spring: autumnArtwork,
+  summer: autumnArtwork,
+  autumn: autumnArtwork,
+  winter: winterArtwork
+};
+
+function SeasonArtwork({ artwork, adjacentOpacity }: { artwork: LivingSeasonArtwork; adjacentOpacity?: number }) {
+  return <picture className={`living-overworld-background${adjacentOpacity === undefined ? '' : ' adjacent-season-background'}`} style={adjacentOpacity === undefined ? undefined : { opacity: adjacentOpacity }}>
+    <source media="(max-width: 700px)" srcSet={artwork.mobile} />
+    <img src={artwork.desktop} alt="" />
+  </picture>;
+}
 
 function pacificParts(date: Date): { year: number; month: number; day: number; hour: number; minute: number } {
   const values = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
@@ -50,18 +61,14 @@ export function livingSeasonBlendFor(date: Date): LivingSeasonBlend {
   const dayValue = Date.UTC(parts.year, parts.month - 1, parts.day);
   const oneDay = 86_400_000;
   const boundaries: Array<{ month: number; day: number; from: LivingSeason; to: LivingSeason }> = [
-    { month: 3, day: 1, from: 'winter', to: 'spring' },
-    { month: 6, day: 1, from: 'spring', to: 'summer' },
-    { month: 9, day: 1, from: 'summer', to: 'autumn' },
-    { month: 12, day: 1, from: 'autumn', to: 'winter' }
+    { month: 3, day: 1, from: 'winter', to: 'spring' }, { month: 6, day: 1, from: 'spring', to: 'summer' },
+    { month: 9, day: 1, from: 'summer', to: 'autumn' }, { month: 12, day: 1, from: 'autumn', to: 'winter' }
   ];
   for (const boundary of boundaries) {
     const center = Date.UTC(parts.year, boundary.month - 1, boundary.day);
     const start = center - 7 * oneDay;
     const end = center + 7 * oneDay;
-    if (dayValue >= start && dayValue <= end) {
-      return { primary: boundary.from, adjacent: boundary.to, adjacentOpacity: (dayValue - start) / (end - start) };
-    }
+    if (dayValue >= start && dayValue <= end) return { primary: boundary.from, adjacent: boundary.to, adjacentOpacity: (dayValue - start) / (end - start) };
   }
   return { primary: livingSeasonFor(date), adjacent: null, adjacentOpacity: 0 };
 }
@@ -92,36 +99,6 @@ export function livingWeatherFor(override: Override<OverworldWeatherAppearance>,
   return override === 'auto' ? weather?.appearance ?? 'clear' : override;
 }
 
-export function livingCreaturePopulation(
-  season: LivingSeason,
-  light: LivingLight,
-  weather: OverworldWeatherAppearance
-): LivingCreature[] {
-  if (light === 'night') return [];
-
-  const seasonalLand: Record<LivingSeason, Array<Exclude<LivingCreatureSpecies, 'axolotl'>>> = {
-    spring: ['sheep', 'pig', 'chicken'],
-    summer: ['cow', 'pig', 'chicken'],
-    autumn: ['cow', 'sheep', 'chicken'],
-    winter: ['sheep', 'cow', 'chicken']
-  };
-  const weatherLimit: Record<OverworldWeatherAppearance, number> = {
-    clear: 3, 'partly-cloudy': 3, cloudy: 2, rain: 1, snow: 1, fog: 1
-  };
-  const lightLimit: Record<LivingLight, number> = { morning: 2, day: 3, evening: 1, night: 0 };
-  const habitats: LivingCreature['habitat'][] = ['meadow-left', 'shore-center', 'retreat-bank'];
-  const landCount = Math.min(weatherLimit[weather], lightLimit[light]);
-  const population: LivingCreature[] = seasonalLand[season].slice(0, landCount)
-    .map((species, index) => ({ species, habitat: habitats[index] }));
-
-  const axolotlActive = season !== 'winter'
-    && weather !== 'snow'
-    && weather !== 'fog'
-    && (light === 'morning' || light === 'day');
-  if (axolotlActive) population.push({ species: 'axolotl', habitat: 'lake' });
-  return population;
-}
-
 async function loadWeather(): Promise<OverworldWeatherResponse> {
   const response = await fetch('/api/overworld/weather');
   if (!response.ok) throw new Error('Weather unavailable');
@@ -129,19 +106,11 @@ async function loadWeather(): Promise<OverworldWeatherResponse> {
 }
 
 function previewEnabled(): boolean {
-  try {
-    return new URLSearchParams(window.location.search).get('living-preview') === '1';
-  } catch {
-    return false;
-  }
+  try { return new URLSearchParams(window.location.search).get('living-preview') === '1'; } catch { return false; }
 }
 
 function storedMotionPreference(): boolean {
-  try {
-    return localStorage.getItem(motionStorageKey) !== 'off';
-  } catch {
-    return true;
-  }
+  try { return localStorage.getItem(motionStorageKey) !== 'off'; } catch { return true; }
 }
 
 export function moonPhaseFor(date: Date): MoonPhase {
@@ -172,10 +141,7 @@ export function LivingOverworldScene() {
     const onVisibility = () => setPageVisible(!document.hidden);
     query.addEventListener('change', onMotion);
     document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      query.removeEventListener('change', onMotion);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
+    return () => { query.removeEventListener('change', onMotion); document.removeEventListener('visibilitychange', onVisibility); };
   }, []);
 
   useEffect(() => {
@@ -188,35 +154,18 @@ export function LivingOverworldScene() {
   }, []);
 
   const moving = motionEnabled && !reducedMotion && pageVisible;
-  const blend = useMemo<LivingSeasonBlend>(() => seasonOverride === 'auto'
-    ? livingSeasonBlendFor(now)
-    : { primary: seasonOverride, adjacent: null, adjacentOpacity: 0 }, [now, seasonOverride]);
+  const blend = useMemo<LivingSeasonBlend>(() => seasonOverride === 'auto' ? livingSeasonBlendFor(now) : { primary: seasonOverride, adjacent: null, adjacentOpacity: 0 }, [now, seasonOverride]);
   const season = blend.adjacent && blend.adjacentOpacity >= .5 ? blend.adjacent : blend.primary;
   const light = lightOverride === 'auto' ? livingLightFor(now, weather?.sunrise ?? null, weather?.sunset ?? null) : lightOverride;
   const weatherAppearance = livingWeatherFor(weatherOverride, weather);
   const moonPhase = moonOverride === 'auto' ? moonPhaseFor(now) : moonOverride;
-  const primaryAssets = livingOverworldAssets[blend.primary];
-  const adjacentAssets = blend.adjacent ? livingOverworldAssets[blend.adjacent] : null;
-  const creatures = livingCreaturePopulation(season, light, weatherAppearance);
+  const primaryIllustration = livingSeasonIllustrations[blend.primary];
+  const adjacentIllustration = blend.adjacent ? livingSeasonIllustrations[blend.adjacent] : null;
 
   function toggleMotion() {
     const next = !motionEnabled;
     setMotionEnabled(next);
-    try {
-      localStorage.setItem(motionStorageKey, next ? 'on' : 'off');
-    } catch {
-      // The preference still applies for this page when storage is unavailable.
-    }
-  }
-
-  function sceneLayer(index: number, className: string) {
-    const primary = primaryAssets[index];
-    const adjacent = adjacentAssets?.[index];
-    return <>
-      <img className={`living-overworld-layer living-season-layer ${className}`} src={primary} alt="" />
-      {adjacent && adjacent !== primary && <img className={`living-overworld-layer living-season-layer ${className} adjacent-season-layer`}
-        src={adjacent} alt="" style={{ opacity: blend.adjacentOpacity }} />}
-    </>;
+    try { localStorage.setItem(motionStorageKey, next ? 'on' : 'off'); } catch { /* Session state still works. */ }
   }
 
   const toolbar = <div className="living-overworld-toolbar">
@@ -226,77 +175,24 @@ export function LivingOverworldScene() {
       {weather?.stale && <em>{weather.source === 'cache' ? 'Last known weather' : 'Neutral weather fallback'}</em>}
       <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
     </div>
-    <button className="living-overworld-motion-control" type="button" aria-pressed={!motionEnabled} onClick={toggleMotion}>
-      {motionEnabled ? 'Pause motion' : 'Resume motion'}
-    </button>
-    {showPreview && <details className="living-overworld-proof-controls">
-      <summary>Scene proof</summary>
-      <div>
-        <label>Season
-          <select aria-label="Living Overworld season" value={seasonOverride}
-            onChange={(event) => setSeasonOverride(event.target.value as Override<LivingSeason>)}>
-            <option value="auto">Auto</option>
-            {seasons.map((value) => <option key={value} value={value}>{title(value)}</option>)}
-          </select>
-        </label>
-        <label>Light
-          <select aria-label="Living Overworld light proof" value={lightOverride}
-            onChange={(event) => setLightOverride(event.target.value as Override<LivingLight>)}>
-            <option value="auto">Auto</option>
-            {lightPeriods.map((value) => <option key={value} value={value}>{title(value)}</option>)}
-          </select>
-        </label>
-        <label>Weather
-          <select aria-label="Living Overworld weather proof" value={weatherOverride}
-            onChange={(event) => setWeatherOverride(event.target.value as Override<OverworldWeatherAppearance>)}>
-            <option value="auto">Auto</option>
-            {weatherAppearances.map((value) => <option key={value} value={value}>{title(value)}</option>)}
-          </select>
-        </label>
-        <label>Moon
-          <select aria-label="Living Overworld moon phase" value={moonOverride}
-            onChange={(event) => setMoonOverride(event.target.value as MoonOverride)}>
-            <option value="auto">Auto</option>
-            {moonPhases.map((phase) => <option key={phase} value={phase}>{title(phase)}</option>)}
-          </select>
-        </label>
-      </div>
-    </details>}
+    <button className="living-overworld-motion-control" type="button" aria-pressed={!motionEnabled} onClick={toggleMotion}>{motionEnabled ? 'Pause motion' : 'Resume motion'}</button>
+    {showPreview && <details className="living-overworld-proof-controls"><summary>Scene proof</summary><div>
+      <label>Season<select aria-label="Living Overworld season" value={seasonOverride} onChange={(event) => setSeasonOverride(event.target.value as Override<LivingSeason>)}><option value="auto">Auto</option>{seasons.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
+      <label>Light<select aria-label="Living Overworld light proof" value={lightOverride} onChange={(event) => setLightOverride(event.target.value as Override<LivingLight>)}><option value="auto">Auto</option>{lightPeriods.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
+      <label>Weather<select aria-label="Living Overworld weather proof" value={weatherOverride} onChange={(event) => setWeatherOverride(event.target.value as Override<OverworldWeatherAppearance>)}><option value="auto">Auto</option>{weatherAppearances.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
+      <label>Moon<select aria-label="Living Overworld moon phase" value={moonOverride} onChange={(event) => setMoonOverride(event.target.value as MoonOverride)}><option value="auto">Auto</option>{moonPhases.map((phase) => <option key={phase} value={phase}>{title(phase)}</option>)}</select></label>
+    </div></details>}
   </div>;
 
-  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`}
-    aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
+  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
-      <div className="living-overworld-sky" />
-      <div className="living-overworld-sun" />
-      <div className={`living-overworld-moon phase-${moonPhase}`}>
-        <img src={`${assetRoot}/moon-detailed.png`} alt="" />
-      </div>
-      <div className="living-overworld-cloud cloud-a"><i /><i /><i /></div>
-      <div className="living-overworld-cloud cloud-b"><i /><i /><i /></div>
-      <div className="living-overworld-cloud cloud-c"><i /><i /><i /></div>
-      <div className="living-overworld-world">
-        {sceneLayer(0, 'layer-mountains')}
-        {sceneLayer(1, 'layer-terrain')}
-        {sceneLayer(2, 'layer-water')}
-        {sceneLayer(3, 'layer-retreat')}
-        <div className="living-overworld-creatures">
-          {creatures.map((creature) => <i
-            key={creature.species}
-            className={`living-overworld-creature ${creature.species} habitat-${creature.habitat}`}
-            data-species={creature.species}
-          />)}
-        </div>
-        <div className="living-overworld-window-glow" />
-        {sceneLayer(4, 'layer-vegetation')}
-        <div className="living-overworld-wet-surface" />
-      </div>
-      <div className="living-overworld-rain rain-far" />
-      <div className="living-overworld-rain rain-near" />
-      <div className="living-overworld-snow snow-far" />
-      <div className="living-overworld-snow snow-near" />
-      <div className="living-overworld-fog"><i /><i /><i /></div>
-      <div className="living-overworld-daylight" />
+      <div className="living-overworld-sky" /><div className="living-overworld-sun" />
+      <div className={`living-overworld-moon phase-${moonPhase}`}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
+      <div className="living-overworld-cloud cloud-a"><i /><i /><i /></div><div className="living-overworld-cloud cloud-b"><i /><i /><i /></div><div className="living-overworld-cloud cloud-c"><i /><i /><i /></div>
+      <SeasonArtwork artwork={primaryIllustration} />
+      {adjacentIllustration && adjacentIllustration !== primaryIllustration && <SeasonArtwork artwork={adjacentIllustration} adjacentOpacity={blend.adjacentOpacity} />}
+      <div className="living-overworld-rain rain-far" /><div className="living-overworld-rain rain-near" /><div className="living-overworld-snow snow-far" /><div className="living-overworld-snow snow-near" />
+      <div className="living-overworld-fog"><i /><i /><i /></div><div className="living-overworld-daylight" />
     </div>
   </section>{toolbar}</>;
 }

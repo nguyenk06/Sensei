@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { chromium, type Page } from 'playwright-core';
 import { buildApp } from '../src/server/app.js';
-
 const mutationHeaders = { 'x-sensei-request': '1' };
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sensei-browser-'));
 const databasePath = path.join(tempDir, 'sensei.sqlite');
@@ -414,58 +413,49 @@ try {
   }));
   if (livingControlLayout.sceneBottom > livingControlLayout.toolbarTop + 1) throw new Error('Living Overworld controls overlap the scenic area');
   const livingBannerHeight = await livingBanner.evaluate((element) => element.getBoundingClientRect().height);
-  if (livingBannerHeight < 200 || livingBannerHeight > 260) throw new Error(`Living Overworld desktop height is invalid: ${livingBannerHeight}`);
+  if (livingBannerHeight < 250 || livingBannerHeight > 305) throw new Error(`Living Overworld desktop height is invalid: ${livingBannerHeight}`);
+  await childOne.waitForFunction(() => {
+    const image = document.querySelector<HTMLImageElement>('.living-overworld-background img');
+    return Boolean(image?.complete && image.naturalWidth > 0);
+  });
   const livingDesktopComposition = await childOne.evaluate(() => {
     const banner = document.querySelector('.living-overworld-banner')!.getBoundingClientRect();
-    const world = document.querySelector('.living-overworld-world')!.getBoundingClientRect();
+    const background = document.querySelector<HTMLImageElement>('.living-overworld-background img')!;
     const header = document.querySelector('.topbar')!.getBoundingClientRect();
     return {
-      worldAspectRatio: world.width / world.height,
+      backgroundLoaded: background.complete && background.naturalWidth === 2172 && background.naturalHeight === 724,
       headerOverlapsScene: header.bottom > banner.top,
       headerBackground: getComputedStyle(document.querySelector('.topbar')!).backgroundImage
     };
   });
-  if (livingDesktopComposition.worldAspectRatio < 2.9 || livingDesktopComposition.worldAspectRatio > 3.1
-    || !livingDesktopComposition.headerOverlapsScene || !livingDesktopComposition.headerBackground.includes('linear-gradient')) {
-    throw new Error(`Living Overworld desktop zoom or transparent header is invalid: ${JSON.stringify(livingDesktopComposition)}`);
-  }
-  await childOne.waitForFunction(() => Array.from(document.querySelectorAll<HTMLImageElement>('.living-overworld-layer'))
-    .every((image) => image.complete && image.naturalWidth > 0));
-  const livingAssetWidths = await livingBanner.locator('.living-overworld-layer')
-    .evaluateAll((elements) => elements.map((element) => (element as HTMLImageElement).naturalWidth));
-  if (livingAssetWidths.length !== 5 || livingAssetWidths.some((width) => width !== 2172)) {
-    throw new Error(`Living Overworld assets failed to load: ${JSON.stringify(livingAssetWidths)}`);
+  if (!livingDesktopComposition.backgroundLoaded || !livingDesktopComposition.headerOverlapsScene
+    || !livingDesktopComposition.headerBackground.includes('linear-gradient')) {
+    throw new Error(`Living Overworld desktop composition is invalid: ${JSON.stringify(livingDesktopComposition)}`);
   }
   const livingLayerOrder = await livingBanner.locator('.living-overworld-scene').evaluate((scene) => {
     return {
-      mountains: Number(getComputedStyle(scene.querySelector('.layer-mountains')!).zIndex),
-      terrain: Number(getComputedStyle(scene.querySelector('.layer-terrain')!).zIndex),
-      water: Number(getComputedStyle(scene.querySelector('.layer-water')!).zIndex),
-      retreat: Number(getComputedStyle(scene.querySelector('.layer-retreat')!).zIndex),
-      creatures: Number(getComputedStyle(scene.querySelector('.living-overworld-creatures')!).zIndex),
-      vegetation: Number(getComputedStyle(scene.querySelector('.layer-vegetation')!).zIndex),
+      background: Number(getComputedStyle(scene.querySelector('.living-overworld-background')!).zIndex),
+      sky: Number(getComputedStyle(scene.querySelector('.living-overworld-sky')!).zIndex),
+      celestial: Number(getComputedStyle(scene.querySelector('.living-overworld-sun')!).zIndex),
       daylight: Number(getComputedStyle(scene.querySelector('.living-overworld-daylight')!).zIndex),
       rain: Number(getComputedStyle(scene.querySelector('.rain-near')!).zIndex)
     };
   });
-  if (!(livingLayerOrder.mountains < livingLayerOrder.terrain && livingLayerOrder.terrain < livingLayerOrder.water
-    && livingLayerOrder.water < livingLayerOrder.retreat && livingLayerOrder.retreat < livingLayerOrder.creatures
-    && livingLayerOrder.creatures < livingLayerOrder.vegetation && livingLayerOrder.vegetation < livingLayerOrder.daylight
+  if (!(livingLayerOrder.sky < livingLayerOrder.celestial && livingLayerOrder.celestial < livingLayerOrder.background
+    && livingLayerOrder.background < livingLayerOrder.daylight
     && livingLayerOrder.daylight < livingLayerOrder.rain)) {
     throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
   }
   await childOne.locator('.living-overworld-proof-controls summary').click();
   const seasonalProofs = [
-    { season: 'spring', light: 'morning', file: 'living-overworld-spring-morning.png', asset: '/seasons/spring/terrain.png' },
-    { season: 'summer', light: 'day', file: 'living-overworld-summer-day.png', asset: '/terrain.png' },
-    { season: 'autumn', light: 'evening', file: 'living-overworld-autumn-evening.png', asset: '/seasons/autumn/terrain.png' },
-    { season: 'winter', light: 'night', file: 'living-overworld-winter-night.png', asset: '/seasons/winter/terrain.png' }
+    { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-1100.png', asset: '/seasons/autumn/desktop.png' },
+    { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-1100.png', asset: '/seasons/winter/desktop.png' }
   ] as const;
   for (const proof of seasonalProofs) {
     await childOne.getByLabel('Living Overworld season').selectOption(proof.season);
     await childOne.getByLabel('Living Overworld light proof').selectOption(proof.light);
     const bannerClass = await livingBanner.getAttribute('class');
-    const terrainSource = await livingBanner.locator('.layer-terrain').getAttribute('src');
+    const terrainSource = await livingBanner.locator('.living-overworld-background img').first().getAttribute('src');
     if (!bannerClass?.includes(`season-${proof.season}`) || !bannerClass.includes(`light-${proof.light}`)
       || !terrainSource?.endsWith(proof.asset)) {
       throw new Error(`Living Overworld seasonal proof failed: ${proof.season}/${proof.light}/${terrainSource}`);
@@ -475,18 +465,34 @@ try {
     await childOne.screenshot({ path: path.join(qaDir, proof.file), fullPage: true });
     await childOne.locator('.living-overworld-proof-controls summary').click();
   }
+  for (const [name, width, height, proofSeason] of [
+    ['living-overworld-restart-autumn-1920.png', 1920, 900, 'autumn'],
+    ['living-overworld-restart-winter-1920.png', 1920, 900, 'winter'],
+    ['living-overworld-restart-autumn-ultrawide.png', 2560, 720, 'autumn'],
+    ['living-overworld-restart-winter-ultrawide.png', 2560, 720, 'winter']
+  ] as const) {
+    const evidencePage = await browser.newPage({ viewport: { width, height } });
+    evidencePage.setDefaultTimeout(12_000);
+    await evidencePage.goto(`${address}?living-preview=1`, { waitUntil: 'networkidle' });
+    await evidencePage.getByLabel('Device theme').selectOption('living-overworld');
+    await evidencePage.locator('.living-overworld-proof-controls summary').click();
+    await evidencePage.getByLabel('Living Overworld season').selectOption(proofSeason);
+    await evidencePage.getByLabel('Living Overworld light proof').selectOption('day');
+    await evidencePage.locator('.living-overworld-proof-controls summary').click();
+    await evidencePage.waitForFunction(() => {
+      const image = document.querySelector<HTMLImageElement>('.living-overworld-background img');
+      return Boolean(image?.complete && image.naturalWidth > 0);
+    });
+    await evidencePage.screenshot({ path: path.join(qaDir, name), fullPage: false });
+    await evidencePage.close();
+  }
   await childOne.getByLabel('Living Overworld season').selectOption('summer');
   await childOne.getByLabel('Living Overworld light proof').selectOption('day');
   const weatherProofs = ['clear', 'partly-cloudy', 'cloudy', 'rain', 'snow', 'fog'] as const;
-  const expectedCreatureCounts = { clear: 4, 'partly-cloudy': 4, cloudy: 3, rain: 2, snow: 1, fog: 1 } as const;
   for (const appearance of weatherProofs) {
     await childOne.getByLabel('Living Overworld weather proof').selectOption(appearance);
     if (!(await livingBanner.getAttribute('class'))?.includes(`weather-${appearance}`)) {
       throw new Error(`Living Overworld weather override failed: ${appearance}`);
-    }
-    const creatureCount = await childOne.locator('.living-overworld-creature').count();
-    if (creatureCount !== expectedCreatureCounts[appearance]) {
-      throw new Error(`Living Overworld creature population is invalid for ${appearance}: ${creatureCount}`);
     }
     await childOne.locator('.living-overworld-proof-controls summary').click();
     await childOne.waitForTimeout(180);
@@ -494,17 +500,6 @@ try {
     await childOne.locator('.living-overworld-proof-controls summary').click();
   }
   await childOne.getByLabel('Living Overworld weather proof').selectOption('clear');
-  const creatureAnimation = await childOne.locator('.living-overworld-creature.cow')
-    .evaluate((element) => getComputedStyle(element).animationName);
-  if (!creatureAnimation.includes('living-creature-frames') || !creatureAnimation.includes('living-creature-roam')) {
-    throw new Error(`Living Overworld creature animation is invalid: ${creatureAnimation}`);
-  }
-  if (await childOne.locator('.living-overworld-creature.axolotl.habitat-lake').count() !== 1) {
-    throw new Error('Living Overworld axolotl is not assigned to the lake habitat');
-  }
-  await childOne.locator('.living-overworld-proof-controls summary').click();
-  await childOne.screenshot({ path: path.join(qaDir, 'living-overworld-gate2-ecosystem-desktop.png'), fullPage: true });
-  await childOne.locator('.living-overworld-proof-controls summary').click();
   await childOne.getByLabel('Living Overworld weather proof').selectOption('snow');
   const snowProof = await childOne.locator('.living-overworld-snow.snow-near').evaluate((element) => ({
     display: getComputedStyle(element).display, animation: getComputedStyle(element).animationName
@@ -527,9 +522,6 @@ try {
   }
   await childOne.getByRole('button', { name: 'Pause motion' }).click();
   if (!(await livingBanner.getAttribute('class'))?.includes('motion-off')) throw new Error('Living Overworld motion preference did not pause the scene');
-  const pausedCreatureAnimation = await childOne.locator('.living-overworld-creature').first()
-    .evaluate((element) => getComputedStyle(element).animationName);
-  if (pausedCreatureAnimation !== 'none') throw new Error(`Living Overworld creature did not pause: ${pausedCreatureAnimation}`);
   await childOne.getByRole('button', { name: 'Resume motion' }).click();
   if (!(await livingBanner.getAttribute('class'))?.includes('motion-on')) throw new Error('Living Overworld motion preference did not resume the scene');
   await childOne.evaluate(() => {
@@ -557,13 +549,10 @@ try {
     moon: getComputedStyle(banner.querySelector('.living-overworld-moon')!).display,
     moonWidth: banner.querySelector('.living-overworld-moon')!.getBoundingClientRect().width,
     moonRadius: getComputedStyle(banner.querySelector('.living-overworld-moon')!).borderRadius,
-    moonAssetWidth: (banner.querySelector('.living-overworld-moon img') as HTMLImageElement).naturalWidth,
-    glow: Number(getComputedStyle(banner.querySelector('.living-overworld-window-glow')!).opacity),
-    smoke: banner.querySelector('.living-overworld-smoke')
+    moonAssetWidth: (banner.querySelector('.living-overworld-moon img') as HTMLImageElement).naturalWidth
   }));
   if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.moonWidth < 60
-    || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768 || livingNight.glow < .9
-    || livingNight.smoke !== null
+    || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768
     || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
     throw new Error(`Living Overworld night proof is invalid: ${JSON.stringify(livingNight)}`);
   }
@@ -581,7 +570,7 @@ try {
   if (await childTwo.locator('html').getAttribute('data-theme') !== 'living-overworld') throw new Error('Living Overworld mobile theme did not persist');
   await assertHeaderActions(childTwo, 'Living Overworld mobile');
   const livingMobileHeight = await childTwo.locator('.living-overworld-banner').evaluate((element) => element.getBoundingClientRect().height);
-  if (livingMobileHeight < 120 || livingMobileHeight > 150) throw new Error(`Living Overworld mobile height is invalid: ${livingMobileHeight}`);
+  if (livingMobileHeight < 150 || livingMobileHeight > 175) throw new Error(`Living Overworld mobile height is invalid: ${livingMobileHeight}`);
   const livingMobileControls = await childTwo.evaluate(() => ({
     toolbarTop: document.querySelector('.living-overworld-toolbar')!.getBoundingClientRect().top,
     sceneBottom: document.querySelector('.living-overworld-banner')!.getBoundingClientRect().bottom
@@ -589,18 +578,21 @@ try {
   if (livingMobileControls.sceneBottom > livingMobileControls.toolbarTop + 1) throw new Error('Living Overworld mobile controls overlap the scenic area');
   const livingMobileWidth = await childTwo.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   if (livingMobileWidth.content > livingMobileWidth.viewport) throw new Error('Living Overworld mobile has horizontal overflow');
+  await childTwo.waitForFunction(() => {
+    const image = document.querySelector<HTMLImageElement>('.living-overworld-background img');
+    return Boolean(image?.complete && image.naturalWidth === 1774 && image.naturalHeight === 887);
+  });
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-mobile.png'), fullPage: true });
   await childTwo.locator('.living-overworld-proof-controls summary').click();
   const mobileSeasonalProofs = [
-    { season: 'spring', light: 'morning', file: 'living-overworld-gate1-spring-morning-mobile.png' },
-    { season: 'summer', light: 'day', file: 'living-overworld-gate1-summer-day-mobile.png' },
-    { season: 'autumn', light: 'evening', file: 'living-overworld-gate1-autumn-evening-mobile.png' },
-    { season: 'winter', light: 'night', file: 'living-overworld-gate1-winter-night-mobile.png' }
+    { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-390.png', asset: '/seasons/autumn/mobile.png' },
+    { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-390.png', asset: '/seasons/winter/mobile.png' }
   ] as const;
   for (const proof of mobileSeasonalProofs) {
     await childTwo.getByLabel('Living Overworld season').selectOption(proof.season);
     await childTwo.getByLabel('Living Overworld light proof').selectOption(proof.light);
     await childTwo.getByLabel('Living Overworld weather proof').selectOption('clear');
+    await childTwo.waitForFunction((asset) => document.querySelector<HTMLImageElement>('.living-overworld-background img')?.currentSrc.endsWith(asset), proof.asset);
     await childTwo.locator('.living-overworld-proof-controls summary').click();
     await childTwo.waitForTimeout(180);
     await childTwo.screenshot({ path: path.join(qaDir, proof.file), fullPage: true });
@@ -610,15 +602,6 @@ try {
   await childTwo.getByLabel('Living Overworld light proof').selectOption('day');
   await childTwo.getByLabel('Living Overworld weather proof').selectOption('clear');
   await childTwo.locator('.living-overworld-proof-controls summary').click();
-  const mobileAxolotlBounds = await childTwo.locator('.living-overworld-creature.axolotl').evaluate((element) => {
-    const creature = element.getBoundingClientRect();
-    const scene = document.querySelector('.living-overworld-banner')!.getBoundingClientRect();
-    return { top: creature.top, bottom: creature.bottom, sceneTop: scene.top, sceneBottom: scene.bottom };
-  });
-  if (mobileAxolotlBounds.top < mobileAxolotlBounds.sceneTop || mobileAxolotlBounds.bottom > mobileAxolotlBounds.sceneBottom) {
-    throw new Error(`Living Overworld axolotl escaped the mobile lake: ${JSON.stringify(mobileAxolotlBounds)}`);
-  }
-  await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-gate2-ecosystem-mobile.png'), fullPage: true });
   await childTwo.locator('.living-overworld-proof-controls summary').click();
   await childTwo.getByLabel('Living Overworld weather proof').selectOption('rain');
   await childTwo.locator('.living-overworld-proof-controls summary').click();

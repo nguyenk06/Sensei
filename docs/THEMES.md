@@ -52,20 +52,19 @@ Overworld combines the token system with `OverworldScene.tsx` and theme-scoped C
 
 ### Living Overworld
 
-Living Overworld is a separate layered-world treatment rather than a replacement for Overworld Adventure. It uses one aligned landscape assembled from independent mountain, terrain, water, retreat, vegetation, celestial, atmosphere, weather, and creature layers.
+Living Overworld uses cohesive seasonal illustrations. Each season is one complete Minecraft-inspired pixel-art landscape rather than a runtime assembly of individually positioned mountains, water, buildings, terrain, and plants.
 
-- Four seasons and four lighting periods preserve the same geography.
-- The existing Open-Meteo response drives clear, partly cloudy, cloudy, rain, snow, and fog presentation.
-- A detailed round moon supports eight deterministic phases.
-- Sheep, pigs, cows, and chickens wander within lightweight land corridors; the axolotl remains in the lake.
-- Season, light, and weather cap the population without background simulation or pathfinding.
-- The scene is approximately 210–250 CSS pixels tall on desktop and 140 pixels on mobile. Desktop displays the aligned 3:1 layers at their natural zoomed-out scale, mobile keeps its proportional crop, the transparent global header overlays the sky, and a compact control strip remains outside the scenic area.
-- The lake, waterfall, retreat, and sky remain visible in the desktop composition; no chimney smoke is added to the chimney-free retreat.
-- The motion preference, reduced-motion media query, and hidden-page handling stop creature and environmental movement.
+- Autumn and winter each provide a mobile master and a dedicated zoomed-out desktop crop master selected through `<picture>`.
+- A shared responsive container displays the selected seasonal illustration with `object-fit: cover`.
+- The existing Open-Meteo appearance still drives clear, partly cloudy, cloudy, rain, snow, and fog overlays.
+- The sun, detailed round moon, eight lunar phases, daylight tint, and motion controls remain independent of the illustration.
+- Autumn and winter are accepted seasonal masters. Spring and summer temporarily fall back to autumn until separate artwork is approved.
+- The scene is 250–300 CSS pixels tall on desktop and 170 pixels on mobile, with controls outside the scenic area.
+- The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
+- Creatures and modular terrain placement are intentionally absent from this replacement foundation.
+- Rain and fog remain functional existing overlays, but their next visual refinement is explicitly deferred.
 
-| Living ecosystem — desktop | Living ecosystem — mobile |
-| --- | --- |
-| ![Living Overworld ecosystem on desktop](assets/screenshots/living-overworld-gate2-ecosystem-desktop.png) | ![Living Overworld ecosystem on mobile](assets/screenshots/living-overworld-gate2-ecosystem-mobile.png) |
+See [Living Overworld release review](LIVING_OVERWORLD_RESTART_REVIEW.md) for responsive evidence and the cleanup audit.
 
 ## Asset organization
 

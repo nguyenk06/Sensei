@@ -1,32 +1,37 @@
 # Current state
 
-Checkpoint date: November 10, 2026.
+Checkpoint date: November 14, 2026.
 
 Repository baseline: the current published and deployed `main` household release, including Living Overworld 1.0, Parent Review Enhancements, LAN HTTP payment compatibility, and Money History totals.
 
-## Living Overworld 1.0
+Living Overworld seasonal-art milestone: the Product Owner accepted cohesive autumn and winter artwork with separate mobile and desktop masters. The retired modular renderer, coordinate editor, experimental scene layouts, and their capture tooling have been removed from the active project. Spring and summer temporarily use the accepted autumn scene until their own artwork milestone. See [Living Overworld restart review](LIVING_OVERWORLD_RESTART_REVIEW.md).
 
-Living Overworld 1.0 is merged and published through composition runtime commit `cc4f3b4`. The latest presentation keeps the 210–250 px desktop banner height while showing the layered 3:1 world at its natural zoomed-out scale, restores the visible lake, uses a transparent header overlay, and removes the unsupported chimney smoke effect. Mobile retains its approved 140 px proportions.
+## Living Overworld seasonal-art milestone
+
+The active Living Overworld presentation now uses a deliberately small layer stack: atmospheric sky, celestial bodies and clouds, one cohesive seasonal illustration, then independent lighting and weather treatments. It does not assemble terrain or landmarks from individually positioned scenery objects.
 
 Implemented and verified:
 
-- Layered fixed-camera scenery with consistent spring, summer, autumn, and winter geography.
+- Accepted autumn and winter landscapes with distinct geography and a shared softly illustrated, Minecraft-inspired visual language.
+- Mobile-first 1774 x 887 masters and 2172 x 724 desktop crop masters selected responsively with one semantic picture element.
+- A transparent application header and a complete mobile composition with visible sky, terrain, and an unclipped structure.
 - Automatic meteorological seasons in `America/Los_Angeles`.
 - Morning, day, evening, and night lighting using the existing Seattle-area sunrise/sunset response plus deterministic fallback periods.
-- A detailed round moon with eight deterministic phases, motion preferences, reduced-motion handling, hidden-page suspension, and device-local theme selection.
+- A detailed round moon with eight deterministic phases, plus a reduced-size sun; celestial bodies and clouds render behind the seasonal scenery so mountains and structures can occlude them naturally.
 - Actual cached Open-Meteo appearance data driving clear, partly cloudy, cloudy, rain, snow, and fog treatments, with stale and neutral-fallback status.
-- Seven-day adjacent-season transitions with controlled image mounting, a 140 px mobile scene, proportional mobile cropping, and controls outside the scenery.
-- A weather-, season-, and time-aware population of sheep, pig, cow, chicken, and aquatic axolotl using fixed habitat corridors and CSS-only movement.
-- A maximum of three land animals plus one axolotl in clear daytime conditions, with reduced activity during clouds, rain, snow, fog, evening, winter, and night.
-- 51 automated tests, TypeScript checks, production build, and all 35 full isolated browser QA workflows passing at the latest Living Overworld 1.0 checkpoint.
+- Seven-day adjacent-season transitions with controlled image mounting and responsive artwork selection.
+- Spring and summer intentionally fall back to autumn artwork until separate seasonal artwork is approved.
+- Creatures and foreground scenery are absent from this simplified renderer and deferred to a later bounded milestone.
+- 50 automated tests, TypeScript checks, production build, and all 35 isolated browser QA workflows pass at this milestone.
 
-Intentionally outside Living Overworld 1.0:
+Intentionally outside this milestone:
 
 - Persistent snow accumulation, environmental simulation, and generalized wind response.
 - Continuous celestial travel and asset-format conversion.
-- Creature interaction, game mechanics, pathfinding, and chore-triggered scenery reactions.
+- Creature and foreground layers, creature interaction, game mechanics, pathfinding, and chore-triggered scenery reactions.
+- Final rain and fog art direction. The existing functional weather layer remains available, but visual refinement is the next planned milestone.
 
-The release used a verified SQLite-native online backup, a separate prior-build backup, a production rebuild, and a restart of only the existing `\Sensei - Household Server` task. Post-release checks confirmed the LAN health endpoint, seven-day checklist, 42-day calendar grid, allowance endpoint, current Open-Meteo response, Living Overworld bundle marker, moon and axolotl assets, and live SQLite integrity. No schema, household records, authentication, port, firewall, startup, or network configuration changed. See the [Living Overworld visual review](LIVING_OVERWORLD_VISUAL_REVIEW.md).
+This seasonal-art milestone changes only client presentation and repository documentation. It introduces no schema, API, authentication, accounting, dependency, port, firewall, or startup change. Release evidence and the cleanup inventory are recorded in the [restart review](LIVING_OVERWORLD_RESTART_REVIEW.md).
 
 Sensei is a working, privately deployed household application for one child and one household. This repository checkpoint preserves the real application source without publishing its live database or workstation configuration.
 
@@ -82,11 +87,11 @@ Sensei is a working, privately deployed household application for one child and 
 
 ## Verification baseline
 
-- 41 automated tests pass across seven test files.
+- 50 automated tests pass across eight test files.
 - TypeScript client and server checks pass.
 - Production build passes.
-- Isolated browser workflow passes on desktop and 390 px mobile width.
-- Two-client persistence, claim/undo, full-month recurrence projections, future-snapshot isolation, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, themes, deterministic night-encounter rarity, day/night replacement, encounter despawn, reduced motion, assets, and sign-out are covered.
+- All 35 isolated browser workflows pass on desktop and 390 px mobile width.
+- Two-client persistence, claim/undo, full-month recurrence projections, future-snapshot isolation, detail isolation, PIN continuation, comments, adjusted awards, reduction validation, legacy values, bulk coexistence, exact retries, payments, corrections, every theme, responsive Living Overworld art, celestial layering, night readability, reduced motion, assets, and sign-out are covered.
 - Runtime database integrity was verified before repository preparation; the database itself is not included.
 
 ## Known limitations and intentional boundaries

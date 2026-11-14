@@ -23,9 +23,9 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 
 | NovaPay | Sensei Classic | Overworld Adventure | Living Overworld |
 | --- | --- | --- | --- |
-| ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) | ![Living Overworld theme](docs/assets/screenshots/living-overworld-gate2-ecosystem-desktop.png) |
+| ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) | ![Living Overworld autumn scene](docs/assets/screenshots/living-overworld-restart-autumn-1920.png) |
 
-Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system. Overworld Adventure uses illustrated seasonal landscapes and randomized night encounters; Living Overworld uses a persistent layered retreat, real-weather atmosphere, and a bounded weather-aware creature ecosystem. Both scenic themes preserve responsive composition and reduced-motion support.
+Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system. Overworld Adventure uses illustrated seasonal landscapes and randomized night encounters; Living Overworld uses cohesive responsive autumn and winter illustrations with independent atmosphere and celestial layers.
 
 ## Stack
 
@@ -37,7 +37,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-> **Current release:** Living Overworld 1.0 adds layered seasonal scenery, daylight cycles, real-weather atmosphere, compact mobile composition, and a weather-aware creature ecosystem. See the [Living Overworld visual review](docs/LIVING_OVERWORLD_VISUAL_REVIEW.md).
+> **Living Overworld milestone:** The retired modular renderer and editor have been removed. Product Owner-approved autumn and winter artwork now use separate mobile and desktop crop masters. Weather visual refinement remains the next bounded milestone. See the [release review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md).
 
 The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, audited monthly/lifetime Money History totals, original Overworld night encounters, and a full calendar containing newly configured and future expected chores without materializing their weekly snapshots early. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, calendar projections, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The release passes 41 automated tests plus the isolated end-to-end browser workflow.
 
@@ -58,7 +58,7 @@ The safe defaults bind to `127.0.0.1:3000` and store development data under `.lo
 
 ## Documentation
 
-- [Living Overworld visual review](docs/LIVING_OVERWORLD_VISUAL_REVIEW.md)
+- [Living Overworld restart review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md)
 - [Current state](docs/CURRENT_STATE.md)
 - [Architecture and data integrity](docs/ARCHITECTURE.md)
 - [Theme system and Overworld assets](docs/THEMES.md)

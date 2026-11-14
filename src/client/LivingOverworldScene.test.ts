@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
 import {
-  livingCreaturePopulation, livingLightFor, livingOverworldAssets, livingSeasonBlendFor,
-  livingSeasonFor, livingWeatherFor, moonPhaseFor
+  livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
+  livingWeatherFor, moonPhaseFor
 } from './LivingOverworldScene';
 
 describe('Living Overworld theme foundation', () => {
@@ -13,19 +13,17 @@ describe('Living Overworld theme foundation', () => {
     expect(new Set(themes.map((theme) => theme.id)).size).toBe(themes.length);
   });
 
-  it('declares five aligned production layers for every season', () => {
-    expect(livingOverworldAssets.summer).toEqual([
-      '/assets/living-overworld/distant-mountains-v2.png',
-      '/assets/living-overworld/terrain.png',
-      '/assets/living-overworld/water.png',
-      '/assets/living-overworld/retreat.png',
-      '/assets/living-overworld/foreground-vegetation.png'
-    ]);
-    expect(Object.keys(livingOverworldAssets)).toEqual(['spring', 'summer', 'autumn', 'winter']);
-    expect(Object.values(livingOverworldAssets).every((assets) => assets.length === 5)).toBe(true);
-    expect(livingOverworldAssets.spring[1]).toContain('/seasons/spring/');
-    expect(livingOverworldAssets.autumn[4]).toContain('/seasons/autumn/');
-    expect(livingOverworldAssets.winter.every((asset) => asset.includes('/seasons/winter/'))).toBe(true);
+  it('uses one cohesive illustration per approved seasonal proof', () => {
+    expect(livingSeasonIllustrations.autumn).toEqual({
+      mobile: '/assets/living-overworld/seasons/autumn/mobile.png',
+      desktop: '/assets/living-overworld/seasons/autumn/desktop.png'
+    });
+    expect(livingSeasonIllustrations.winter).toEqual({
+      mobile: '/assets/living-overworld/seasons/winter/mobile.png',
+      desktop: '/assets/living-overworld/seasons/winter/desktop.png'
+    });
+    expect(livingSeasonIllustrations.spring).toBe(livingSeasonIllustrations.autumn);
+    expect(livingSeasonIllustrations.summer).toBe(livingSeasonIllustrations.autumn);
   });
 
   it('selects meteorological seasons in Pacific time', () => {
@@ -64,27 +62,6 @@ describe('Living Overworld theme foundation', () => {
     expect(livingWeatherFor('auto', weather)).toBe('snow');
     expect(livingWeatherFor('rain', weather)).toBe('rain');
     expect(livingWeatherFor('auto', null)).toBe('clear');
-  });
-
-  it('limits creatures by season, daylight, weather, and habitat', () => {
-    expect(livingCreaturePopulation('summer', 'day', 'clear')).toEqual([
-      { species: 'cow', habitat: 'meadow-left' },
-      { species: 'pig', habitat: 'shore-center' },
-      { species: 'chicken', habitat: 'retreat-bank' },
-      { species: 'axolotl', habitat: 'lake' }
-    ]);
-    expect(livingCreaturePopulation('spring', 'morning', 'cloudy')).toHaveLength(3);
-    expect(livingCreaturePopulation('autumn', 'day', 'rain')).toEqual([
-      { species: 'cow', habitat: 'meadow-left' },
-      { species: 'axolotl', habitat: 'lake' }
-    ]);
-    expect(livingCreaturePopulation('winter', 'day', 'snow')).toEqual([
-      { species: 'sheep', habitat: 'meadow-left' }
-    ]);
-    expect(livingCreaturePopulation('summer', 'evening', 'clear')).toEqual([
-      { species: 'cow', habitat: 'meadow-left' }
-    ]);
-    expect(livingCreaturePopulation('summer', 'night', 'clear')).toEqual([]);
   });
 
   it('maps a synodic month into eight deterministic moon phases', () => {
