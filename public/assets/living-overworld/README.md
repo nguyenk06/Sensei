@@ -1,32 +1,17 @@
 # Living Overworld assets
 
-Original summer/day artwork created for Sensei's fixed-camera Living Overworld proof.
+Living Overworld now uses one cohesive landscape illustration per season. The retired modular terrain, object-placement metadata, and editor assets are preserved in Git history but are not part of the active asset tree.
 
-All raster assets use the same 2172 × 724 scene coordinates:
+## Active foundation
 
-- `summer-master.png`: composition and visual-quality reference; not loaded by the application.
-- `distant-mountains-v2.png`: transparent distant mountain layer, refined to remove foreground tree silhouettes.
-- `terrain.png`: transparent shoreline, cliff, path, trees, and terrain layer.
-- `water.png`: transparent connected waterfall and lake layer.
-- `retreat.png`: transparent East Asian retreat and foundation layer.
-- `foreground-vegetation.png`: transparent reeds, flowers, and grass tufts.
-- `moon-detailed.png`: transparent 768 × 768 detailed round full-moon source used beneath the deterministic phase shadow.
+- `seasons/autumn/mobile.png` — 1774 × 887 accepted autumn mobile master.
+- `seasons/autumn/desktop.png` — 2172 × 724 autumn desktop crop master.
+- `seasons/winter/mobile.png` — 1774 × 887 accepted winter mobile master.
+- `seasons/winter/desktop.png` — 2172 × 724 winter desktop crop master.
+- `moon-detailed.png` — 768 × 768 transparent moon used by the existing eight-phase mask.
 
-The browser supplies the sky, square sun, clouds, daylight, six weather appearances, and restrained motion with theme-scoped CSS. The original scene and every extracted layer were generated with the built-in OpenAI image-generation tool from one approved composition master. No third-party game artwork is included.
+Spring and summer temporarily use the autumn pair as a visible fallback so the theme remains functional without creating unapproved additional scenes.
 
-Milestone 1B adds deterministic lunar phases, night lighting, aligned warm-window glow, and restrained chimney smoke. The original CSS square moon was subsequently replaced by a larger detailed circular moon asset while retaining the same eight calculated phases. The isolated winter/night direction proof is stored at `docs/assets/screenshots/living-overworld-1b-winter-night-proof.png` and remains a reference rather than a runtime asset.
+The browser keeps celestial, lighting, cloud, rain, snow, and fog layers independent of the landscape. This allows later atmospheric work without reconstructing the background illustration.
 
-The seasons milestone adds coordinate-matched runtime variants beneath `seasons/`:
-
-- Spring reuses the mountain, water, and retreat while replacing terrain and foreground vegetation with fresh foliage and flowers.
-- Summer remains the approved original five-layer composition.
-- Autumn reuses the mountain, water, and retreat while replacing terrain and foreground vegetation with gold, orange, and red materials.
-- Winter replaces all five layers with coordinated snow, frost, cold water, and a snow-covered retreat.
-
-All seasonal PNGs are 2172 × 724, 32-bit RGBA, and share the original coordinates. The browser selects meteorological seasons in `America/Los_Angeles`, blending only the adjacent season during a seven-day transition window. Morning, day, evening, and night are CSS lighting states selected from the existing Seattle-area sunrise/sunset response, with deterministic Pacific-time fallbacks when that response is unavailable. The user-facing motion control remains outside the scenery. Manual season, weather, light, and moon selectors are available only with the `?living-preview=1` development flag.
-
-Gate 1 consumes the existing cached Open-Meteo appearance contract for clear, partly cloudy, cloudy, rain, snow, and fog. Rain, snow, fog, clouds, water, vegetation, and smoke are CSS effects; no additional runtime dependency is used.
-
-Living Overworld 1.0 reuses the original eight-frame animal sheets under `public/assets/overworld-v04/animals/`. Land species use three fixed terrain corridors and the axolotl uses the lake corridor. Population selection is deterministic from season, lighting period, and weather; movement is CSS-only and stops with the existing motion accessibility controls.
-
-These remain production candidates: lossless PNG delivery favors fidelity over transfer size, so WebP/AVIF evaluation and small alpha-edge cleanup are sensible future optimization work.
+All four active seasonal images were created specifically for Sensei with the built-in image-generation tool. They contain no text, logos, sun, moon, active weather, or creatures. Mobile and desktop are selected responsively; the transparent sky permits independent celestial and atmosphere layers.

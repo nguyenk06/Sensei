@@ -1,14 +1,16 @@
 # Planner handoff
 
-Handoff date: November 10, 2026.
+Handoff date: November 14, 2026.
 
-## Current Living Overworld release
+## Current Living Overworld milestone
 
-Living Overworld 1.0 is merged, published, and deployed from runtime commit `8c44168`. Gate 1 provides four seasonal scenes, four daylight periods, a detailed phased round moon, seven-day adjacent-season transitions, a 210–250 px desktop crop, a compact 140 px mobile crop, and all six appearances from the existing cached Open-Meteo service. Motion controls remain user-facing; season, light, weather, and moon overrides require `?living-preview=1`.
+The Product Owner accepted the mobile-first autumn and winter compositions. Living Overworld now uses one cohesive illustration per season and responsive mobile/desktop masters rather than the retired coordinate-based modular renderer. The cleanup audit removed the renderer, editor, experimental layouts, obsolete modular assets, and the final four capture scripts that referenced them.
 
-Gate 2 adds a small weather-aware creature population using the existing sheep, pig, cow, chicken, and axolotl sprite sheets. Land animals remain in lightweight terrain corridors; the axolotl remains in the lake. Weather, season, and lighting determine a bounded population, while reduced motion and hidden-page state stop movement. No chore, allowance, authentication, API, schema, or database behavior changes.
+The active stack is intentionally narrow: atmospheric sky; sun, phased moon, and clouds; the seasonal illustration; then independent lighting and weather layers. Celestial objects can pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creatures and foreground scenery remain deferred.
 
-Release verification used 51 automated tests, client/server TypeScript checks, a production build, the complete isolated browser workflow, a SQLite-native backup with integrity and table-count comparison, and non-mutating live smoke checks. No Living Overworld follow-up is required for phase closure; the limitations documented in the visual review are deferred ideas rather than open release blockers.
+Release-candidate verification passed 50 automated tests, client/server TypeScript checks, the production build, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms responsive artwork selection, readable night presentation, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
+
+The next bounded Living Overworld milestone is weather presentation, especially rain and fog. Do not restart landscape architecture or infer approval for creature or foreground work.
 
 ## Authoritative baseline
 
@@ -69,10 +71,10 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 ## Verification evidence
 
 - Type checking passed.
-- Seven automated test files passed with 41 tests.
+- Eight automated test files passed with 50 tests.
 - Client production build and server compilation passed in isolated QA output.
-- The isolated browser workflow passed desktop and 390 px mobile verification.
-- Covered flows include PIN continuation, individual approve/reject, exact retries, stale bulk snapshots, bulk coexistence, focus restoration, payments, corrections, full-month expected-chore projection, future-snapshot isolation, all three themes, deterministic night-creature selection, clean day/night transitions, finite encounter traversal, and reduced motion.
+- All 35 isolated browser workflows passed desktop and 390 px mobile verification.
+- Covered flows include PIN continuation, individual approve/reject, exact retries, stale bulk snapshots, bulk coexistence, focus restoration, payments, corrections, full-month expected-chore projection, future-snapshot isolation, all four themes, responsive seasonal-art selection, celestial layering, night readability, and reduced motion.
 - Synthetic data and temporary SQLite databases were used for tests.
 
 ## Production status
@@ -81,9 +83,10 @@ The current `main` checkpoint is the household release, including Overworld Nigh
 
 ## Remaining planner items
 
-1. No corrective application implementation is currently required for this phase.
-2. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
-3. Preserve the existing production backup and rollback practice for future releases.
+1. The next approved planning target is Living Overworld weather presentation, particularly rain and fog; it is not part of this seasonal-art milestone.
+2. Spring and summer artwork, foreground scenery, and creatures require separate Product Owner approval.
+3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
+4. Preserve the existing production backup and rollback practice for future releases.
 
 ## Release and rollback boundary
 

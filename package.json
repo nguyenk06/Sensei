@@ -10,13 +10,11 @@
   "scripts": {
     "build": "pnpm run typecheck && vite build && tsc -p tsconfig.server.json",
     "dev": "vite --host 127.0.0.1 --port 5173",
-    "editor": "vite --host 127.0.0.1 --port 4174 --open /tools/living-overworld-editor/",
     "dev:server": "tsx watch src/server/index.ts",
     "start": "node dist/server/server/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "qa:visual": "node scripts/visual-check.mjs",
-    "qa:layout-editor": "node scripts/layout-editor-check.mjs",
     "qa:browser": "tsx scripts/browser-smoke.ts",
     "typecheck": "tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.server.json --noEmit"
   },
