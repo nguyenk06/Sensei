@@ -8,9 +8,11 @@ The Product Owner accepted the mobile-first autumn and winter compositions. Livi
 
 The active stack is intentionally narrow: atmospheric sky; sun, phased moon, clouds and rare night-sky events; the seasonal illustration; then independent lighting and weather layers. Celestial objects and sky events pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creatures and foreground scenery remain deferred.
 
-The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presentation, fine vertical rain, slow independent snow, irregular drifting fog wisps, Celsius/Fahrenheit display, slowly rotating evening/night stars, and rare downward comets and meteors. Autumn alpha edges were tightened to remove the halo visible against dark weather skies.
+The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presentation, fine vertical rain beneath a heavy storm canopy, denser evenly phased snow, irregular drifting fog wisps, Celsius/Fahrenheit display, a more prominent slowly rotating evening/night star field, and rare downward comets and meteors with a traveling head and fading tail. Autumn alpha edges were tightened to remove the halo visible against dark weather skies.
 
-Release-candidate verification passed 51 automated tests, client/server TypeScript checks, the production build, the isolated visual harness, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms responsive artwork selection, weather particles, readable night presentation, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
+The local correction checkpoint passes 52 automated tests, client/server TypeScript checks, the production build, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms the direct celestial-height control, storm canopy, denser snow, clearer stars, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
+
+A replacement autumn-night landscape has been prepared strictly as a [Product Owner visual proof](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md). It keeps the accepted geography while replacing the flat darkened treatment with authored moonlit color, warm windows, and clean transparent skyline edges. It is not referenced by the runtime and must not be integrated until explicitly accepted.
 
 No additional Living Overworld milestone is inferred. Spring/summer artwork, creatures, foreground scenery, accumulation, and environmental simulation remain deferred until explicitly authorized.
 

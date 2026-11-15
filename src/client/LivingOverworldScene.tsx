@@ -23,6 +23,8 @@ type AtmosphereStyle = CSSProperties & Record<`--${string}`, string>;
 
 const celestialHorizonPercent = 72;
 const celestialApexPercent = -10;
+const celestialPreviewLowPercent = 68;
+const celestialPreviewHighPercent = 10;
 const illustratedHorizonPercent = 55;
 const twilightBlendMinutes = 20;
 
@@ -120,6 +122,19 @@ export function livingCelestialTrackFor(date: Date, sunrise: string | null, suns
   return { body: isDaylight ? 'sun' : 'moon', progress, topPercent };
 }
 
+export function livingCelestialTopForPreviewHeight(height: number): number {
+  const normalized = Math.max(0, Math.min(100, height)) / 100;
+  return celestialPreviewLowPercent - (celestialPreviewLowPercent - celestialPreviewHighPercent) * normalized;
+}
+
+function livingCelestialHeightForTop(topPercent: number): number {
+  return Math.max(0, Math.min(100, (celestialHorizonPercent - topPercent) / (celestialHorizonPercent - celestialApexPercent) * 100));
+}
+
+function celestialHeightLabel(height: number): string {
+  return height < 34 ? 'Low' : height < 67 ? 'Mid' : 'High';
+}
+
 export function livingWeatherFor(override: Override<OverworldWeatherAppearance>, weather: OverworldWeatherResponse | null): OverworldWeatherAppearance {
   return override === 'auto' ? weather?.appearance ?? 'clear' : override;
 }
@@ -148,26 +163,26 @@ function atmosphereStyle(index: number, count: number, kind: 'star' | 'rain-far'
   const offset = (index * 47 + (index % 7) * 19) % 101;
   if (kind === 'star') return {
     left: `${4 + ((index * 37) % 92)}%`, top: `${3 + ((index * 53) % 73)}%`,
-    '--size': `${index % 13 === 0 ? 3 : index % 5 === 0 ? 2 : 1}px`,
-    '--glow': `${index % 13 === 0 ? 7 : index % 5 === 0 ? 4 : 2}px`,
-    '--alpha': `${.42 + (index % 6) * .09}`
+    '--size': `${index % 13 === 0 ? 4 : index % 5 === 0 ? 2.5 : 1.5}px`,
+    '--glow': `${index % 13 === 0 ? 11 : index % 5 === 0 ? 6 : 3}px`,
+    '--alpha': `${.54 + (index % 6) * .075}`
   };
   if (kind.startsWith('rain')) {
     const near = kind === 'rain-near';
+    const duration = near ? 1.12 + (index % 7) * .08 : 1.48 + (index % 9) * .1;
     return {
       left: `${(index * 83 + offset) % 103}%`, top: '-12%',
       '--length': `${near ? 11 + (index % 5) * 3 : 6 + (index % 4) * 2}px`,
-      '--duration': `${near ? 1.12 + (index % 7) * .08 : 1.48 + (index % 9) * .1}s`,
-      '--delay': `${-(index / count) * 2.4}s`, '--drift': `${(index % 5) - 2}px`,
+      '--duration': `${duration}s`, '--delay': `${-(index / count) * duration}s`, '--drift': `${(index % 5) - 2}px`,
       '--alpha': `${near ? .43 + (index % 4) * .08 : .22 + (index % 4) * .06}`
     };
   }
   const near = kind === 'snow-near';
+  const duration = near ? 25 + (index % 8) * 2 : 34 + (index % 9) * 2.2;
   return {
     left: `${(index * 71 + offset) % 102}%`, top: '-14%',
-    '--size': `${near ? 3 + (index % 4) * 1.2 : 1.5 + (index % 3) * .8}px`,
-    '--duration': `${near ? 25 + (index % 8) * 2 : 34 + (index % 9) * 2.2}s`,
-    '--delay': `${-(index / count) * 31}s`, '--drift': `${-14 + (index % 7) * 5}px`,
+    '--size': `${near ? 3.8 + (index % 4) * 1.25 : 2 + (index % 3) * .9}px`,
+    '--duration': `${duration}s`, '--delay': `${-(index / count) * duration}s`, '--drift': `${-14 + (index % 7) * 5}px`,
     '--alpha': `${near ? .62 + (index % 4) * .08 : .38 + (index % 4) * .07}`
   };
 }
@@ -216,7 +231,8 @@ export function LivingOverworldScene() {
   const automaticCelestialTop = lightOverride === 'auto' ? celestialTrack.topPercent
     : lightOverride === 'day' || lightOverride === 'night' ? celestialApexPercent
       : illustratedHorizonPercent;
-  const celestialTop = celestialHeightOverride ?? automaticCelestialTop;
+  const automaticCelestialHeight = livingCelestialHeightForTop(automaticCelestialTop);
+  const celestialTop = celestialHeightOverride === null ? automaticCelestialTop : livingCelestialTopForPreviewHeight(celestialHeightOverride);
   const primaryIllustration = livingSeasonIllustrations[blend.primary];
   const adjacentIllustration = blend.adjacent ? livingSeasonIllustrations[blend.adjacent] : null;
 
@@ -240,31 +256,32 @@ export function LivingOverworldScene() {
       <label>Light<select aria-label="Living Overworld light proof" value={lightOverride} onChange={(event) => setLightOverride(event.target.value as Override<LivingLight>)}><option value="auto">Auto</option>{lightPeriods.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Weather<select aria-label="Living Overworld weather proof" value={weatherOverride} onChange={(event) => setWeatherOverride(event.target.value as Override<OverworldWeatherAppearance>)}><option value="auto">Auto</option>{weatherAppearances.map((value) => <option key={value} value={value}>{title(value)}</option>)}</select></label>
       <label>Moon<select aria-label="Living Overworld moon phase" value={moonOverride} onChange={(event) => setMoonOverride(event.target.value as MoonOverride)}><option value="auto">Auto</option>{moonPhases.map((phase) => <option key={phase} value={phase}>{title(phase)}</option>)}</select></label>
-      <div className="living-overworld-celestial-control" role="group" aria-label="Sun and moon height control">
-        <span>Sun / moon <output>{celestialHeightOverride === null ? `Auto · ${Math.round(automaticCelestialTop)}%` : `${celestialHeightOverride}%`}</output></span>
-        <input aria-label="Living Overworld sun and moon height" type="range" min="-20" max="80" step="1"
-          value={celestialHeightOverride ?? Math.round(automaticCelestialTop)}
-          aria-valuetext={celestialHeightOverride === null ? `Automatic, ${Math.round(automaticCelestialTop)} percent` : `${celestialHeightOverride} percent`}
+      <div className="living-overworld-celestial-control" role="group" aria-label="Celestial height control">
+        <span>Celestial height <output>{celestialHeightOverride === null ? `Auto · ${celestialHeightLabel(automaticCelestialHeight)}` : celestialHeightLabel(celestialHeightOverride)}</output></span>
+        <input aria-label="Living Overworld celestial height" type="range" min="0" max="100" step="1"
+          value={celestialHeightOverride ?? Math.round(automaticCelestialHeight)}
+          aria-valuetext={celestialHeightOverride === null ? `Automatic, ${celestialHeightLabel(automaticCelestialHeight)}` : `${celestialHeightLabel(celestialHeightOverride)}, ${celestialHeightOverride} percent high`}
           onChange={(event) => setCelestialHeightOverride(Number(event.target.value))} />
-        <button type="button" aria-label="Use automatic sun and moon height" aria-pressed={celestialHeightOverride === null}
+        <button type="button" aria-label="Use automatic celestial height" aria-pressed={celestialHeightOverride === null}
           onClick={() => setCelestialHeightOverride(null)}>Auto</button>
       </div>
     </div></details>
   </div>;
 
-  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
+  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'} ${celestialHeightOverride === null ? 'celestial-auto' : 'celestial-preview'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
-      <div className="living-overworld-sky" /><div className="living-overworld-stars"><AtmosphereParticles kind="star" count={64} /></div>
+      <div className="living-overworld-sky" /><div className="living-overworld-stars"><AtmosphereParticles kind="star" count={104} /></div>
       <div className="living-overworld-sky-events"><i className="living-overworld-comet" /><i className="living-overworld-meteor" /></div>
       <div className="living-overworld-sun" style={{ top: `${celestialTop}%` }} />
       <div className={`living-overworld-moon phase-${moonPhase}`} style={{ top: `${celestialTop}%` }}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
       {['a', 'b', 'c', 'd', 'e', 'f'].map((cloud) => <div key={cloud} className={`living-overworld-cloud cloud-${cloud}`}><i /><i /><i /></div>)}
+      <div className="living-overworld-storm-canopy"><i /><i /><i /><i /></div>
       <SeasonArtwork artwork={primaryIllustration} />
       {adjacentIllustration && adjacentIllustration !== primaryIllustration && <SeasonArtwork artwork={adjacentIllustration} adjacentOpacity={blend.adjacentOpacity} />}
       <div className="living-overworld-rain rain-far"><AtmosphereParticles kind="rain-far" count={86} /></div>
       <div className="living-overworld-rain rain-near"><AtmosphereParticles kind="rain-near" count={52} /></div>
-      <div className="living-overworld-snow snow-far"><AtmosphereParticles kind="snow-far" count={46} /></div>
-      <div className="living-overworld-snow snow-near"><AtmosphereParticles kind="snow-near" count={32} /></div>
+      <div className="living-overworld-snow snow-far"><AtmosphereParticles kind="snow-far" count={88} /></div>
+      <div className="living-overworld-snow snow-near"><AtmosphereParticles kind="snow-near" count={54} /></div>
       <div className="living-overworld-fog"><i /><i /><i /><i /><i /></div><div className="living-overworld-daylight" />
     </div>
   </section>{toolbar}</>;

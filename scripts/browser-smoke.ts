@@ -450,12 +450,17 @@ try {
     throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
   }
   await childOne.locator('.living-overworld-proof-controls summary').click();
-  const celestialSlider = childOne.getByLabel('Living Overworld sun and moon height');
-  await celestialSlider.fill('18');
-  const overriddenCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => element.style.top);
-  if (overriddenCelestialTop !== '18%') throw new Error(`Living Overworld celestial height override failed: ${overriddenCelestialTop}`);
-  await childOne.getByRole('button', { name: 'Use automatic sun and moon height' }).click();
-  if (await celestialSlider.getAttribute('aria-valuetext') === '18 percent') throw new Error('Living Overworld celestial height did not return to automatic mode');
+  const celestialSlider = childOne.getByLabel('Living Overworld celestial height');
+  await celestialSlider.fill('0');
+  const lowCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => element.style.top);
+  await celestialSlider.fill('100');
+  const highCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => element.style.top);
+  const manualCelestialTransition = await livingBanner.locator('.living-overworld-sun').evaluate((element) => getComputedStyle(element).transitionDuration);
+  if (lowCelestialTop !== '68%' || highCelestialTop !== '10%' || manualCelestialTransition !== '0s') {
+    throw new Error(`Living Overworld celestial height override failed: low=${lowCelestialTop}, high=${highCelestialTop}, transition=${manualCelestialTransition}`);
+  }
+  await childOne.getByRole('button', { name: 'Use automatic celestial height' }).click();
+  if ((await celestialSlider.getAttribute('aria-valuetext'))?.startsWith('High, 100')) throw new Error('Living Overworld celestial height did not return to automatic mode');
   const seasonalProofs = [
     { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-1100.png', asset: '/seasons/autumn/desktop.png' },
     { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-1100.png', asset: '/seasons/winter/desktop.png' }
@@ -520,9 +525,15 @@ try {
   const snowProof = await childOne.locator('.living-overworld-snow.snow-near').evaluate((element) => ({
     display: getComputedStyle(element).display,
     particleCount: element.querySelectorAll('i').length,
+    visibleParticles: [...element.querySelectorAll('i')].filter((particle) => {
+      const particleRect = particle.getBoundingClientRect();
+      const layerRect = element.getBoundingClientRect();
+      return particleRect.bottom > layerRect.top && particleRect.top < layerRect.bottom;
+    }).length,
     animation: getComputedStyle(element.querySelector('i')!).animationName
   }));
-  if (snowProof.display === 'none' || snowProof.particleCount < 20 || !snowProof.animation.includes('living-snow-flake')) throw new Error(`Living Overworld snow proof is inactive: ${JSON.stringify(snowProof)}`);
+  if (snowProof.display === 'none' || snowProof.particleCount < 50 || snowProof.visibleParticles < 18
+    || !snowProof.animation.includes('living-snow-flake')) throw new Error(`Living Overworld snow proof is inactive: ${JSON.stringify(snowProof)}`);
   await childOne.getByLabel('Living Overworld weather proof').selectOption('fog');
   await childOne.getByLabel('Living Overworld light proof').selectOption('night');
   await childOne.locator('.living-overworld-proof-controls summary').click();
@@ -532,6 +543,9 @@ try {
   if (fogProof.display === 'none' || fogProof.wisps !== 5) throw new Error(`Living Overworld fog proof is inactive: ${JSON.stringify(fogProof)}`);
   await childOne.getByLabel('Living Overworld light proof').selectOption('day');
   await childOne.getByLabel('Living Overworld weather proof').selectOption('rain');
+  await childOne.waitForTimeout(1300);
+  const stormCanopyOpacity = await childOne.locator('.living-overworld-storm-canopy').evaluate((element) => Number.parseFloat(getComputedStyle(element).opacity));
+  if (stormCanopyOpacity < .8) throw new Error(`Living Overworld rain omitted heavy cloud cover: ${stormCanopyOpacity}`);
   const rainAnimation = await childOne.locator('.living-overworld-rain.rain-near').evaluate((element) => ({
     display: getComputedStyle(element).display,
     particleCount: element.querySelectorAll('i').length,
@@ -563,16 +577,34 @@ try {
   await childOne.getByLabel('Living Overworld light proof').selectOption('night');
   await childOne.getByLabel('Living Overworld moon phase').selectOption('full');
   await childOne.locator('.living-overworld-proof-controls summary').click();
-  await childOne.waitForTimeout(850);
-  const livingNight = await livingBanner.evaluate((banner) => ({
-    sun: getComputedStyle(banner.querySelector('.living-overworld-sun')!).display,
-    moon: getComputedStyle(banner.querySelector('.living-overworld-moon')!).display,
-    moonWidth: banner.querySelector('.living-overworld-moon')!.getBoundingClientRect().width,
-    moonRadius: getComputedStyle(banner.querySelector('.living-overworld-moon')!).borderRadius,
-    moonAssetWidth: (banner.querySelector('.living-overworld-moon img') as HTMLImageElement).naturalWidth
-  }));
+  await childOne.waitForTimeout(2200);
+  const livingNight = await livingBanner.evaluate((banner) => {
+    const stars = banner.querySelector('.living-overworld-stars')!;
+    const comet = banner.querySelector('.living-overworld-comet')!;
+    return {
+      sun: getComputedStyle(banner.querySelector('.living-overworld-sun')!).display,
+      moon: getComputedStyle(banner.querySelector('.living-overworld-moon')!).display,
+      moonWidth: banner.querySelector('.living-overworld-moon')!.getBoundingClientRect().width,
+      moonRadius: getComputedStyle(banner.querySelector('.living-overworld-moon')!).borderRadius,
+      moonAssetWidth: (banner.querySelector('.living-overworld-moon img') as HTMLImageElement).naturalWidth,
+      stars: stars.querySelectorAll('i').length,
+      visibleStars: [...stars.querySelectorAll('i')].filter((star) => {
+        const starRect = star.getBoundingClientRect();
+        const bannerRect = banner.getBoundingClientRect();
+        return starRect.bottom > bannerRect.top && starRect.top < bannerRect.bottom
+          && starRect.right > bannerRect.left && starRect.left < bannerRect.right;
+      }).length,
+      starOpacity: Number.parseFloat(getComputedStyle(stars).opacity),
+      starAnimation: getComputedStyle(stars).animationName,
+      cometWidth: comet.getBoundingClientRect().width,
+      cometAnimation: getComputedStyle(comet).animationName,
+      cometTailWidth: Number.parseFloat(getComputedStyle(comet, '::before').width)
+    };
+  });
   if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.moonWidth < 60
     || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768
+    || livingNight.stars < 100 || livingNight.visibleStars < 24 || livingNight.starOpacity < .9 || !livingNight.starAnimation.includes('living-star-turn')
+    || livingNight.cometWidth > 10 || livingNight.cometTailWidth < 100 || !livingNight.cometAnimation.includes('living-comet-head')
     || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
     throw new Error(`Living Overworld night proof is invalid: ${JSON.stringify(livingNight)}`);
   }

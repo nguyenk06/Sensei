@@ -19,13 +19,15 @@ Implemented and verified:
 - Morning, day, evening, and night lighting using the existing Seattle-area sunrise/sunset response plus deterministic fallback periods.
 - A detailed round moon with eight deterministic phases, plus a reduced-size sun; celestial bodies and clouds render behind the seasonal scenery so mountains and structures can occlude them naturally.
 - Actual cached Open-Meteo appearance data driving clear, partly cloudy, cloudy, rain, snow, and fog treatments, with stale and neutral-fallback status.
-- Partly cloudy and cloudy states differ by visible cloud-bank density rather than darkness alone. Rain uses independently timed, nearly vertical fine drops; snow uses independently timed soft flakes with slow drift; fog uses overlapping ground-level wisps that can temporarily veil terrain and the retreat.
-- Temperatures are presented in Celsius and Fahrenheit. Evening and night add a slowly rotating varied star field, while rare downward comets and meteors remain behind the seasonal illustration.
+- Partly cloudy and cloudy states differ by visible cloud-bank density rather than darkness alone. Rain uses a heavy cloud ceiling and independently timed, nearly vertical fine drops; snow uses a denser, evenly phased field of soft flakes with slow drift; fog uses overlapping ground-level wisps that can temporarily veil terrain and the retreat.
+- Temperatures are presented in Celsius and Fahrenheit. Evening and night add a prominent, slowly rotating varied star field, while rare downward comets and meteors use a moving luminous head and fading tail behind the seasonal illustration.
+- The development scene control exposes an intuitive celestial-height override: moving the slider right raises the active body, while `Auto` restores sunrise/sunset timing.
 - Autumn mobile and desktop alpha edges were tightened to remove the colored halo visible against darker weather skies.
+- A new autumn-night landscape treatment exists only as a Product Owner proof. It preserves the accepted geography, supplies authored moonlit color and clean transparent skyline edges, and remains excluded from runtime pending visual approval. See [Autumn night proof](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md).
 - Seven-day adjacent-season transitions with controlled image mounting and responsive artwork selection.
 - Spring and summer intentionally fall back to autumn artwork until separate seasonal artwork is approved.
 - Creatures and foreground scenery are absent from this simplified renderer and deferred to a later bounded milestone.
-- 51 automated tests, TypeScript checks, production build, the isolated visual harness, and all 35 isolated browser QA workflows pass at this milestone.
+- 52 automated tests, TypeScript checks, production build, and all 35 isolated browser QA workflows pass at this local correction checkpoint.
 
 Intentionally outside this milestone:
 

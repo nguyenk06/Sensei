@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
 import {
-  livingCelestialTrackFor, livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
+  livingCelestialTopForPreviewHeight, livingCelestialTrackFor, livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
   livingWeatherFor, moonPhaseFor
 } from './LivingOverworldScene';
 
@@ -69,6 +69,14 @@ describe('Living Overworld theme foundation', () => {
     expect(night.body).toBe('moon');
     expect(night.progress).toBeCloseTo(.5, 5);
     expect(night.topPercent).toBeCloseTo(-10, 5);
+  });
+
+  it('maps the manual celestial slider from low to high in the intuitive direction', () => {
+    expect(livingCelestialTopForPreviewHeight(0)).toBe(68);
+    expect(livingCelestialTopForPreviewHeight(50)).toBe(39);
+    expect(livingCelestialTopForPreviewHeight(100)).toBe(10);
+    expect(livingCelestialTopForPreviewHeight(-50)).toBe(68);
+    expect(livingCelestialTopForPreviewHeight(150)).toBe(10);
   });
 
   it('uses real weather in auto mode and preserves preview overrides', () => {
