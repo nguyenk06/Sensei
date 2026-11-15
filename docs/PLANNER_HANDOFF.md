@@ -83,7 +83,7 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 
 ## Production status
 
-The current household application release is local commit `4dc36f1`, containing the accepted Living Overworld autumn/winter artwork, scene controls, vertical celestial cycle, and atmosphere refinement. It was released through the existing scheduled-task mechanism after a verified SQLite-native online backup and passed non-mutating health, database integrity/count, current-bundle, weekly-board, calendar, allowance, and weather checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation. Local `main` is ahead of GitHub; this run did not publish or push.
+The current household application release is published commit `16438c8`, containing the accepted authored autumn-night artwork, atmosphere refinements, and a vertical celestial cycle whose apex remains below the transparent header. It was released through the existing scheduled-task mechanism after a verified SQLite-native online backup and passed 52 automated tests, TypeScript checks, the production build, all 35 isolated browser workflows, and non-mutating live health, database integrity/count, current-asset, weekly-board, 42-day calendar, allowance, weather, desktop, and mobile checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
 
 ## Remaining planner items
 
