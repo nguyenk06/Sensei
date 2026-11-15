@@ -452,11 +452,11 @@ try {
   await childOne.locator('.living-overworld-proof-controls summary').click();
   const celestialSlider = childOne.getByLabel('Living Overworld celestial height');
   await celestialSlider.fill('0');
-  const lowCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => element.style.top);
+  const lowCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => (element as HTMLElement).style.getPropertyValue('--celestial-top'));
   await celestialSlider.fill('100');
-  const highCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => element.style.top);
+  const highCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => (element as HTMLElement).style.getPropertyValue('--celestial-top'));
   const manualCelestialTransition = await livingBanner.locator('.living-overworld-sun').evaluate((element) => getComputedStyle(element).transitionDuration);
-  if (lowCelestialTop !== '68%' || highCelestialTop !== '10%' || manualCelestialTransition !== '0s') {
+  if (lowCelestialTop !== '68%' || highCelestialTop !== '18%' || manualCelestialTransition !== '0s') {
     throw new Error(`Living Overworld celestial height override failed: low=${lowCelestialTop}, high=${highCelestialTop}, transition=${manualCelestialTransition}`);
   }
   await childOne.getByRole('button', { name: 'Use automatic celestial height' }).click();
@@ -581,12 +581,19 @@ try {
   const livingNight = await livingBanner.evaluate((banner) => {
     const stars = banner.querySelector('.living-overworld-stars')!;
     const comet = banner.querySelector('.living-overworld-comet')!;
+    const moon = banner.querySelector('.living-overworld-moon')!;
+    const nightArtwork = banner.querySelector<HTMLImageElement>('.authored-night-background img')!;
+    const headerRect = document.querySelector('.topbar')!.getBoundingClientRect();
+    const moonRect = moon.getBoundingClientRect();
     return {
       sun: getComputedStyle(banner.querySelector('.living-overworld-sun')!).display,
-      moon: getComputedStyle(banner.querySelector('.living-overworld-moon')!).display,
-      moonWidth: banner.querySelector('.living-overworld-moon')!.getBoundingClientRect().width,
-      moonRadius: getComputedStyle(banner.querySelector('.living-overworld-moon')!).borderRadius,
-      moonAssetWidth: (banner.querySelector('.living-overworld-moon img') as HTMLImageElement).naturalWidth,
+      moon: getComputedStyle(moon).display,
+      moonWidth: moonRect.width,
+      moonRadius: getComputedStyle(moon).borderRadius,
+      moonAssetWidth: (moon.querySelector('img') as HTMLImageElement).naturalWidth,
+      moonContained: moonRect.top >= headerRect.bottom - 1,
+      nightArtwork: nightArtwork.currentSrc,
+      nightArtworkOpacity: Number.parseFloat(getComputedStyle(nightArtwork.parentElement!).opacity),
       stars: stars.querySelectorAll('i').length,
       visibleStars: [...stars.querySelectorAll('i')].filter((star) => {
         const starRect = star.getBoundingClientRect();
@@ -602,7 +609,8 @@ try {
     };
   });
   if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.moonWidth < 60
-    || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768
+    || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768 || !livingNight.moonContained
+    || !livingNight.nightArtwork.endsWith('/seasons/autumn/night-desktop.png') || livingNight.nightArtworkOpacity < .9
     || livingNight.stars < 100 || livingNight.visibleStars < 24 || livingNight.starOpacity < .9 || !livingNight.starAnimation.includes('living-star-turn')
     || livingNight.cometWidth > 10 || livingNight.cometTailWidth < 100 || !livingNight.cometAnimation.includes('living-comet-head')
     || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
@@ -665,6 +673,27 @@ try {
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-snow-mobile.png'), fullPage: true });
   await childTwo.locator('.living-overworld-proof-controls summary').click();
   await childTwo.getByLabel('Living Overworld weather proof').selectOption('clear');
+  await childTwo.getByLabel('Living Overworld season').selectOption('autumn');
+  await childTwo.getByLabel('Living Overworld light proof').selectOption('night');
+  await childTwo.getByLabel('Living Overworld moon phase').selectOption('full');
+  await childTwo.waitForTimeout(2500);
+  const mobileAutumnNight = await childTwo.locator('.living-overworld-banner').evaluate((banner) => {
+    const artwork = banner.querySelector<HTMLImageElement>('.authored-night-background img')!;
+    const moon = banner.querySelector('.living-overworld-moon')!;
+    return {
+      artwork: artwork.currentSrc,
+      opacity: Number.parseFloat(getComputedStyle(artwork.parentElement!).opacity),
+      moonTop: moon.getBoundingClientRect().top,
+      headerBottom: document.querySelector('.topbar')!.getBoundingClientRect().bottom
+    };
+  });
+  if (!mobileAutumnNight.artwork.endsWith('/seasons/autumn/night-mobile.png') || mobileAutumnNight.opacity < .9
+    || mobileAutumnNight.moonTop < mobileAutumnNight.headerBottom - 1) {
+    throw new Error(`Living Overworld mobile autumn night integration failed: ${JSON.stringify(mobileAutumnNight)}`);
+  }
+  await childTwo.locator('.living-overworld-proof-controls summary').click();
+  await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-autumn-night-mobile.png'), fullPage: true });
+  await childTwo.locator('.living-overworld-proof-controls summary').click();
   await childTwo.getByLabel('Living Overworld season').selectOption('winter');
   await childTwo.getByLabel('Living Overworld light proof').selectOption('night');
   await childTwo.getByLabel('Living Overworld moon phase').selectOption('first-quarter');

@@ -12,7 +12,7 @@ The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presen
 
 The local correction checkpoint passes 52 automated tests, client/server TypeScript checks, the production build, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms the direct celestial-height control, storm canopy, denser snow, clearer stars, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
 
-A replacement autumn-night landscape has been prepared strictly as a [Product Owner visual proof](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md). It keeps the accepted geography while replacing the flat darkened treatment with authored moonlit color, warm windows, and clean transparent skyline edges. It is not referenced by the runtime and must not be integrated until explicitly accepted.
+The Product Owner accepted the [autumn-night treatment](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md). The runtime now crossfades the dedicated mobile and desktop night masters over the matching autumn landscape, preserving independent sky, celestial, star, cloud, fog, and precipitation layers. The vertical sun/moon track now stops with the complete disk below the transparent header on desktop and portrait mobile.
 
 No additional Living Overworld milestone is inferred. Spring/summer artwork, creatures, foreground scenery, accumulation, and environmental simulation remain deferred until explicitly authorized.
 

@@ -61,13 +61,13 @@ Living Overworld uses cohesive seasonal illustrations. Each season is one comple
 - Autumn and winter are accepted seasonal masters. Spring and summer temporarily fall back to autumn until separate artwork is approved.
 - The scene is 330–380 CSS pixels tall on desktop and landscape tablets, and 170 pixels on portrait mobile, with controls outside the scenic area.
 - The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
-- In automatic mode, the sun and moon remain horizontally centered and travel only vertically. Their rise/apex/set progress follows the cached sunrise and sunset times; the apex passes above the banner, and a short central-horizon buffer advances the morning/evening lighting when the illustration occludes the body.
+- In automatic mode, the sun and moon remain horizontally centered and travel only vertically. Their rise/apex/set progress follows the cached sunrise and sunset times; the apex is contained below the transparent application header, and a short central-horizon buffer advances the morning/evening lighting when the illustration occludes the body.
 - Scene controls remain available beside the motion control for temporary season, lighting, weather, moon-phase, and celestial-height overrides. The height slider is intentionally direct: moving it right raises the active sun or moon, and `Auto` restores live timing.
 - The status displays both Celsius and Fahrenheit. Evening and night include a prominent, very slowly rotating star field. Rare downward comets and meteors use a traveling luminous head and fading tail rather than translating a rigid line.
 - Creatures and modular terrain placement are intentionally absent from this replacement foundation.
 - Reduced motion freezes clouds and fog and disables continuous particles and rare sky events while preserving a readable static scene.
 
-See [Living Overworld release review](LIVING_OVERWORLD_RESTART_REVIEW.md) for responsive evidence and the cleanup audit. A replacement autumn-night landscape is currently isolated as a [Product Owner proof](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md); it is not part of the active seasonal artwork.
+See [Living Overworld release review](LIVING_OVERWORLD_RESTART_REVIEW.md) for responsive evidence and the cleanup audit. The accepted [autumn-night treatment](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md) is part of the active seasonal artwork.
 
 ## Asset organization
 

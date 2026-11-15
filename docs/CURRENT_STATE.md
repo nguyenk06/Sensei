@@ -23,7 +23,8 @@ Implemented and verified:
 - Temperatures are presented in Celsius and Fahrenheit. Evening and night add a prominent, slowly rotating varied star field, while rare downward comets and meteors use a moving luminous head and fading tail behind the seasonal illustration.
 - The development scene control exposes an intuitive celestial-height override: moving the slider right raises the active body, while `Auto` restores sunrise/sunset timing.
 - Autumn mobile and desktop alpha edges were tightened to remove the colored halo visible against darker weather skies.
-- A new autumn-night landscape treatment exists only as a Product Owner proof. It preserves the accepted geography, supplies authored moonlit color and clean transparent skyline edges, and remains excluded from runtime pending visual approval. See [Autumn night proof](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md).
+- The accepted autumn-night landscape preserves the approved geography while supplying authored moonlit color, warm retreat windows, and clean transparent skyline edges. It crossfades over the day master at night while independent celestial and weather layers remain active. See [Autumn night integration](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md).
+- The sun and moon remain horizontally centered and travel only vertically. Their highest position keeps the complete disk below the transparent header on desktop and portrait mobile; landscape features continue to occlude the body naturally.
 - Seven-day adjacent-season transitions with controlled image mounting and responsive artwork selection.
 - Spring and summer intentionally fall back to autumn artwork until separate seasonal artwork is approved.
 - Creatures and foreground scenery are absent from this simplified renderer and deferred to a later bounded milestone.

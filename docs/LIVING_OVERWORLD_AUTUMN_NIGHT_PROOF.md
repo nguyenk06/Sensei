@@ -1,6 +1,6 @@
 # Living Overworld autumn night proof
 
-Status: **Pending Product Owner visual acceptance. Not integrated into Sensei.**
+Status: **Accepted by the Product Owner and integrated into Living Overworld.**
 
 This proof preserves the accepted autumn geography while testing a dedicated authored night treatment. The desktop and mobile illustrations retain transparent sky openings so the production sun, moon, stars, clouds, and weather can remain independent layers.
 
@@ -22,4 +22,4 @@ The proof changes only landscape lighting and upper silhouette treatment:
 - [Transparent desktop artwork](assets/living-overworld-night-proof/autumn-night-desktop-proof.png)
 - [Transparent mobile artwork](assets/living-overworld-night-proof/autumn-night-mobile-proof.png)
 
-The proof files are documentation artifacts only. Runtime selection, crossfading, production optimization, and replacement of the current autumn artwork require a separate Product Owner acceptance decision.
+The accepted transparent masters are installed as `seasons/autumn/night-desktop.png` and `seasons/autumn/night-mobile.png`. Living Overworld crossfades the authored treatment over the matching autumn landscape at night while keeping the sky, moon, stars, clouds, fog, and precipitation independent. Spring and summer currently share the autumn fallback and therefore use the same authored night treatment until their own seasonal artwork is approved.

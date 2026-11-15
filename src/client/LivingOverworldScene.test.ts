@@ -16,7 +16,9 @@ describe('Living Overworld theme foundation', () => {
   it('uses one cohesive illustration per approved seasonal proof', () => {
     expect(livingSeasonIllustrations.autumn).toEqual({
       mobile: '/assets/living-overworld/seasons/autumn/mobile.png',
-      desktop: '/assets/living-overworld/seasons/autumn/desktop.png'
+      desktop: '/assets/living-overworld/seasons/autumn/desktop.png',
+      nightMobile: '/assets/living-overworld/seasons/autumn/night-mobile.png',
+      nightDesktop: '/assets/living-overworld/seasons/autumn/night-desktop.png'
     });
     expect(livingSeasonIllustrations.winter).toEqual({
       mobile: '/assets/living-overworld/seasons/winter/mobile.png',
@@ -57,7 +59,7 @@ describe('Living Overworld theme foundation', () => {
     expect(livingLightFor(new Date('2026-07-16T07:00:00Z'), null, null)).toBe('night');
   });
 
-  it('moves the celestial body vertically from the horizon through an off-screen apex', () => {
+  it('moves the celestial body vertically from the horizon to a contained apex', () => {
     const sunrise = '2026-07-15T06:00';
     const sunset = '2026-07-15T20:00';
     const rising = livingCelestialTrackFor(new Date('2026-07-15T13:00:00Z'), sunrise, sunset);
@@ -65,18 +67,18 @@ describe('Living Overworld theme foundation', () => {
     const night = livingCelestialTrackFor(new Date('2026-07-16T08:00:00Z'), sunrise, sunset);
     expect(rising).toMatchObject({ body: 'sun', progress: 0, topPercent: 72 });
     expect(apex.body).toBe('sun');
-    expect(apex.topPercent).toBeCloseTo(-10, 5);
+    expect(apex.topPercent).toBeCloseTo(18, 5);
     expect(night.body).toBe('moon');
     expect(night.progress).toBeCloseTo(.5, 5);
-    expect(night.topPercent).toBeCloseTo(-10, 5);
+    expect(night.topPercent).toBeCloseTo(18, 5);
   });
 
   it('maps the manual celestial slider from low to high in the intuitive direction', () => {
     expect(livingCelestialTopForPreviewHeight(0)).toBe(68);
-    expect(livingCelestialTopForPreviewHeight(50)).toBe(39);
-    expect(livingCelestialTopForPreviewHeight(100)).toBe(10);
+    expect(livingCelestialTopForPreviewHeight(50)).toBe(43);
+    expect(livingCelestialTopForPreviewHeight(100)).toBe(18);
     expect(livingCelestialTopForPreviewHeight(-50)).toBe(68);
-    expect(livingCelestialTopForPreviewHeight(150)).toBe(10);
+    expect(livingCelestialTopForPreviewHeight(150)).toBe(18);
   });
 
   it('uses real weather in auto mode and preserves preview overrides', () => {

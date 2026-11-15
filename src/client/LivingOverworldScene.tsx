@@ -17,20 +17,22 @@ const newMoonEpoch = Date.parse('2000-01-06T18:14:00Z');
 const synodicMonthDays = 29.530588853;
 
 interface LivingSeasonBlend { primary: LivingSeason; adjacent: LivingSeason | null; adjacentOpacity: number }
-export interface LivingSeasonArtwork { mobile: string; desktop: string }
+export interface LivingSeasonArtwork { mobile: string; desktop: string; nightMobile?: string; nightDesktop?: string }
 export interface LivingCelestialTrack { body: 'sun' | 'moon'; progress: number; topPercent: number }
 type AtmosphereStyle = CSSProperties & Record<`--${string}`, string>;
 
 const celestialHorizonPercent = 72;
-const celestialApexPercent = -10;
+const celestialApexPercent = 18;
 const celestialPreviewLowPercent = 68;
-const celestialPreviewHighPercent = 10;
+const celestialPreviewHighPercent = celestialApexPercent;
 const illustratedHorizonPercent = 55;
 const twilightBlendMinutes = 20;
 
 const autumnArtwork: LivingSeasonArtwork = {
   mobile: `${assetRoot}/seasons/autumn/mobile.png`,
-  desktop: `${assetRoot}/seasons/autumn/desktop.png`
+  desktop: `${assetRoot}/seasons/autumn/desktop.png`,
+  nightMobile: `${assetRoot}/seasons/autumn/night-mobile.png`,
+  nightDesktop: `${assetRoot}/seasons/autumn/night-desktop.png`
 };
 const winterArtwork: LivingSeasonArtwork = {
   mobile: `${assetRoot}/seasons/winter/mobile.png`,
@@ -46,10 +48,18 @@ export const livingSeasonIllustrations: Record<LivingSeason, LivingSeasonArtwork
 };
 
 function SeasonArtwork({ artwork, adjacentOpacity }: { artwork: LivingSeasonArtwork; adjacentOpacity?: number }) {
-  return <picture className={`living-overworld-background${adjacentOpacity === undefined ? '' : ' adjacent-season-background'}`} style={adjacentOpacity === undefined ? undefined : { opacity: adjacentOpacity }}>
-    <source media="(max-width: 700px)" srcSet={artwork.mobile} />
-    <img src={artwork.desktop} alt="" />
-  </picture>;
+  const seasonOpacity = adjacentOpacity ?? 1;
+  const nightStyle = { '--season-opacity': `${seasonOpacity}` } as CSSProperties & Record<'--season-opacity', string>;
+  return <>
+    <picture className={`living-overworld-background${adjacentOpacity === undefined ? '' : ' adjacent-season-background'}`} style={adjacentOpacity === undefined ? undefined : { opacity: adjacentOpacity }}>
+      <source media="(max-width: 700px)" srcSet={artwork.mobile} />
+      <img src={artwork.desktop} alt="" />
+    </picture>
+    {artwork.nightMobile && artwork.nightDesktop && <picture className="living-overworld-background authored-night-background" style={nightStyle}>
+      <source media="(max-width: 700px)" srcSet={artwork.nightMobile} />
+      <img src={artwork.nightDesktop} alt="" />
+    </picture>}
+  </>;
 }
 
 function pacificParts(date: Date): { year: number; month: number; day: number; hour: number; minute: number } {
@@ -233,8 +243,10 @@ export function LivingOverworldScene() {
       : illustratedHorizonPercent;
   const automaticCelestialHeight = livingCelestialHeightForTop(automaticCelestialTop);
   const celestialTop = celestialHeightOverride === null ? automaticCelestialTop : livingCelestialTopForPreviewHeight(celestialHeightOverride);
+  const celestialStyle = { '--celestial-top': `${celestialTop}%` } as CSSProperties & Record<'--celestial-top', string>;
   const primaryIllustration = livingSeasonIllustrations[blend.primary];
   const adjacentIllustration = blend.adjacent ? livingSeasonIllustrations[blend.adjacent] : null;
+  const hasAuthoredNight = Boolean(primaryIllustration.nightMobile || adjacentIllustration?.nightMobile);
 
   function toggleMotion() {
     const next = !motionEnabled;
@@ -268,12 +280,12 @@ export function LivingOverworldScene() {
     </div></details>
   </div>;
 
-  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'} ${celestialHeightOverride === null ? 'celestial-auto' : 'celestial-preview'}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
+  return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'} ${celestialHeightOverride === null ? 'celestial-auto' : 'celestial-preview'} ${hasAuthoredNight ? 'has-authored-night' : ''}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
       <div className="living-overworld-sky" /><div className="living-overworld-stars"><AtmosphereParticles kind="star" count={104} /></div>
       <div className="living-overworld-sky-events"><i className="living-overworld-comet" /><i className="living-overworld-meteor" /></div>
-      <div className="living-overworld-sun" style={{ top: `${celestialTop}%` }} />
-      <div className={`living-overworld-moon phase-${moonPhase}`} style={{ top: `${celestialTop}%` }}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
+      <div className="living-overworld-sun" style={celestialStyle} />
+      <div className={`living-overworld-moon phase-${moonPhase}`} style={celestialStyle}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
       {['a', 'b', 'c', 'd', 'e', 'f'].map((cloud) => <div key={cloud} className={`living-overworld-cloud cloud-${cloud}`}><i /><i /><i /></div>)}
       <div className="living-overworld-storm-canopy"><i /><i /><i /><i /></div>
       <SeasonArtwork artwork={primaryIllustration} />
