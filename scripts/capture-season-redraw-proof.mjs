@@ -1,0 +1,20 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { chromium } from 'playwright-core';
+
+const root = process.cwd();
+const pageUrl = pathToFileURL(path.join(root, 'docs/prototypes/living-overworld-season-redraw-review.html')).href;
+const output = path.join(root, 'docs/assets/living-overworld-season-redraw-proof');
+fs.mkdirSync(output, { recursive: true });
+const browser = await chromium.launch({ executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', headless: true });
+const page = await browser.newPage({ viewport: { width: 2048, height: 1200 }, deviceScaleFactor: 1 });
+await page.goto(pageUrl, { waitUntil: 'networkidle' });
+await page.locator('#autumn-desktop').screenshot({ path: path.join(output, 'review-autumn-desktop.png') });
+await page.locator('#autumn-mobile').screenshot({ path: path.join(output, 'review-autumn-mobile.png') });
+await page.locator('#winter-desktop').screenshot({ path: path.join(output, 'review-winter-desktop.png') });
+await page.locator('#winter-mobile').screenshot({ path: path.join(output, 'review-winter-mobile.png') });
+await page.locator('#edge-inspection').screenshot({ path: path.join(output, 'review-edge-inspection.png') });
+await page.screenshot({ path: path.join(output, 'review-full-page.png'), fullPage: true });
+await browser.close();
+console.log(JSON.stringify({ page: pageUrl, output }, null, 2));
