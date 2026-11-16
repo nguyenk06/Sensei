@@ -26,6 +26,8 @@ The accepted autumn day/night masters replace the previous autumn artwork, and t
 
 The Product Owner subsequently approved a pushed-back autumn composition. The refined masters preserve the valley, retreat, water, palette, transparent skyline, and independent atmosphere while reducing foreground dominance and adding more visible sky and middle-ground depth. Desktop and portrait mobile retain separate, cohesive compositions; each viewport's day and authored-night masters remain geometrically matched.
 
+The final desktop presentation anchors the autumn masters at 88% vertically so more of the authored foreground remains visible without changing the banner height. Portrait mobile retains its independently approved 58% framing.
+
 | Desktop day | Desktop night |
 | --- | --- |
 | ![Refined autumn desktop day](assets/living-overworld-season-redraw-proof/review-autumn-reframe-desktop.png) | ![Refined autumn desktop night](assets/living-overworld-season-redraw-proof/review-autumn-reframe-night-desktop.png) |

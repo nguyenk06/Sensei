@@ -524,6 +524,7 @@ try {
   await childOne.getByLabel('Living Overworld weather proof').selectOption('snow');
   const snowProof = await childOne.locator('.living-overworld-snow.snow-near').evaluate((element) => ({
     display: getComputedStyle(element).display,
+    farParticleCount: document.querySelector('.living-overworld-snow.snow-far')?.querySelectorAll('i').length ?? 0,
     particleCount: element.querySelectorAll('i').length,
     visibleParticles: [...element.querySelectorAll('i')].filter((particle) => {
       const particleRect = particle.getBoundingClientRect();
@@ -532,7 +533,7 @@ try {
     }).length,
     animation: getComputedStyle(element.querySelector('i')!).animationName
   }));
-  if (snowProof.display === 'none' || snowProof.particleCount < 50 || snowProof.visibleParticles < 18
+  if (snowProof.display === 'none' || snowProof.farParticleCount !== 264 || snowProof.particleCount !== 162 || snowProof.visibleParticles < 54
     || !snowProof.animation.includes('living-snow-flake')) throw new Error(`Living Overworld snow proof is inactive: ${JSON.stringify(snowProof)}`);
   await childOne.getByLabel('Living Overworld weather proof').selectOption('fog');
   await childOne.getByLabel('Living Overworld light proof').selectOption('night');

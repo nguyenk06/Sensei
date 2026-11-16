@@ -643,6 +643,7 @@ html[data-theme="living-overworld"] .weeksheet-heading {
 .living-overworld-scene { position:absolute; inset:0; overflow:hidden; background:#68bef1; contain:paint; }
 .living-overworld-background { position:absolute; z-index:3; inset:0; width:100%; height:100%; pointer-events:none; user-select:none; transition:filter 8s ease,opacity 1.1s ease; }
 .living-overworld-background img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 70%; }
+@media(min-width:701px) { .season-autumn .living-overworld-background img { object-position:center 88%; } }
 .adjacent-season-background { will-change:opacity; }
 .living-overworld-sky { position:absolute; z-index:0; inset:0; pointer-events:none; background:linear-gradient(180deg,#4c9ed1,#8bd2ef 74%,#d6edf1); transition:background 8s ease; }
 .light-morning .living-overworld-sky { background:linear-gradient(180deg,#5f84ab,#efb488 62%,#ffe0a5); }

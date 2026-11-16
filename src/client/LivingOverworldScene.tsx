@@ -294,8 +294,8 @@ export function LivingOverworldScene() {
       {adjacentIllustration && adjacentIllustration !== primaryIllustration && <SeasonArtwork artwork={adjacentIllustration} adjacentOpacity={blend.adjacentOpacity} />}
       <div className="living-overworld-rain rain-far"><AtmosphereParticles kind="rain-far" count={86} /></div>
       <div className="living-overworld-rain rain-near"><AtmosphereParticles kind="rain-near" count={52} /></div>
-      <div className="living-overworld-snow snow-far"><AtmosphereParticles kind="snow-far" count={88} /></div>
-      <div className="living-overworld-snow snow-near"><AtmosphereParticles kind="snow-near" count={54} /></div>
+      <div className="living-overworld-snow snow-far"><AtmosphereParticles kind="snow-far" count={264} /></div>
+      <div className="living-overworld-snow snow-near"><AtmosphereParticles kind="snow-near" count={162} /></div>
       <div className="living-overworld-fog"><i /><i /><i /><i /><i /></div><div className="living-overworld-daylight" />
     </div>
   </section>{toolbar}</>;
