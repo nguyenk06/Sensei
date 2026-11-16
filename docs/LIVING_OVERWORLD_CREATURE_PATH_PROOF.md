@@ -1,6 +1,6 @@
 # Living Overworld creature and path proof
 
-Status: **Implemented and verified locally; awaiting separate release authorization**. The accepted artwork and movement rules are connected to the Living Overworld runtime in the current working branch, but the deployed household release remains unchanged.
+Status: **Implemented, verified, published, and deployed**. The accepted artwork and movement rules are active in the Living Overworld household release.
 
 ## Character tileset
 
@@ -74,5 +74,5 @@ Proposed near-ground reference heights are 56 px for the equally tall skeleton a
 
 The bounded implementation passes client/server TypeScript checks, 57 automated tests, the production build, and all 35 isolated browser workflows. Browser coverage verifies local creature assets, desktop population, the one-creature mobile cap, reduced motion, weather thinning, and unchanged chore and allowance workflows. Synthetic data and temporary databases are used.
 
-The household application has not been restarted or changed by this implementation. Publication and deployment remain separate actions.
+Application release commit `031978e` is published on `main` and deployed to the household installation. Release verification preserved database integrity and all financial, approval, claim, chore, authentication, network, and startup behavior.
 

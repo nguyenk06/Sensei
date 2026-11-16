@@ -85,11 +85,11 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 
 The current household application release is published application commit `28cc80d`. It retains the approved seasonal masters and atmosphere while replacing fixed rare-event tracks with randomized point-to-point sky travel. Meteors are brief descending streaks; comets are larger, slower icy bodies with soft plumes. Scene Controls can replay both. The accepted creature artwork and movement proof is published but not integrated into the runtime. Release verification passed 53 automated tests, TypeScript checks, the production build, and all 35 isolated browser workflows. Deployment used a verified SQLite-native online backup, rebuilt the exact published application commit, restarted only the existing Sensei scheduled task, and passed non-mutating health, bundle, weekly-board, 42-day calendar, allowance, weather, Parent Mode, live-control, and SQLite-integrity checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
 
-The newer local candidate integrates the accepted creatures and revised comet presentation. It passes 57 automated tests, TypeScript checks, the production build, and all 35 isolated browser workflows, but has not been pushed, deployed, or used to restart the household service.
+Application release commit `031978e` integrates the accepted creatures and revised comet presentation. It is published on `main`, deployed, and active after restarting only the established Sensei scheduled task. It passes 57 automated tests, TypeScript checks, the production build, all 35 isolated browser workflows, and live production checks with three daytime creatures, no horizontal overflow, and no browser warnings or errors.
 
 ## Remaining planner items
 
-1. Living Overworld creature integration is implemented and verified locally; publication and deployment still require an explicit release action.
+1. Living Overworld creature integration and the descending comet refinement are complete, published, and deployed.
 2. Spring and summer artwork, foreground scenery, creature interaction, chicken jockeys, and axolotls require separate Product Owner approval.
 3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
 4. Preserve the existing production backup and rollback practice for future releases.
