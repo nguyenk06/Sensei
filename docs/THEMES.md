@@ -63,7 +63,8 @@ Living Overworld uses cohesive seasonal illustrations. Each season is one comple
 - The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
 - In automatic mode, the sun and moon remain horizontally centered and travel only vertically. Their rise/apex/set progress follows the cached sunrise and sunset times; the apex is contained below the transparent application header, and a short central-horizon buffer advances the morning/evening lighting when the illustration occludes the body.
 - Scene controls remain available beside the motion control for temporary season, lighting, weather, moon-phase, and celestial-height overrides. The height slider is intentionally direct: moving it right raises the active sun or moon, and `Auto` restores live timing.
-- The status displays both Celsius and Fahrenheit. Evening and night include a prominent, very slowly rotating star field. Rare downward comets and meteors use a traveling luminous head and fading tail rather than translating a rigid line.
+- Scene controls also provide explicit comet and meteor preview triggers. Each event selects two valid sky points and vanishes at its destination. Meteors are brief downward streaks with sharp tails; comets are larger icy bodies that cross the sky slowly with soft plumes. The buttons do not change the normal rare-event schedule.
+- The status displays both Celsius and Fahrenheit. Evening and night include a prominent, very slowly rotating star field. Rare sky events use the same randomized point-to-point generator as the preview controls.
 - Creatures and modular terrain placement are intentionally absent from this replacement foundation.
 - Reduced motion freezes clouds and fog and disables continuous particles and rare sky events while preserving a readable static scene.
 

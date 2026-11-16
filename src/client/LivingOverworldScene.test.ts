@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { themes } from './themes';
 import {
-  livingCelestialTopForPreviewHeight, livingCelestialTrackFor, livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
+  createLivingSkyEvent, livingCelestialTopForPreviewHeight, livingCelestialTrackFor, livingLightFor, livingSeasonBlendFor, livingSeasonFor, livingSeasonIllustrations,
   livingWeatherFor, moonPhaseFor
 } from './LivingOverworldScene';
 
@@ -99,5 +99,18 @@ describe('Living Overworld theme foundation', () => {
 
   it('wraps dates before the reference epoch safely', () => {
     expect(moonPhaseFor(new Date(Date.parse('2000-01-06T18:14:00Z') - 29.530588853 * 86_400_000))).toBe('new');
+  });
+
+  it('gives meteors and comets distinct point-to-point sky travel', () => {
+    const meteor = createLivingSkyEvent('meteor', 1, () => .25);
+    const comet = createLivingSkyEvent('comet', 2, () => .25);
+    expect(meteor).toMatchObject({ kind: 'meteor', sequence: 1, durationMs: 1350 });
+    expect(comet).toMatchObject({ kind: 'comet', sequence: 2, durationMs: 9500 });
+    expect(meteor.endX).toBeGreaterThan(meteor.startX);
+    expect(meteor.endY).toBeGreaterThan(meteor.startY);
+    expect(comet.endX).toBeGreaterThan(comet.startX);
+    expect(comet.durationMs).toBeGreaterThan(meteor.durationMs * 5);
+    expect([meteor.startX, meteor.startY, meteor.endX, meteor.endY, comet.startX, comet.startY, comet.endX, comet.endY]
+      .every((coordinate) => coordinate >= 0 && coordinate <= 100)).toBe(true);
   });
 });

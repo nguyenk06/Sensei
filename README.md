@@ -37,7 +37,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-> **Living Overworld milestone:** The retired modular renderer and editor have been removed. Product Owner-approved autumn and winter artwork use separate mobile and desktop crop masters. The atmosphere layer now adds real-weather cloud density, fine vertical rain, slow independent snow, drifting ground fog, dual-unit temperature, and restrained night-sky events. See the [release review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md).
+> **Living Overworld milestone:** Product Owner-approved autumn and winter artwork use separate mobile and desktop crop masters. Atmosphere includes real-weather cloud density, rain, snow, fog, dual-unit temperature, and randomized point-to-point sky events. The accepted creature roster, scale study, shared movement areas, depth scaling, and river-bank hop are published as a planning proof; creatures are not yet integrated into the runtime. See the [release review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md) and [creature movement proof](docs/LIVING_OVERWORLD_CREATURE_PATH_PROOF.md).
 
 The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, audited monthly/lifetime Money History totals, original Overworld night encounters, and a full calendar containing newly configured and future expected chores without materializing their weekly snapshots early. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, calendar projections, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The release passes 41 automated tests plus the isolated end-to-end browser workflow.
 
@@ -61,6 +61,7 @@ The safe defaults bind to `127.0.0.1:3000` and store development data under `.lo
 - [Living Overworld restart review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md)
 - [Living Overworld autumn-night integration](docs/LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md)
 - [Living Overworld seasonal redraw integration](docs/LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md)
+- [Living Overworld creature and movement proof](docs/LIVING_OVERWORLD_CREATURE_PATH_PROOF.md)
 - [Current state](docs/CURRENT_STATE.md)
 - [Architecture and data integrity](docs/ARCHITECTURE.md)
 - [Theme system and Overworld assets](docs/THEMES.md)

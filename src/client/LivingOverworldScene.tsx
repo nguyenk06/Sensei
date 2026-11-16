@@ -6,6 +6,17 @@ export type LivingLight = 'morning' | 'day' | 'evening' | 'night';
 type Override<T extends string> = T | 'auto';
 export type MoonPhase = 'new' | 'waxing-crescent' | 'first-quarter' | 'waxing-gibbous' | 'full' | 'waning-gibbous' | 'last-quarter' | 'waning-crescent';
 type MoonOverride = MoonPhase | 'auto';
+type SkyEventKind = 'comet' | 'meteor';
+export interface LivingSkyEvent {
+  kind: SkyEventKind;
+  sequence: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  angle: number;
+  durationMs: number;
+}
 
 const assetRoot = '/assets/living-overworld';
 const motionStorageKey = 'sensei-living-overworld-motion';
@@ -27,6 +38,23 @@ const celestialPreviewLowPercent = 68;
 const celestialPreviewHighPercent = celestialApexPercent;
 const illustratedHorizonPercent = 55;
 const twilightBlendMinutes = 20;
+
+function randomBetween(random: () => number, minimum: number, maximum: number): number {
+  return minimum + random() * (maximum - minimum);
+}
+
+export function createLivingSkyEvent(kind: SkyEventKind, sequence: number, random: () => number = Math.random): LivingSkyEvent {
+  const travelsRight = random() < .5;
+  const startX = travelsRight ? randomBetween(random, 3, 22) : randomBetween(random, 78, 97);
+  const endX = travelsRight ? randomBetween(random, 72, 97) : randomBetween(random, 3, 28);
+  const startY = kind === 'meteor' ? randomBetween(random, 5, 24) : randomBetween(random, 8, 28);
+  const endY = kind === 'meteor'
+    ? randomBetween(random, Math.max(36, startY + 16), 68)
+    : Math.max(5, Math.min(38, startY + randomBetween(random, -4, 9)));
+  // The scene is much wider than it is tall; compensate so the trail follows the visual path.
+  const angle = Math.atan2((endY - startY) * .2, endX - startX) * 180 / Math.PI;
+  return { kind, sequence, startX, startY, endX, endY, angle, durationMs: kind === 'meteor' ? 1350 : 9500 };
+}
 
 const autumnArtwork: LivingSeasonArtwork = {
   mobile: `${assetRoot}/seasons/autumn/mobile.png`,
@@ -209,6 +237,7 @@ export function LivingOverworldScene() {
   const [weatherOverride, setWeatherOverride] = useState<Override<OverworldWeatherAppearance>>('auto');
   const [moonOverride, setMoonOverride] = useState<MoonOverride>('auto');
   const [celestialHeightOverride, setCelestialHeightOverride] = useState<number | null>(null);
+  const [skyEventPreview, setSkyEventPreview] = useState<LivingSkyEvent | null>(null);
   const [weather, setWeather] = useState<OverworldWeatherResponse | null>(null);
   const [now, setNow] = useState(() => new Date());
   const [motionEnabled, setMotionEnabled] = useState(storedMotionPreference);
@@ -249,11 +278,33 @@ export function LivingOverworldScene() {
   const primaryIllustration = livingSeasonIllustrations[blend.primary];
   const adjacentIllustration = blend.adjacent ? livingSeasonIllustrations[blend.adjacent] : null;
   const hasAuthoredNight = Boolean(primaryIllustration.nightMobile || adjacentIllustration?.nightMobile);
+  const skyEventStyle = skyEventPreview ? {
+    '--event-start-x': `${skyEventPreview.startX}%`, '--event-start-y': `${skyEventPreview.startY}%`,
+    '--event-end-x': `${skyEventPreview.endX}%`, '--event-end-y': `${skyEventPreview.endY}%`,
+    '--event-angle': `${skyEventPreview.angle}deg`, '--event-duration': `${skyEventPreview.durationMs}ms`
+  } as AtmosphereStyle : undefined;
+
+  useEffect(() => {
+    if (!moving || (light !== 'evening' && light !== 'night')) return;
+    let timer = 0;
+    const schedule = () => {
+      timer = window.setTimeout(() => {
+        setSkyEventPreview((current) => createLivingSkyEvent(Math.random() < .82 ? 'meteor' : 'comet', (current?.sequence ?? 0) + 1));
+        schedule();
+      }, randomBetween(Math.random, 110_000, 230_000));
+    };
+    schedule();
+    return () => window.clearTimeout(timer);
+  }, [light, moving]);
 
   function toggleMotion() {
     const next = !motionEnabled;
     setMotionEnabled(next);
     try { localStorage.setItem(motionStorageKey, next ? 'on' : 'off'); } catch { /* Session state still works. */ }
+  }
+
+  function triggerSkyEvent(kind: SkyEventKind) {
+    setSkyEventPreview((current) => createLivingSkyEvent(kind, (current?.sequence ?? 0) + 1));
   }
 
   const toolbar = <div className="living-overworld-toolbar">
@@ -279,13 +330,20 @@ export function LivingOverworldScene() {
         <button type="button" aria-label="Use automatic celestial height" aria-pressed={celestialHeightOverride === null}
           onClick={() => setCelestialHeightOverride(null)}>Auto</button>
       </div>
+      <div className="living-overworld-event-controls" role="group" aria-label="Sky event preview controls">
+        <span>Sky events</span>
+        <button type="button" disabled={!moving} onClick={() => triggerSkyEvent('comet')}>Trigger comet</button>
+        <button type="button" disabled={!moving} onClick={() => triggerSkyEvent('meteor')}>Trigger meteor</button>
+      </div>
     </div></details>
   </div>;
 
   return <><section className={`living-overworld-banner season-${season} light-${light} weather-${weatherAppearance} moon-${moonPhase} ${moving ? 'motion-on' : 'motion-off'} ${celestialHeightOverride === null ? 'celestial-auto' : 'celestial-preview'} ${hasAuthoredNight ? 'has-authored-night' : ''}`} aria-label={`Living Overworld ${season} retreat scene during ${light} with ${weatherAppearance} weather`}>
     <div className="living-overworld-scene" aria-hidden="true">
       <div className="living-overworld-sky" /><div className="living-overworld-stars"><AtmosphereParticles kind="star" count={104} /></div>
-      <div className="living-overworld-sky-events"><i className="living-overworld-comet" /><i className="living-overworld-meteor" /></div>
+      <div className="living-overworld-sky-events">
+        {skyEventPreview && <i key={`${skyEventPreview.kind}-${skyEventPreview.sequence}`} style={skyEventStyle} className={`living-overworld-preview-event preview-${skyEventPreview.kind}`} />}
+      </div>
       <div className="living-overworld-sun" style={celestialStyle} />
       <div className={`living-overworld-moon phase-${moonPhase}`} style={celestialStyle}><img src={`${assetRoot}/moon-detailed.png`} alt="" /></div>
       {['a', 'b', 'c', 'd', 'e', 'f'].map((cloud) => <div key={cloud} className={`living-overworld-cloud cloud-${cloud}`}><i /><i /><i /></div>)}

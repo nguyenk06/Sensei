@@ -581,7 +581,6 @@ try {
   await childOne.waitForTimeout(2200);
   const livingNight = await livingBanner.evaluate((banner) => {
     const stars = banner.querySelector('.living-overworld-stars')!;
-    const comet = banner.querySelector('.living-overworld-comet')!;
     const moon = banner.querySelector('.living-overworld-moon')!;
     const nightArtwork = banner.querySelector<HTMLImageElement>('.authored-night-background img')!;
     const headerRect = document.querySelector('.topbar')!.getBoundingClientRect();
@@ -603,17 +602,13 @@ try {
           && starRect.right > bannerRect.left && starRect.left < bannerRect.right;
       }).length,
       starOpacity: Number.parseFloat(getComputedStyle(stars).opacity),
-      starAnimation: getComputedStyle(stars).animationName,
-      cometWidth: comet.getBoundingClientRect().width,
-      cometAnimation: getComputedStyle(comet).animationName,
-      cometTailWidth: Number.parseFloat(getComputedStyle(comet, '::before').width)
+      starAnimation: getComputedStyle(stars).animationName
     };
   });
   if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.moonWidth < 60
     || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768 || !livingNight.moonContained
     || !livingNight.nightArtwork.endsWith('/seasons/autumn/night-desktop.png') || livingNight.nightArtworkOpacity < .9
     || livingNight.stars < 100 || livingNight.visibleStars < 24 || livingNight.starOpacity < .9 || !livingNight.starAnimation.includes('living-star-turn')
-    || livingNight.cometWidth > 10 || livingNight.cometTailWidth < 100 || !livingNight.cometAnimation.includes('living-comet-head')
     || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
     throw new Error(`Living Overworld night proof is invalid: ${JSON.stringify(livingNight)}`);
   }
@@ -625,6 +620,24 @@ try {
   if (await childOne.locator('.living-overworld-proof-controls').count() !== 1) throw new Error('Living Overworld scene controls are unavailable');
   if ((await childOne.locator('.living-overworld-proof-controls summary').innerText()).trim() !== 'Scene controls') throw new Error('Living Overworld scene controls are mislabeled');
   if (await childOne.getByRole('button', { name: /motion/ }).count() !== 1) throw new Error('Living Overworld motion control is not user-facing');
+  await childOne.locator('.living-overworld-proof-controls summary').click();
+  await childOne.getByLabel('Living Overworld light proof').selectOption('night');
+  await childOne.getByRole('button', { name: 'Trigger comet' }).click();
+  const cometPreview = childOne.locator('.living-overworld-preview-event.preview-comet');
+  if (await cometPreview.count() !== 1 || !(await cometPreview.evaluate((element) => getComputedStyle(element).animationName)).includes('living-sky-event-head')) {
+    throw new Error('Living Overworld comet preview control did not start the traveling comet');
+  }
+  await childOne.getByRole('button', { name: 'Trigger meteor' }).click();
+  const meteorPreview = childOne.locator('.living-overworld-preview-event.preview-meteor');
+  const meteorPreviewStyle = await meteorPreview.evaluate((element) => ({
+    head: getComputedStyle(element).animationName,
+    tail: getComputedStyle(element, '::before').animationName,
+    tailWidth: Number.parseFloat(getComputedStyle(element, '::before').width)
+  }));
+  if (!meteorPreviewStyle.head.includes('living-sky-event-head') || !meteorPreviewStyle.tail.includes('living-meteor-streak') || meteorPreviewStyle.tailWidth < 100) {
+    throw new Error(`Living Overworld meteor preview lacks a traveling head and trailing tail: ${JSON.stringify(meteorPreviewStyle)}`);
+  }
+  await childOne.locator('.living-overworld-proof-controls summary').click();
 
   await childTwo.evaluate(() => history.replaceState(null, '', '?living-preview=1'));
   await childTwo.getByLabel('Device theme').selectOption('living-overworld');
