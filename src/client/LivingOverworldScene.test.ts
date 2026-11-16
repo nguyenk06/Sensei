@@ -109,9 +109,9 @@ describe('Living Overworld theme foundation', () => {
     expect(meteor.endX).toBeGreaterThan(meteor.startX);
     expect(meteor.endY).toBeGreaterThan(meteor.startY);
     expect(comet.startY).toBeGreaterThanOrEqual(42);
-    expect(comet.endY).toBeGreaterThan(comet.startY);
+    expect(comet.endY).toBeGreaterThanOrEqual(108);
     expect(comet.durationMs).toBeGreaterThan(meteor.durationMs * 5);
-    expect([meteor.startX, meteor.startY, meteor.endX, meteor.endY, comet.startX, comet.startY, comet.endX, comet.endY]
+    expect([meteor.startX, meteor.startY, meteor.endX, meteor.endY, comet.startX, comet.startY, comet.endX]
       .every((coordinate) => coordinate >= 0 && coordinate <= 100)).toBe(true);
   });
 });

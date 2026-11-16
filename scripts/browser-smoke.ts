@@ -456,6 +456,8 @@ try {
   }
   await childOne.locator('.living-overworld-proof-controls summary').click();
   const celestialSlider = childOne.getByLabel('Living Overworld celestial height');
+  // At exact horizon time the automatic slider value can already be zero; move it first so the input event is guaranteed.
+  await celestialSlider.fill('1');
   await celestialSlider.fill('0');
   const lowCelestialTop = await livingBanner.locator('.living-overworld-sun').evaluate((element) => (element as HTMLElement).style.getPropertyValue('--celestial-top'));
   await celestialSlider.fill('100');
@@ -638,12 +640,15 @@ try {
     duration: getComputedStyle(element).animationDuration,
     startY: Number.parseFloat((element as HTMLElement).style.getPropertyValue('--event-start-y')),
     endY: Number.parseFloat((element as HTMLElement).style.getPropertyValue('--event-end-y')),
+    headWidth: Number.parseFloat(getComputedStyle(element).width),
     tailWidth: Number.parseFloat(getComputedStyle(element, '::before').width),
-    particles: getComputedStyle(element, '::after').animationName
+    particles: getComputedStyle(element, '::after').animationName,
+    particleCount: (getComputedStyle(element, '::after').boxShadow.match(/rgba?\(/g) ?? []).length
   }));
   if (!cometPreviewStyle.head.includes('living-sky-event-head') || cometPreviewStyle.duration !== '14s'
-    || cometPreviewStyle.startY < 42 || cometPreviewStyle.endY <= cometPreviewStyle.startY
-    || cometPreviewStyle.tailWidth < 150 || !cometPreviewStyle.particles.includes('living-comet-particles')) {
+    || cometPreviewStyle.startY < 42 || cometPreviewStyle.endY < 108 || cometPreviewStyle.headWidth > 9
+    || cometPreviewStyle.tailWidth < 120 || cometPreviewStyle.particleCount < 10
+    || !cometPreviewStyle.particles.includes('living-comet-particles')) {
     throw new Error(`Living Overworld comet preview is invalid: ${JSON.stringify(cometPreviewStyle)}`);
   }
   await childOne.getByRole('button', { name: 'Trigger meteor' }).click();

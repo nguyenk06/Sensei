@@ -49,7 +49,8 @@ export function createLivingSkyEvent(kind: SkyEventKind, sequence: number, rando
     const startX = randomBetween(random, 14, 86);
     const startY = randomBetween(random, 42, 50);
     const endX = Math.max(5, Math.min(95, startX + randomBetween(random, -12, 12)));
-    const endY = randomBetween(random, 86, 97);
+    // Finish below the scenic artwork so the landscape naturally hides the final frames.
+    const endY = randomBetween(random, 108, 118);
     const angle = Math.atan2((endY - startY) * .2, endX - startX) * 180 / Math.PI;
     return { kind, sequence, startX, startY, endX, endY, angle, durationMs: 14_000 };
   }
