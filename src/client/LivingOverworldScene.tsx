@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import type { OverworldWeatherAppearance, OverworldWeatherResponse } from '../shared/types';
+import { advanceLivingCreature, createLivingCreaturePopulation, type LivingCreatureState } from './livingOverworldCreatures';
 
 export type LivingSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 export type LivingLight = 'morning' | 'day' | 'evening' | 'night';
@@ -44,16 +45,22 @@ function randomBetween(random: () => number, minimum: number, maximum: number): 
 }
 
 export function createLivingSkyEvent(kind: SkyEventKind, sequence: number, random: () => number = Math.random): LivingSkyEvent {
+  if (kind === 'comet') {
+    const startX = randomBetween(random, 14, 86);
+    const startY = randomBetween(random, 42, 50);
+    const endX = Math.max(5, Math.min(95, startX + randomBetween(random, -12, 12)));
+    const endY = randomBetween(random, 86, 97);
+    const angle = Math.atan2((endY - startY) * .2, endX - startX) * 180 / Math.PI;
+    return { kind, sequence, startX, startY, endX, endY, angle, durationMs: 14_000 };
+  }
   const travelsRight = random() < .5;
   const startX = travelsRight ? randomBetween(random, 3, 22) : randomBetween(random, 78, 97);
   const endX = travelsRight ? randomBetween(random, 72, 97) : randomBetween(random, 3, 28);
-  const startY = kind === 'meteor' ? randomBetween(random, 5, 24) : randomBetween(random, 8, 28);
-  const endY = kind === 'meteor'
-    ? randomBetween(random, Math.max(36, startY + 16), 68)
-    : Math.max(5, Math.min(38, startY + randomBetween(random, -4, 9)));
+  const startY = randomBetween(random, 5, 24);
+  const endY = randomBetween(random, Math.max(36, startY + 16), 68);
   // The scene is much wider than it is tall; compensate so the trail follows the visual path.
   const angle = Math.atan2((endY - startY) * .2, endX - startX) * 180 / Math.PI;
-  return { kind, sequence, startX, startY, endX, endY, angle, durationMs: kind === 'meteor' ? 1350 : 9500 };
+  return { kind, sequence, startX, startY, endX, endY, angle, durationMs: 1350 };
 }
 
 const autumnArtwork: LivingSeasonArtwork = {
@@ -231,6 +238,24 @@ function AtmosphereParticles({ kind, count }: { kind: 'star' | 'rain-far' | 'rai
   return <>{Array.from({ length: count }, (_unused, index) => <i key={index} style={atmosphereStyle(index, count, kind)} />)}</>;
 }
 
+function LivingCreature({ creature }: { creature: LivingCreatureState }) {
+  const style = {
+    left: `${creature.x}%`, top: `${creature.y}%`, zIndex: 4 + Math.round(creature.y / 12),
+    '--creature-scale': `${creature.scale}`, '--creature-facing': `${creature.facing}`,
+    '--creature-move-duration': `${creature.moveDurationMs}ms`
+  } as AtmosphereStyle;
+  const movement = creature.hopping ? `is-hopping hop-${creature.moveSequence % 2}` : '';
+  const teleporting = creature.species === 'enderman' && creature.moveSequence > 0 ? 'is-teleporting' : '';
+  return <div className={`living-overworld-creature creature-${creature.species}`} style={style}>
+    <div key={creature.moveSequence} className={`living-overworld-creature-motion ${movement} ${teleporting}`}>
+      <i className="living-overworld-creature-sprite" />
+      {creature.species === 'enderman' && <span className="living-overworld-enderman-particles">
+        {Array.from({ length: 8 }, (_unused, index) => <i key={index} />)}
+      </span>}
+    </div>
+  </div>;
+}
+
 export function LivingOverworldScene() {
   const [seasonOverride, setSeasonOverride] = useState<Override<LivingSeason>>('auto');
   const [lightOverride, setLightOverride] = useState<Override<LivingLight>>('auto');
@@ -242,15 +267,23 @@ export function LivingOverworldScene() {
   const [now, setNow] = useState(() => new Date());
   const [motionEnabled, setMotionEnabled] = useState(storedMotionPreference);
   const [reducedMotion, setReducedMotion] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [mobileScene, setMobileScene] = useState(() => matchMedia('(max-width: 700px)').matches);
   const [pageVisible, setPageVisible] = useState(!document.hidden);
+  const [creatures, setCreatures] = useState<LivingCreatureState[]>([]);
 
   useEffect(() => {
     const query = matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileQuery = matchMedia('(max-width: 700px)');
     const onMotion = () => setReducedMotion(query.matches);
+    const onMobile = () => setMobileScene(mobileQuery.matches);
     const onVisibility = () => setPageVisible(!document.hidden);
     query.addEventListener('change', onMotion);
+    mobileQuery.addEventListener('change', onMobile);
     document.addEventListener('visibilitychange', onVisibility);
-    return () => { query.removeEventListener('change', onMotion); document.removeEventListener('visibilitychange', onVisibility); };
+    return () => {
+      query.removeEventListener('change', onMotion); mobileQuery.removeEventListener('change', onMobile);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, []);
 
   useEffect(() => {
@@ -296,6 +329,18 @@ export function LivingOverworldScene() {
     schedule();
     return () => window.clearTimeout(timer);
   }, [light, moving]);
+
+  useEffect(() => {
+    setCreatures(createLivingCreaturePopulation({ season, light, weather: weatherAppearance, mobile: mobileScene }));
+  }, [light, mobileScene, season, weatherAppearance]);
+
+  useEffect(() => {
+    if (!moving || creatures.length === 0) return;
+    const timer = window.setInterval(() => {
+      setCreatures((current) => current.map((creature) => advanceLivingCreature(creature, { season, mobile: mobileScene })));
+    }, 7_600);
+    return () => window.clearInterval(timer);
+  }, [creatures.length, mobileScene, moving, season]);
 
   function toggleMotion() {
     const next = !motionEnabled;
@@ -350,6 +395,7 @@ export function LivingOverworldScene() {
       <div className="living-overworld-storm-canopy"><i /><i /><i /><i /></div>
       <SeasonArtwork artwork={primaryIllustration} />
       {adjacentIllustration && adjacentIllustration !== primaryIllustration && <SeasonArtwork artwork={adjacentIllustration} adjacentOpacity={blend.adjacentOpacity} />}
+      <div className="living-overworld-creatures">{creatures.map((creature) => <LivingCreature key={creature.id} creature={creature} />)}</div>
       <div className="living-overworld-rain rain-far"><AtmosphereParticles kind="rain-far" count={86} /></div>
       <div className="living-overworld-rain rain-near"><AtmosphereParticles kind="rain-near" count={52} /></div>
       <div className="living-overworld-snow snow-far"><AtmosphereParticles kind="snow-far" count={264} /></div>

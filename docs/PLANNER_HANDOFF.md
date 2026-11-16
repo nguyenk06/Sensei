@@ -6,15 +6,15 @@ Handoff date: November 15, 2026.
 
 The Product Owner accepted the pushed-back autumn day/night set and dedicated blue winter-night treatments. Living Overworld uses cohesive responsive illustrations rather than the retired coordinate-based modular renderer. Autumn mobile and desktop are intentionally cohesive rather than identical, with additional sky and depth plus matching day/night geometry inside each viewport; winter retains its day geography and adds authored night lighting.
 
-The active stack is intentionally narrow: atmospheric sky; sun, phased moon, clouds and rare night-sky events; the seasonal illustration; then independent lighting and weather layers. Celestial objects and sky events pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creature runtime integration remains deferred, but its accepted artwork, scale, and movement design are published in [Living Overworld creature and movement proof](LIVING_OVERWORLD_CREATURE_PATH_PROOF.md).
+The active stack is intentionally narrow: atmospheric sky; sun, phased moon, clouds and rare night-sky events; the seasonal illustration; bounded decorative creatures; then independent lighting and weather layers. Celestial objects and sky events pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. The accepted creature artwork, scale, and movement rules are now implemented and verified locally; publication and deployment remain pending. See [Living Overworld creature and movement implementation](LIVING_OVERWORLD_CREATURE_PATH_PROOF.md).
 
-The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presentation, fine vertical rain beneath a heavy storm canopy, a three-times-denser evenly phased snow field, irregular drifting fog wisps, Celsius/Fahrenheit display, and a slowly rotating evening/night star field. Sky events now select two valid sky points: meteors descend quickly with a sharp trailing streak, while larger icy comets travel slowly with a soft plume. Scene controls can replay either event without changing natural rarity. Autumn alpha edges were tightened to remove the halo visible against dark weather skies, and desktop autumn framing uses an 88% vertical anchor to retain more foreground without changing the mobile crop.
+The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presentation, fine vertical rain beneath a heavy storm canopy, a three-times-denser evenly phased snow field, irregular drifting fog wisps, Celsius/Fahrenheit display, and a slowly rotating evening/night star field. Meteors retain their fast sharp streak. Comets now start below the transparent header and descend more slowly with a longer soft tail and trailing particles. Scene controls can replay either event without changing natural rarity. Autumn alpha edges were tightened to remove the halo visible against dark weather skies, and desktop autumn framing uses an 88% vertical anchor to retain more foreground without changing the mobile crop.
 
 The local correction checkpoint passes 52 automated tests, client/server TypeScript checks, the production build, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms the direct celestial-height control, storm canopy, denser snow, clearer stars, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
 
 The Product Owner accepted the [seasonal redraw](LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md). The runtime crossfades dedicated night masters over matching autumn and winter scenes while preserving independent sky, celestial, star, cloud, fog, and precipitation layers. The redrawn standalone artwork removes the former autumn skyline haze, and the vertical sun/moon track stops with the complete disk below the transparent header on desktop and portrait mobile.
 
-No additional Living Overworld milestone is inferred. Spring/summer artwork, runtime creatures, foreground scenery, accumulation, and environmental simulation remain deferred until explicitly authorized.
+No additional Living Overworld milestone is inferred. Spring/summer artwork, foreground scenery, accumulation, environmental simulation, creature interaction, and generalized pathfinding remain deferred until explicitly authorized.
 
 ## Authoritative baseline
 
@@ -85,10 +85,12 @@ Do not restart planning from `b32b7cc`. It is the pre-patch comparison base, not
 
 The current household application release is published application commit `28cc80d`. It retains the approved seasonal masters and atmosphere while replacing fixed rare-event tracks with randomized point-to-point sky travel. Meteors are brief descending streaks; comets are larger, slower icy bodies with soft plumes. Scene Controls can replay both. The accepted creature artwork and movement proof is published but not integrated into the runtime. Release verification passed 53 automated tests, TypeScript checks, the production build, and all 35 isolated browser workflows. Deployment used a verified SQLite-native online backup, rebuilt the exact published application commit, restarted only the existing Sensei scheduled task, and passed non-mutating health, bundle, weekly-board, 42-day calendar, allowance, weather, Parent Mode, live-control, and SQLite-integrity checks. Deployment-specific addresses, credentials, backup paths, launcher details, and firewall configuration remain outside repository documentation.
 
+The newer local candidate integrates the accepted creatures and revised comet presentation. It passes 57 automated tests, TypeScript checks, the production build, and all 35 isolated browser workflows, but has not been pushed, deployed, or used to restart the household service.
+
 ## Remaining planner items
 
-1. Living Overworld atmosphere and sky-event refinement is complete. Do not infer runtime creature integration from acceptance of the published visual/movement proof.
-2. Spring and summer artwork, foreground scenery, and runtime creature integration require separate Product Owner approval.
+1. Living Overworld creature integration is implemented and verified locally; publication and deployment still require an explicit release action.
+2. Spring and summer artwork, foreground scenery, creature interaction, chicken jockeys, and axolotls require separate Product Owner approval.
 3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
 4. Preserve the existing production backup and rollback practice for future releases.
 

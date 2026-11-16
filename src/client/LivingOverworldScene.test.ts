@@ -105,10 +105,11 @@ describe('Living Overworld theme foundation', () => {
     const meteor = createLivingSkyEvent('meteor', 1, () => .25);
     const comet = createLivingSkyEvent('comet', 2, () => .25);
     expect(meteor).toMatchObject({ kind: 'meteor', sequence: 1, durationMs: 1350 });
-    expect(comet).toMatchObject({ kind: 'comet', sequence: 2, durationMs: 9500 });
+    expect(comet).toMatchObject({ kind: 'comet', sequence: 2, durationMs: 14_000 });
     expect(meteor.endX).toBeGreaterThan(meteor.startX);
     expect(meteor.endY).toBeGreaterThan(meteor.startY);
-    expect(comet.endX).toBeGreaterThan(comet.startX);
+    expect(comet.startY).toBeGreaterThanOrEqual(42);
+    expect(comet.endY).toBeGreaterThan(comet.startY);
     expect(comet.durationMs).toBeGreaterThan(meteor.durationMs * 5);
     expect([meteor.startX, meteor.startY, meteor.endX, meteor.endY, comet.startX, comet.startY, comet.endX, comet.endY]
       .every((coordinate) => coordinate >= 0 && coordinate <= 100)).toBe(true);

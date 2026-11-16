@@ -1,6 +1,6 @@
 # Living Overworld creature and path proof
 
-Status: **Product Owner-approved planning proof, published for the next integration gate**. Nothing in this proof is connected to the running Living Overworld theme.
+Status: **Implemented and verified locally; awaiting separate release authorization**. The accepted artwork and movement rules are connected to the Living Overworld runtime in the current working branch, but the deployed household release remains unchanged.
 
 ## Character tileset
 
@@ -15,7 +15,7 @@ The proposed roster is deliberately small and original to Sensei's softer, voxel
 
 The chicken, pig, and zombie reuse the existing approved visual language. The wolf is new. The skeleton and Enderman are original replacements rather than copies of Minecraft character art.
 
-## Proposed authored paths
+## Authored paths
 
 Green lines are local daytime wander routes. Orange dashed lines are local nighttime wander routes. Marker size demonstrates character scale: a creature becomes smaller while moving upward/deeper into the illustration and larger while moving downward/forward. Purple points are representative randomized Enderman landing results on valid ground or the house, not fixed anchors. Water is excluded. The annotations will not be visible in Sensei.
 
@@ -51,7 +51,7 @@ Proposed near-ground reference heights are 56 px for the equally tall skeleton a
 
 ![Winter mobile paths](assets/living-overworld-creature-proof/winter-depth-paths-mobile.png)
 
-## Proposed behavior for the integration gate
+## Implemented behavior
 
 - Use one authored normalized ground network and a small depth map for each season and responsive composition; do not introduce generalized pathfinding.
 - Day and night use the same allowed network. A character selects a nearby destination in either direction, reverses or pauses naturally, and is not forced to cross the entire scene from left to right.
@@ -60,16 +60,19 @@ Proposed near-ground reference heights are 56 px for the equally tall skeleton a
 - Mobile shows at most one creature at a time.
 - Desktop uses a restrained soft population target: normally two or three passive creatures by day, or one or two hostile creatures at night. Rare Enderman appearances replace rather than add to the normal night population.
 - Significant rain, snow, or fog reduces the active population. Creatures never affect chores, allowance data, authentication, or weather state.
-- Enderman samples a randomized horizontal position, resolves it against the authored dry-ground/house mask, fades out, emits a short independent purple particle effect, and reappears at the resolved surface and corresponding depth scale. Invalid water positions are rejected. It never traverses the orange route.
+- Enderman selects among authored dry-ground and house landing points, fades out, emits a short independent purple particle effect, and reappears at the resolved surface and corresponding depth scale. Water is excluded. It never traverses the orange route.
 - Animation pauses while the page is hidden. Reduced-motion mode keeps creatures stationary or uses a single non-traveling appearance state.
 
-## Proof limitations
+## Current limitations
 
-- These sprite strips and routes are review artifacts, not installed runtime assets.
-- Final rendered size, walk speed, pause timing, spawn probabilities, occlusion, and weather thresholds remain to be tuned during a separately approved integration gate.
-- The mobile overlays show the same route intent at a smaller scale; runtime implementation should select one safe local segment rather than allowing a creature to cross the scene.
+- Creatures are decorative and have no user interaction, combat, chore reaction, or allowance behavior.
+- The runtime uses authored route points rather than generalized pathfinding or terrain collision.
+- Spring and summer continue to share autumn scenery and therefore use the autumn route geometry.
+- Chicken jockey and axolotl remain deferred.
 
-## Integration boundary
+## Verification
 
-The Product Owner accepted this character, scale, and movement direction for publication. Runtime integration remains a separate implementation gate: publishing this proof does not add creatures to the Living Overworld scene or authorize unrelated gameplay behavior.
+The bounded implementation passes client/server TypeScript checks, 57 automated tests, the production build, and all 35 isolated browser workflows. Browser coverage verifies local creature assets, desktop population, the one-creature mobile cap, reduced motion, weather thinning, and unchanged chore and allowance workflows. Synthetic data and temporary databases are used.
+
+The household application has not been restarted or changed by this implementation. Publication and deployment remain separate actions.
 

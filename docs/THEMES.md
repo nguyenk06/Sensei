@@ -63,9 +63,9 @@ Living Overworld uses cohesive seasonal illustrations. Each season is one comple
 - The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
 - In automatic mode, the sun and moon remain horizontally centered and travel only vertically. Their rise/apex/set progress follows the cached sunrise and sunset times; the apex is contained below the transparent application header, and a short central-horizon buffer advances the morning/evening lighting when the illustration occludes the body.
 - Scene controls remain available beside the motion control for temporary season, lighting, weather, moon-phase, and celestial-height overrides. The height slider is intentionally direct: moving it right raises the active sun or moon, and `Auto` restores live timing.
-- Scene controls also provide explicit comet and meteor preview triggers. Each event selects two valid sky points and vanishes at its destination. Meteors are brief downward streaks with sharp tails; comets are larger icy bodies that cross the sky slowly with soft plumes. The buttons do not change the normal rare-event schedule.
+- Scene controls also provide explicit comet and meteor preview triggers. Each event selects two valid sky points and vanishes at its destination. Meteors are brief downward streaks with sharp tails; comets begin below the transparent header and descend more slowly with a longer soft plume and trailing particles. The buttons do not change the normal rare-event schedule.
 - The status displays both Celsius and Fahrenheit. Evening and night include a prominent, very slowly rotating star field. Rare sky events use the same randomized point-to-point generator as the preview controls.
-- Creatures and modular terrain placement are intentionally absent from this replacement foundation.
+- Decorative creatures use local sprite strips and small authored normalized ground routes. Walkers move bidirectionally, pause and reverse, scale with illustrated depth, and use one short river-bank hop. Enderman teleports only among dry-ground and house points with independent purple particles. Desktop population is restrained, portrait mobile shows at most one creature, and severe weather thins the population. Creatures do not interact with chores or allowances.
 - Reduced motion freezes clouds and fog and disables continuous particles and rare sky events while preserving a readable static scene.
 
 See [Living Overworld release review](LIVING_OVERWORLD_RESTART_REVIEW.md) for responsive evidence and the cleanup audit. The accepted [autumn-night treatment](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md) is part of the active seasonal artwork.
@@ -78,6 +78,7 @@ See [Living Overworld release review](LIVING_OVERWORLD_RESTART_REVIEW.md) for re
 | `public/assets/overworld-v04/lighting/` | Active transparent time-of-day overlays |
 | `public/assets/overworld-v04/weather/` | Active transparent decorative weather overlays |
 | `public/assets/overworld-v04/animals/` | Active eight-frame sprite sheets for five species |
+| `public/assets/living-overworld/creatures/` | Living Overworld runtime strips for wolf, chicken, pig, zombie, skeleton, and Enderman |
 | `public/assets/overworld-v04/night-creatures/` | Active original eight-frame night-encounter sprite sheets |
 | `public/assets/overworld-v04/terrain/` | Active foreground/detail layers |
 | `public/assets/overworld/` | Earlier production support assets; emerald UI art remains in use |

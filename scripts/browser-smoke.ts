@@ -449,6 +449,11 @@ try {
     && livingLayerOrder.daylight < livingLayerOrder.rain)) {
     throw new Error(`Living Overworld layer order is invalid: ${JSON.stringify(livingLayerOrder)}`);
   }
+  await childOne.waitForFunction(() => document.querySelectorAll('.living-overworld-creature').length > 0);
+  if (await childOne.locator('.living-overworld-creature').count() !== 1) throw new Error('Living Overworld did not reduce the desktop creature population during snow');
+  for (const asset of ['wolf', 'chicken', 'pig', 'zombie', 'skeleton', 'enderman']) {
+    if (!(await childOne.request.get(`${address}/assets/living-overworld/creatures/${asset}.png`)).ok()) throw new Error(`Living Overworld creature asset failed: ${asset}`);
+  }
   await childOne.locator('.living-overworld-proof-controls summary').click();
   const celestialSlider = childOne.getByLabel('Living Overworld celestial height');
   await celestialSlider.fill('0');
@@ -461,6 +466,10 @@ try {
   }
   await childOne.getByRole('button', { name: 'Use automatic celestial height' }).click();
   if ((await celestialSlider.getAttribute('aria-valuetext'))?.startsWith('High, 100')) throw new Error('Living Overworld celestial height did not return to automatic mode');
+  await childOne.getByLabel('Living Overworld season').selectOption('autumn');
+  await childOne.getByLabel('Living Overworld light proof').selectOption('day');
+  await childOne.getByLabel('Living Overworld weather proof').selectOption('clear');
+  await childOne.waitForFunction(() => document.querySelectorAll('.living-overworld-creature').length === 3);
   const seasonalProofs = [
     { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-1100.png', asset: '/seasons/autumn/desktop.png' },
     { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-1100.png', asset: '/seasons/winter/desktop.png' }
@@ -624,8 +633,18 @@ try {
   await childOne.getByLabel('Living Overworld light proof').selectOption('night');
   await childOne.getByRole('button', { name: 'Trigger comet' }).click();
   const cometPreview = childOne.locator('.living-overworld-preview-event.preview-comet');
-  if (await cometPreview.count() !== 1 || !(await cometPreview.evaluate((element) => getComputedStyle(element).animationName)).includes('living-sky-event-head')) {
-    throw new Error('Living Overworld comet preview control did not start the traveling comet');
+  const cometPreviewStyle = await cometPreview.evaluate((element) => ({
+    head: getComputedStyle(element).animationName,
+    duration: getComputedStyle(element).animationDuration,
+    startY: Number.parseFloat((element as HTMLElement).style.getPropertyValue('--event-start-y')),
+    endY: Number.parseFloat((element as HTMLElement).style.getPropertyValue('--event-end-y')),
+    tailWidth: Number.parseFloat(getComputedStyle(element, '::before').width),
+    particles: getComputedStyle(element, '::after').animationName
+  }));
+  if (!cometPreviewStyle.head.includes('living-sky-event-head') || cometPreviewStyle.duration !== '14s'
+    || cometPreviewStyle.startY < 42 || cometPreviewStyle.endY <= cometPreviewStyle.startY
+    || cometPreviewStyle.tailWidth < 150 || !cometPreviewStyle.particles.includes('living-comet-particles')) {
+    throw new Error(`Living Overworld comet preview is invalid: ${JSON.stringify(cometPreviewStyle)}`);
   }
   await childOne.getByRole('button', { name: 'Trigger meteor' }).click();
   const meteorPreview = childOne.locator('.living-overworld-preview-event.preview-meteor');
@@ -657,6 +676,7 @@ try {
     const image = document.querySelector<HTMLImageElement>('.living-overworld-background img');
     return Boolean(image?.complete && image.naturalWidth === 1774 && image.naturalHeight === 887);
   });
+  if (await childTwo.locator('.living-overworld-creature').count() > 1) throw new Error('Living Overworld mobile rendered more than one creature');
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-mobile.png'), fullPage: true });
   await childTwo.locator('.living-overworld-proof-controls summary').click();
   const mobileSeasonalProofs = [
