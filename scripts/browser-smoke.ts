@@ -698,8 +698,14 @@ try {
   await childTwo.getByLabel('Living Overworld light proof').selectOption('night');
   await childTwo.getByLabel('Living Overworld moon phase').selectOption('first-quarter');
   await childTwo.locator('.living-overworld-proof-controls summary').click();
-  if (!(await childTwo.locator('.living-overworld-banner').getAttribute('class'))?.includes('moon-first-quarter')) {
-    throw new Error('Living Overworld mobile moon phase override failed');
+  await childTwo.waitForTimeout(2500);
+  const mobileWinterNight = await childTwo.locator('.living-overworld-banner').evaluate((banner) => {
+    const artwork = banner.querySelector<HTMLImageElement>('.authored-night-background img')!;
+    return { artwork: artwork.currentSrc, opacity: Number.parseFloat(getComputedStyle(artwork.parentElement!).opacity) };
+  });
+  if (!(await childTwo.locator('.living-overworld-banner').getAttribute('class'))?.includes('moon-first-quarter')
+    || !mobileWinterNight.artwork.endsWith('/seasons/winter/night-mobile.png') || mobileWinterNight.opacity < .9) {
+    throw new Error(`Living Overworld mobile winter night proof failed: ${JSON.stringify(mobileWinterNight)}`);
   }
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-night-mobile.png'), fullPage: true });
 

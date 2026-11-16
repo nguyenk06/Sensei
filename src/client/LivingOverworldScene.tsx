@@ -36,7 +36,9 @@ const autumnArtwork: LivingSeasonArtwork = {
 };
 const winterArtwork: LivingSeasonArtwork = {
   mobile: `${assetRoot}/seasons/winter/mobile.png`,
-  desktop: `${assetRoot}/seasons/winter/desktop.png`
+  desktop: `${assetRoot}/seasons/winter/desktop.png`,
+  nightMobile: `${assetRoot}/seasons/winter/night-mobile.png`,
+  nightDesktop: `${assetRoot}/seasons/winter/night-desktop.png`
 };
 
 /** Spring and summer intentionally retain the approved autumn fallback until their own artwork milestone. */

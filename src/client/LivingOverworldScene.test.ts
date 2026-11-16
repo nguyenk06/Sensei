@@ -22,7 +22,9 @@ describe('Living Overworld theme foundation', () => {
     });
     expect(livingSeasonIllustrations.winter).toEqual({
       mobile: '/assets/living-overworld/seasons/winter/mobile.png',
-      desktop: '/assets/living-overworld/seasons/winter/desktop.png'
+      desktop: '/assets/living-overworld/seasons/winter/desktop.png',
+      nightMobile: '/assets/living-overworld/seasons/winter/night-mobile.png',
+      nightDesktop: '/assets/living-overworld/seasons/winter/night-desktop.png'
     });
     expect(livingSeasonIllustrations.spring).toBe(livingSeasonIllustrations.autumn);
     expect(livingSeasonIllustrations.summer).toBe(livingSeasonIllustrations.autumn);

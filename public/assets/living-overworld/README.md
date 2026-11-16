@@ -10,6 +10,8 @@ Living Overworld now uses one cohesive landscape illustration per season. The re
 - `seasons/autumn/night-desktop.png` — 2172 × 724 accepted authored autumn-night desktop master with transparent sky.
 - `seasons/winter/mobile.png` — 1774 × 887 accepted winter mobile master.
 - `seasons/winter/desktop.png` — 2172 × 724 winter desktop crop master.
+- `seasons/winter/night-mobile.png` — 1774 × 887 authored blue winter-night mobile master with transparent sky.
+- `seasons/winter/night-desktop.png` — 2172 × 724 authored blue winter-night desktop master with transparent sky.
 - `moon-detailed.png` — 768 × 768 transparent moon used by the existing eight-phase mask.
 
 Spring and summer temporarily use the autumn pair as a visible fallback so the theme remains functional without creating unapproved additional scenes.

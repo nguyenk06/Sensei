@@ -54,11 +54,11 @@ Overworld combines the token system with `OverworldScene.tsx` and theme-scoped C
 
 Living Overworld uses cohesive seasonal illustrations. Each season is one complete Minecraft-inspired pixel-art landscape rather than a runtime assembly of individually positioned mountains, water, buildings, terrain, and plants.
 
-- Autumn and winter each provide a mobile master and a dedicated zoomed-out desktop crop master selected through `<picture>`.
+- Autumn provides matched day/night mobile and desktop masters; winter retains its accepted day masters and adds dedicated blue night mobile and desktop treatments. Responsive variants are selected through `<picture>`.
 - A shared responsive container displays the selected seasonal illustration with `object-fit: cover`.
 - The existing Open-Meteo appearance drives clear, partly cloudy, cloudy, rain, snow, and fog overlays. Partly cloudy uses fewer banks than cloudy; rain combines a heavy cloud ceiling with independently timed fine vertical drops; snow uses a denser field of slowly drifting flakes; fog uses overlapping ground wisps at varied depths.
 - The sun, detailed round moon, eight lunar phases, daylight tint, and motion controls remain independent of the illustration.
-- Autumn and winter are accepted seasonal masters. Spring and summer temporarily fall back to autumn until separate artwork is approved.
+- Autumn and winter are accepted seasonal masters. The redrawn autumn set uses a crisp standalone skyline without the former fuzzy color fringe. Spring and summer temporarily fall back to autumn until separate artwork is approved.
 - The scene is 330–380 CSS pixels tall on desktop and landscape tablets, and 170 pixels on portrait mobile, with controls outside the scenic area.
 - The sky and celestial objects sit behind the transparent seasonal artwork so terrain, trees, and buildings occlude them naturally.
 - In automatic mode, the sun and moon remain horizontally centered and travel only vertically. Their rise/apex/set progress follows the cached sunrise and sunset times; the apex is contained below the transparent application header, and a short central-horizon buffer advances the morning/evening lighting when the illustration occludes the body.

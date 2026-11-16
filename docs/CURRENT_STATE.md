@@ -12,7 +12,7 @@ The active Living Overworld presentation now uses a deliberately small layer sta
 
 Implemented and verified:
 
-- Accepted autumn and winter landscapes with distinct geography and a shared softly illustrated, Minecraft-inspired visual language.
+- Accepted redrawn autumn day/night landscapes and winter day/blue-night landscapes with distinct geography and a shared softly illustrated, Minecraft-inspired visual language.
 - Mobile-first 1774 x 887 masters and 2172 x 724 desktop crop masters selected responsively with one semantic picture element.
 - A transparent application header and a complete mobile composition with visible sky, terrain, and an unclipped structure.
 - Automatic meteorological seasons in `America/Los_Angeles`.
@@ -23,7 +23,7 @@ Implemented and verified:
 - Temperatures are presented in Celsius and Fahrenheit. Evening and night add a prominent, slowly rotating varied star field, while rare downward comets and meteors use a moving luminous head and fading tail behind the seasonal illustration.
 - The development scene control exposes an intuitive celestial-height override: moving the slider right raises the active body, while `Auto` restores sunrise/sunset timing.
 - Autumn mobile and desktop alpha edges were tightened to remove the colored halo visible against darker weather skies.
-- The accepted autumn-night landscape preserves the approved geography while supplying authored moonlit color, warm retreat windows, and clean transparent skyline edges. It crossfades over the day master at night while independent celestial and weather layers remain active. See [Autumn night integration](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md).
+- The accepted autumn redraw uses cohesive, independently composed mobile and desktop layouts with matched day/night geometry. Its standalone transparent skyline removes the former fuzzy color fringe while retaining bright foliage, blue-green night terrain, warm retreat windows, and independent celestial/weather layers. Winter now uses dedicated luminous blue night masters rather than CSS-only darkening. See [Seasonal redraw integration](LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md).
 - The sun and moon remain horizontally centered and travel only vertically. Their highest position keeps the complete disk below the transparent header on desktop and portrait mobile; landscape features continue to occlude the body naturally.
 - Seven-day adjacent-season transitions with controlled image mounting and responsive artwork selection.
 - Spring and summer intentionally fall back to autumn artwork until separate seasonal artwork is approved.

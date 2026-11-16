@@ -4,7 +4,7 @@ Handoff date: November 14, 2026.
 
 ## Current Living Overworld milestone
 
-The Product Owner accepted the mobile-first autumn and winter compositions. Living Overworld now uses one cohesive illustration per season and responsive mobile/desktop masters rather than the retired coordinate-based modular renderer. The cleanup audit removed the renderer, editor, experimental layouts, obsolete modular assets, and the final four capture scripts that referenced them.
+The Product Owner accepted the redrawn autumn day/night set and dedicated blue winter-night treatments. Living Overworld uses cohesive responsive illustrations rather than the retired coordinate-based modular renderer. Autumn mobile and desktop are intentionally cohesive rather than identical, with matching day/night geometry inside each viewport; winter retains its day geography and adds authored night lighting.
 
 The active stack is intentionally narrow: atmospheric sky; sun, phased moon, clouds and rare night-sky events; the seasonal illustration; then independent lighting and weather layers. Celestial objects and sky events pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creatures and foreground scenery remain deferred.
 
@@ -12,7 +12,7 @@ The atmosphere refinement adds two-bank partly cloudy and six-bank cloudy presen
 
 The local correction checkpoint passes 52 automated tests, client/server TypeScript checks, the production build, and all 35 isolated browser workflows. Desktop and 390 px mobile evidence confirms the direct celestial-height control, storm canopy, denser snow, clearer stars, natural celestial occlusion, reduced motion, theme persistence, and unchanged chore and allowance workflows.
 
-The Product Owner accepted the [autumn-night treatment](LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md). The runtime now crossfades the dedicated mobile and desktop night masters over the matching autumn landscape, preserving independent sky, celestial, star, cloud, fog, and precipitation layers. The vertical sun/moon track now stops with the complete disk below the transparent header on desktop and portrait mobile.
+The Product Owner accepted the [seasonal redraw](LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md). The runtime crossfades dedicated night masters over matching autumn and winter scenes while preserving independent sky, celestial, star, cloud, fog, and precipitation layers. The redrawn standalone artwork removes the former autumn skyline haze, and the vertical sun/moon track stops with the complete disk below the transparent header on desktop and portrait mobile.
 
 No additional Living Overworld milestone is inferred. Spring/summer artwork, creatures, foreground scenery, accumulation, and environmental simulation remain deferred until explicitly authorized.
 

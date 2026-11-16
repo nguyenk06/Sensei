@@ -60,6 +60,7 @@ The safe defaults bind to `127.0.0.1:3000` and store development data under `.lo
 
 - [Living Overworld restart review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md)
 - [Living Overworld autumn-night integration](docs/LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md)
+- [Living Overworld seasonal redraw integration](docs/LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md)
 - [Current state](docs/CURRENT_STATE.md)
 - [Architecture and data integrity](docs/ARCHITECTURE.md)
 - [Theme system and Overworld assets](docs/THEMES.md)
