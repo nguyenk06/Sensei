@@ -21,3 +21,15 @@ All six masters have genuine transparent skies and contain no baked celestial ob
 - [Interactive local review prototype](prototypes/living-overworld-season-redraw-review.html)
 
 The accepted autumn day/night masters replace the previous autumn artwork, and the authored winter-night masters supplement the retained winter day artwork. Runtime celestial, star, cloud, fog, rain, and snow layers remain independent. The release preserves the existing responsive selection, short night crossfade, celestial containment, and application behavior.
+
+## Autumn framing refinement
+
+The Product Owner subsequently approved a pushed-back autumn composition. The refined masters preserve the valley, retreat, water, palette, transparent skyline, and independent atmosphere while reducing foreground dominance and adding more visible sky and middle-ground depth. Desktop and portrait mobile retain separate, cohesive compositions; each viewport's day and authored-night masters remain geometrically matched.
+
+| Desktop day | Desktop night |
+| --- | --- |
+| ![Refined autumn desktop day](assets/living-overworld-season-redraw-proof/review-autumn-reframe-desktop.png) | ![Refined autumn desktop night](assets/living-overworld-season-redraw-proof/review-autumn-reframe-night-desktop.png) |
+
+| Portrait mobile day | Portrait mobile night |
+| --- | --- |
+| ![Refined autumn mobile day](assets/living-overworld-season-redraw-proof/review-autumn-reframe-mobile.png) | ![Refined autumn mobile night](assets/living-overworld-season-redraw-proof/review-autumn-reframe-night-mobile.png) |

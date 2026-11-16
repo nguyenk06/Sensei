@@ -4,7 +4,7 @@ Handoff date: November 14, 2026.
 
 ## Current Living Overworld milestone
 
-The Product Owner accepted the redrawn autumn day/night set and dedicated blue winter-night treatments. Living Overworld uses cohesive responsive illustrations rather than the retired coordinate-based modular renderer. Autumn mobile and desktop are intentionally cohesive rather than identical, with matching day/night geometry inside each viewport; winter retains its day geography and adds authored night lighting.
+The Product Owner accepted the pushed-back autumn day/night set and dedicated blue winter-night treatments. Living Overworld uses cohesive responsive illustrations rather than the retired coordinate-based modular renderer. Autumn mobile and desktop are intentionally cohesive rather than identical, with additional sky and depth plus matching day/night geometry inside each viewport; winter retains its day geography and adds authored night lighting.
 
 The active stack is intentionally narrow: atmospheric sky; sun, phased moon, clouds and rare night-sky events; the seasonal illustration; then independent lighting and weather layers. Celestial objects and sky events pass behind mountains and structures. Autumn and winter are approved; spring and summer intentionally reuse autumn until their own artwork is approved. Creatures and foreground scenery remain deferred.
 

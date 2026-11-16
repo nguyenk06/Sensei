@@ -4,10 +4,10 @@ Living Overworld now uses one cohesive landscape illustration per season. The re
 
 ## Active foundation
 
-- `seasons/autumn/mobile.png` — 1774 × 887 accepted autumn mobile master.
-- `seasons/autumn/desktop.png` — 2172 × 724 autumn desktop crop master.
-- `seasons/autumn/night-mobile.png` — 1774 × 887 accepted authored autumn-night mobile master with transparent sky.
-- `seasons/autumn/night-desktop.png` — 2172 × 724 accepted authored autumn-night desktop master with transparent sky.
+- `seasons/autumn/mobile.png` — 1774 × 887 accepted pushed-back autumn mobile master.
+- `seasons/autumn/desktop.png` — 2172 × 724 accepted pushed-back autumn desktop master.
+- `seasons/autumn/night-mobile.png` — 1774 × 887 matching authored autumn-night mobile master with transparent sky.
+- `seasons/autumn/night-desktop.png` — 2172 × 724 matching authored autumn-night desktop master with transparent sky.
 - `seasons/winter/mobile.png` — 1774 × 887 accepted winter mobile master.
 - `seasons/winter/desktop.png` — 2172 × 724 winter desktop crop master.
 - `seasons/winter/night-mobile.png` — 1774 × 887 authored blue winter-night mobile master with transparent sky.
