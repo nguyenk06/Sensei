@@ -14,6 +14,18 @@ describe('Living Overworld theme foundation', () => {
   });
 
   it('uses one cohesive illustration per approved seasonal proof', () => {
+    expect(livingSeasonIllustrations.spring).toEqual({
+      mobile: '/assets/living-overworld/seasons/spring/mobile.png',
+      desktop: '/assets/living-overworld/seasons/spring/desktop.png',
+      nightMobile: '/assets/living-overworld/seasons/spring/night-mobile.png',
+      nightDesktop: '/assets/living-overworld/seasons/spring/night-desktop.png'
+    });
+    expect(livingSeasonIllustrations.summer).toEqual({
+      mobile: '/assets/living-overworld/seasons/summer/mobile.png',
+      desktop: '/assets/living-overworld/seasons/summer/desktop.png',
+      nightMobile: '/assets/living-overworld/seasons/summer/night-mobile.png',
+      nightDesktop: '/assets/living-overworld/seasons/summer/night-desktop.png'
+    });
     expect(livingSeasonIllustrations.autumn).toEqual({
       mobile: '/assets/living-overworld/seasons/autumn/mobile.png',
       desktop: '/assets/living-overworld/seasons/autumn/desktop.png',
@@ -26,8 +38,7 @@ describe('Living Overworld theme foundation', () => {
       nightMobile: '/assets/living-overworld/seasons/winter/night-mobile.png',
       nightDesktop: '/assets/living-overworld/seasons/winter/night-desktop.png'
     });
-    expect(livingSeasonIllustrations.spring).toBe(livingSeasonIllustrations.autumn);
-    expect(livingSeasonIllustrations.summer).toBe(livingSeasonIllustrations.autumn);
+    expect(new Set(Object.values(livingSeasonIllustrations)).size).toBe(4);
   });
 
   it('selects meteorological seasons in Pacific time', () => {

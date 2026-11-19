@@ -23,7 +23,7 @@ Sensei is a private, locally hosted household chore and allowance tracker for on
 
 | NovaPay | Sensei Classic | Overworld Adventure | Living Overworld |
 | --- | --- | --- | --- |
-| ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) | ![Living Overworld autumn scene](docs/assets/screenshots/living-overworld-restart-autumn-1920.png) |
+| ![NovaPay theme](docs/assets/screenshots/showcase-novapay.png) | ![Classic theme](docs/assets/screenshots/showcase-classic.png) | ![Overworld theme](docs/assets/screenshots/showcase-overworld.png) | ![Living Overworld spring scene](docs/assets/living-overworld-spring-summer-proof/spring-desktop-expansion-lighting-review-small.png) |
 
 Theme selection is device-local and available in the main header. NovaPay and Classic share the semantic token system. Overworld Adventure uses illustrated seasonal landscapes and randomized night encounters; Living Overworld uses cohesive responsive autumn and winter illustrations with independent atmosphere and celestial layers.
 
@@ -37,7 +37,7 @@ Theme selection is device-local and available in the main header. NovaPay and Cl
 
 ## Current status
 
-> **Living Overworld milestone:** Product Owner-approved autumn and winter artwork use separate mobile and desktop crop masters. Atmosphere includes real-weather cloud density, rain, snow, fog, dual-unit temperature, and randomized point-to-point sky events. The accepted creature roster now inhabits bounded authored ground routes with depth scaling, pauses, reversals, a river-bank hop, mobile population limits, severe-weather thinning, and teleport-only Enderman appearances. Comets descend below the transparent header with a longer particle plume while meteors retain their fast streak. See the [release review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md) and [creature movement implementation](docs/LIVING_OVERWORLD_CREATURE_PATH_PROOF.md).
+> **Living Overworld milestone:** Product Owner-approved spring, summer, autumn, and winter artwork use separate mobile and desktop masters with authored night treatments and transparent sky corridors. Atmosphere includes real-weather cloud density, rain, snow, fog, dual-unit temperature, and randomized point-to-point sky events. The accepted creature roster inhabits bounded ground routes with depth scaling, pauses, reversals, a river-bank hop, mobile population limits, severe-weather thinning, and teleport-only Enderman appearances. Comets descend below the transparent header with a longer particle plume while meteors retain their fast streak. See the [spring and summer release](docs/LIVING_OVERWORLD_SPRING_SUMMER_RELEASE.md), [restart review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md), and [creature movement implementation](docs/LIVING_OVERWORLD_CREATURE_PATH_PROOF.md).
 
 The November 7, 2026 household release extends independent chore review with optional parent comments, per-occurrence final awards, required reduction explanations, quarter-dollar entry validation, child-visible historical details, audited monthly/lifetime Money History totals, original Overworld night encounters, and a full calendar containing newly configured and future expected chores without materializing their weekly snapshots early. The existing bulk review remains a fast standard-reward workflow. Automated coverage includes scheduling, date eligibility, calendar projections, individual and bulk approvals, duplicate prevention, legacy monetary compatibility, payments over LAN HTTP, corrections, sessions, weather fallbacks, themes, responsive layouts, focus restoration, stale-page claim protection, and deterministic encounter selection. The release passes 41 automated tests plus the isolated end-to-end browser workflow.
 
@@ -61,6 +61,7 @@ The safe defaults bind to `127.0.0.1:3000` and store development data under `.lo
 - [Living Overworld restart review](docs/LIVING_OVERWORLD_RESTART_REVIEW.md)
 - [Living Overworld autumn-night integration](docs/LIVING_OVERWORLD_AUTUMN_NIGHT_PROOF.md)
 - [Living Overworld seasonal redraw integration](docs/LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md)
+- [Living Overworld spring and summer release](docs/LIVING_OVERWORLD_SPRING_SUMMER_RELEASE.md)
 - [Living Overworld creature and movement proof](docs/LIVING_OVERWORLD_CREATURE_PATH_PROOF.md)
 - [Current state](docs/CURRENT_STATE.md)
 - [Architecture and data integrity](docs/ARCHITECTURE.md)

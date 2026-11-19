@@ -77,10 +77,22 @@ const winterArtwork: LivingSeasonArtwork = {
   nightDesktop: `${assetRoot}/seasons/winter/night-desktop.png`
 };
 
-/** Spring and summer intentionally retain the approved autumn fallback until their own artwork milestone. */
+const springArtwork: LivingSeasonArtwork = {
+  mobile: `${assetRoot}/seasons/spring/mobile.png`,
+  desktop: `${assetRoot}/seasons/spring/desktop.png`,
+  nightMobile: `${assetRoot}/seasons/spring/night-mobile.png`,
+  nightDesktop: `${assetRoot}/seasons/spring/night-desktop.png`
+};
+const summerArtwork: LivingSeasonArtwork = {
+  mobile: `${assetRoot}/seasons/summer/mobile.png`,
+  desktop: `${assetRoot}/seasons/summer/desktop.png`,
+  nightMobile: `${assetRoot}/seasons/summer/night-mobile.png`,
+  nightDesktop: `${assetRoot}/seasons/summer/night-desktop.png`
+};
+
 export const livingSeasonIllustrations: Record<LivingSeason, LivingSeasonArtwork> = {
-  spring: autumnArtwork,
-  summer: autumnArtwork,
+  spring: springArtwork,
+  summer: summerArtwork,
   autumn: autumnArtwork,
   winter: winterArtwork
 };

@@ -31,18 +31,30 @@ export const livingCreatureRoutes = {
   ]
 } satisfies Record<'desktop' | 'mobile', LivingCreaturePoint[]>;
 
+/** Summer's central water separates the left shore from the karst islands and right bank. */
+export const livingSummerCreatureRoutes = {
+  desktop: [
+    { x: 3, y: 91, scale: .98 }, { x: 10, y: 82, scale: .82 }, { x: 18, y: 78, scale: .72 },
+    { x: 25, y: 70, scale: .64 }, { x: 32, y: 79, scale: .74 }, { x: 39, y: 88, scale: .9 }
+  ],
+  mobile: [
+    { x: 3, y: 91, scale: .98 }, { x: 10, y: 83, scale: .82 }, { x: 18, y: 79, scale: .72 },
+    { x: 25, y: 71, scale: .64 }, { x: 32, y: 80, scale: .74 }, { x: 39, y: 89, scale: .9 }
+  ]
+} satisfies Record<'desktop' | 'mobile', LivingCreaturePoint[]>;
+
 const severeWeather: OverworldWeatherAppearance[] = ['rain', 'snow', 'fog'];
 
 function choose<T>(values: readonly T[], random: () => number): T {
   return values[Math.min(values.length - 1, Math.floor(random() * values.length))];
 }
 
-function routeFor(mobile: boolean): LivingCreaturePoint[] {
-  return livingCreatureRoutes[mobile ? 'mobile' : 'desktop'];
+function routeFor(season: LivingSeason, mobile: boolean): LivingCreaturePoint[] {
+  return (season === 'summer' ? livingSummerCreatureRoutes : livingCreatureRoutes)[mobile ? 'mobile' : 'desktop'];
 }
 
-function stateFor(species: LivingCreatureSpecies, index: number, mobile: boolean, random: () => number): LivingCreatureState {
-  const route = routeFor(mobile);
+function stateFor(species: LivingCreatureSpecies, index: number, season: LivingSeason, mobile: boolean, random: () => number): LivingCreatureState {
+  const route = routeFor(season, mobile);
   const routeIndex = Math.min(route.length - 1, Math.floor(random() * route.length));
   const point = route[routeIndex];
   const direction = random() < .5 ? -1 : 1;
@@ -83,10 +95,11 @@ export function createLivingCreaturePopulation(options: {
     if (mobile) species = [choose(species, random)];
   }
 
-  return species.map((value, index) => stateFor(value, index, mobile, random));
+  return species.map((value, index) => stateFor(value, index, season, mobile, random));
 }
 
 function housePoint(season: LivingSeason, mobile: boolean): LivingCreaturePoint {
+  if (season === 'summer') return mobile ? { x: 24, y: 67, scale: .68 } : { x: 26, y: 69, scale: .7 };
   if (mobile) return season === 'winter' ? { x: 75, y: 65, scale: .68 } : { x: 77, y: 67, scale: .68 };
   return season === 'winter' ? { x: 68, y: 69, scale: .7 } : { x: 72, y: 67, scale: .68 };
 }
@@ -96,7 +109,7 @@ export function advanceLivingCreature(
   options: { season: LivingSeason; mobile: boolean; random?: () => number }
 ): LivingCreatureState {
   const { season, mobile, random = Math.random } = options;
-  const route = routeFor(mobile);
+  const route = routeFor(season, mobile);
 
   if (creature.species === 'enderman') {
     const destinations = [...route, housePoint(season, mobile)];

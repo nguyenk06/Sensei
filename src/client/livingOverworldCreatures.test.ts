@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceLivingCreature, createLivingCreaturePopulation, livingCreatureRoutes, type LivingCreatureState } from './livingOverworldCreatures';
+import { advanceLivingCreature, createLivingCreaturePopulation, livingCreatureRoutes, livingSummerCreatureRoutes, type LivingCreatureState } from './livingOverworldCreatures';
 
 const baseCreature: LivingCreatureState = {
   id: 'wolf-0', species: 'wolf', routeIndex: 3, direction: 1, facing: 1,
@@ -32,12 +32,23 @@ describe('Living Overworld creatures', () => {
     expect(reverse.hopping).toBe(false);
   });
 
+  it('keeps summer walkers on the connected left shore', () => {
+    const summer = createLivingCreaturePopulation({ season: 'summer', light: 'day', weather: 'clear', mobile: false, random: () => .8 });
+    expect(summer.every((creature) => creature.x <= 39)).toBe(true);
+    expect(livingSummerCreatureRoutes.desktop.every((point) => point.x <= 39)).toBe(true);
+    const moved = advanceLivingCreature({ ...baseCreature, routeIndex: 3, ...livingSummerCreatureRoutes.desktop[3] }, { season: 'summer', mobile: false, random: () => .8 });
+    expect(moved).toMatchObject(livingSummerCreatureRoutes.desktop[4]);
+  });
+
   it('teleports Enderman only to authored dry ground or the house', () => {
     const enderman: LivingCreatureState = { ...baseCreature, id: 'enderman-0', species: 'enderman' };
     const landed = advanceLivingCreature(enderman, { season: 'autumn', mobile: false, random: () => .999 });
     expect(landed.routeIndex).toBe(-1);
     expect(landed).toMatchObject({ x: 72, y: 67, scale: .68, hopping: false });
     expect(landed.moveSequence).toBe(1);
+
+    const summerLanding = advanceLivingCreature(enderman, { season: 'summer', mobile: false, random: () => .999 });
+    expect(summerLanding).toMatchObject({ x: 26, y: 69, scale: .7, routeIndex: -1 });
   });
 });
 

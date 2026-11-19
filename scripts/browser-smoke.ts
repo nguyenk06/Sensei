@@ -473,6 +473,8 @@ try {
   await childOne.getByLabel('Living Overworld weather proof').selectOption('clear');
   await childOne.waitForFunction(() => document.querySelectorAll('.living-overworld-creature').length === 3);
   const seasonalProofs = [
+    { season: 'spring', light: 'day', file: 'living-overworld-spring-1100.png', asset: '/seasons/spring/desktop.png' },
+    { season: 'summer', light: 'day', file: 'living-overworld-summer-1100.png', asset: '/seasons/summer/desktop.png' },
     { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-1100.png', asset: '/seasons/autumn/desktop.png' },
     { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-1100.png', asset: '/seasons/winter/desktop.png' }
   ] as const;
@@ -491,6 +493,8 @@ try {
     await childOne.locator('.living-overworld-proof-controls summary').click();
   }
   for (const [name, width, height, proofSeason] of [
+    ['living-overworld-spring-1920.png', 1920, 900, 'spring'],
+    ['living-overworld-summer-1920.png', 1920, 900, 'summer'],
     ['living-overworld-restart-autumn-1920.png', 1920, 900, 'autumn'],
     ['living-overworld-restart-winter-1920.png', 1920, 900, 'winter'],
     ['living-overworld-restart-autumn-ultrawide.png', 2560, 720, 'autumn'],
@@ -618,7 +622,7 @@ try {
   });
   if (livingNight.sun !== 'none' || livingNight.moon === 'none' || livingNight.moonWidth < 60
     || livingNight.moonRadius !== '50%' || livingNight.moonAssetWidth !== 768 || !livingNight.moonContained
-    || !livingNight.nightArtwork.endsWith('/seasons/autumn/night-desktop.png') || livingNight.nightArtworkOpacity < .9
+    || !livingNight.nightArtwork.endsWith('/seasons/summer/night-desktop.png') || livingNight.nightArtworkOpacity < .9
     || livingNight.stars < 100 || livingNight.visibleStars < 24 || livingNight.starOpacity < .9 || !livingNight.starAnimation.includes('living-star-turn')
     || !(await livingBanner.getAttribute('class'))?.includes('moon-full')) {
     throw new Error(`Living Overworld night proof is invalid: ${JSON.stringify(livingNight)}`);
@@ -685,6 +689,8 @@ try {
   await childTwo.screenshot({ path: path.join(qaDir, 'living-overworld-mobile.png'), fullPage: true });
   await childTwo.locator('.living-overworld-proof-controls summary').click();
   const mobileSeasonalProofs = [
+    { season: 'spring', light: 'day', file: 'living-overworld-spring-390.png', asset: '/seasons/spring/mobile.png' },
+    { season: 'summer', light: 'day', file: 'living-overworld-summer-390.png', asset: '/seasons/summer/mobile.png' },
     { season: 'autumn', light: 'day', file: 'living-overworld-restart-autumn-390.png', asset: '/seasons/autumn/mobile.png' },
     { season: 'winter', light: 'day', file: 'living-overworld-restart-winter-390.png', asset: '/seasons/winter/mobile.png' }
   ] as const;

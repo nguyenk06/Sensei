@@ -1,10 +1,10 @@
 # Current state
 
-Checkpoint date: November 15, 2026.
+Checkpoint date: November 18, 2026.
 
 Repository baseline: the current deployed local `main` household release, including Living Overworld 1.0, Parent Review Enhancements, LAN HTTP payment compatibility, Money History totals, and the Living Overworld atmosphere refinement.
 
-Living Overworld seasonal-art milestone: the Product Owner accepted cohesive autumn and winter artwork with separate mobile and desktop masters. The retired modular renderer, coordinate editor, experimental scene layouts, and their capture tooling have been removed from the active project. Spring and summer temporarily use the accepted autumn scene until their own artwork milestone. See [Living Overworld restart review](LIVING_OVERWORLD_RESTART_REVIEW.md).
+Living Overworld seasonal-art milestone: the Product Owner accepted cohesive spring, summer, autumn, and winter artwork with separate mobile and desktop masters plus authored night treatments. The retired modular renderer, coordinate editor, experimental scene layouts, and their capture tooling remain removed from the active project. See [Spring and summer release](LIVING_OVERWORLD_SPRING_SUMMER_RELEASE.md) and [Living Overworld restart review](LIVING_OVERWORLD_RESTART_REVIEW.md).
 
 ## Living Overworld seasonal-art milestone
 
@@ -12,7 +12,7 @@ The active Living Overworld presentation now uses a deliberately small layer sta
 
 Implemented and verified:
 
-- Accepted redrawn autumn day/night landscapes and winter day/blue-night landscapes with distinct geography and a shared softly illustrated, Minecraft-inspired visual language.
+- Accepted spring flowering-valley, summer tropical-karst, autumn wooded-valley, and winter evergreen landscapes with distinct geography and a shared softly illustrated, Minecraft-inspired visual language. Every season has responsive authored day and night masters.
 - Mobile-first 1774 x 887 masters and 2172 x 724 desktop crop masters selected responsively with one semantic picture element.
 - A transparent application header and a complete mobile composition with visible sky, terrain, and an unclipped structure.
 - Automatic meteorological seasons in `America/Los_Angeles`.
@@ -26,9 +26,9 @@ Implemented and verified:
 - The accepted autumn redraw uses cohesive, independently composed mobile and desktop layouts with matched day/night geometry. Its refined framing pushes the landscape farther into the scene, adds sky and middle-ground depth, and reduces foreground dominance. Desktop uses a lower 88% crop anchor to retain more authored foreground; portrait mobile retains its approved framing. The standalone transparent skyline removes the former fuzzy color fringe while retaining bright foliage, blue-green night terrain, warm retreat windows, and independent celestial/weather layers. Winter uses dedicated luminous blue night masters rather than CSS-only darkening. See [Seasonal redraw integration](LIVING_OVERWORLD_SEASON_REDRAW_PROOF.md).
 - The sun and moon remain horizontally centered and travel only vertically. Their highest position keeps the complete disk below the transparent header on desktop and portrait mobile; landscape features continue to occlude the body naturally.
 - Seven-day adjacent-season transitions with controlled image mounting and responsive artwork selection.
-- Spring and summer intentionally fall back to autumn artwork until separate seasonal artwork is approved.
+- Spring and summer use their own approved mobile-first artwork. Desktop masters expand the same compositions laterally instead of stretching or cropping the mobile scene.
 - The locally verified runtime integrates the original wolf, revised skeleton, revised zombie, retained chicken/pig, and teleport-only Enderman. Walkers use small authored bidirectional routes with depth-based scaling, natural pauses and reversals, and one designated river-bank hop. Enderman uses dry-ground or house landing points and never enters water. Desktop uses a restrained population; portrait mobile shows at most one creature; significant rain, snow, or fog reduces the population. See [Creature and movement implementation](LIVING_OVERWORLD_CREATURE_PATH_PROOF.md).
-- 57 automated tests, TypeScript checks, production build, and all 35 isolated browser QA workflows pass for the local creature candidate.
+- 58 automated tests, TypeScript checks, the production build, and all 35 isolated browser QA workflows pass with the four-season artwork and summer shoreline route.
 
 Intentionally outside this milestone:
 
