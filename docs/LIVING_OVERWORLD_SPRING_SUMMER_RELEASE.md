@@ -46,6 +46,12 @@ The proof directory also contains the approved mobile day/night masters, full-re
 - Desktop checks cover spring and summer at 1100 px and 1920 px; portrait-mobile checks cover both at 390 px.
 - Browser verification confirms responsive asset selection, authored night loading, transparent celestial layering, no horizontal overflow, reduced-motion behavior, summer dry-ground creature placement, and unchanged chore, allowance, Parent Mode, payment, correction, and calendar workflows.
 
+## Publication and household deployment
+
+Application commit `ed50de3` is published on `main` and active in the household installation. Release used SQLite's online backup API; the backup and live database both passed `integrity_check`, and all table counts matched before and after restart. Only the established `\Sensei - Household Server` task was restarted. Live desktop and 390 px browser checks loaded all four spring and summer day/night variants at 2172 × 724 and 1774 × 887 respectively, with no console errors or horizontal overflow.
+
+No production data, schema, API, authentication, accounting, network, firewall, port, or startup configuration changed.
+
 ## Deferred work
 
 Foreground layers, additional creature interactions, generalized pathfinding, snow accumulation, holiday decoration, and environmental simulation remain outside this release.

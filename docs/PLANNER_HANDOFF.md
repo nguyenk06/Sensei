@@ -87,10 +87,12 @@ The current household application release is published application commit `28cc8
 
 Application release commit `c8ea37d` integrates the accepted creatures and the latest compact comet presentation. The comet uses an 8 px head, a 128 px narrow plume, ten trailing particles, and an endpoint below the scenic artwork; meteor behavior is unchanged. It is published on `main`, deployed, and active after restarting only the established Sensei scheduled task. It passes 57 automated tests, TypeScript checks, the production build, all 35 isolated browser workflows, and live production checks with no horizontal overflow, browser warnings, or errors.
 
+Application release commit `ed50de3` completes the four-season illustration set. Spring and summer have independent responsive day/night masters, and summer creatures use a bounded connected-shore route instead of crossing open water. The commit is published on `main`, deployed, and active after restarting only the established Sensei scheduled task. It passes 58 automated tests, TypeScript checks, the production build, all 35 isolated browser workflows, live desktop/mobile asset checks, and post-release database integrity/count comparison.
+
 ## Remaining planner items
 
-1. Living Overworld creature integration and the descending comet refinement are complete, published, and deployed.
-2. Spring and summer artwork is complete. Foreground scenery, creature interaction, chicken jockeys, and axolotls require separate Product Owner approval.
+1. Living Overworld creature integration, comet refinement, and all four responsive seasonal illustration sets are complete, published, and deployed.
+2. Foreground scenery, creature interaction, chicken jockeys, and axolotls require separate Product Owner approval.
 3. Any future product milestone requires a new Product Owner scope; do not infer additional approval, allowance, theme, or gamification work.
 4. Preserve the existing production backup and rollback practice for future releases.
 
